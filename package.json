@@ -1,0 +1,47 @@
+{
+  "name": "dono",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "prepare": "husky",
+    "check": "oxlint && oxfmt --write",
+    "ruler:apply": "pnpm dlx @intellectronica/ruler@latest apply --local-only",
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:native": "turbo -F native dev",
+    "dev:web": "turbo -F web dev",
+    "dev:server": "turbo -F server dev",
+    "db:push": "turbo -F @dono/db db:push",
+    "db:generate": "turbo -F @dono/db db:generate",
+    "deploy": "turbo -F @dono/infra deploy",
+    "destroy": "turbo -F @dono/infra destroy"
+  },
+  "dependencies": {
+    "dotenv": "catalog:",
+    "zod": "catalog:",
+    "@dono/env": "workspace:*"
+  },
+  "devDependencies": {
+    "turbo": "^2.6.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "oxlint": "^1.34.0",
+    "oxfmt": "^0.19.0",
+    "typescript": "catalog:",
+    "@types/node": "^22.13.11",
+    "@dono/config": "workspace:*",
+    "@cloudflare/workers-types": "catalog:"
+  },
+  "lint-staged": {
+    "*": [
+      "oxlint",
+      "oxfmt --write"
+    ]
+  },
+  "packageManager": "pnpm@10.17.1"
+}

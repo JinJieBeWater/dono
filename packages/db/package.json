@@ -1,0 +1,29 @@
+{
+  "name": "@dono/db",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.8",
+    "typescript": "catalog:",
+    "@dono/config": "workspace:*"
+  },
+  "dependencies": {
+    "drizzle-orm": "catalog:",
+    "@libsql/client": "catalog:",
+    "libsql": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:",
+    "@dono/env": "workspace:*"
+  }
+}
