@@ -10,15 +10,15 @@
     }
   },
   "scripts": {},
-  "devDependencies": {
-    "typescript": "catalog:",
-    "@dono/config": "workspace:*"
-  },
   "dependencies": {
+    "@dono/db": "workspace:*",
+    "@dono/env": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
-    "zod": "catalog:",
-    "@dono/env": "workspace:*",
-    "@dono/db": "workspace:*"
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@dono/config": "workspace:*",
+    "typescript": "catalog:"
   }
 }

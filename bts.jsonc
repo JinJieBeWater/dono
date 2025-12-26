@@ -9,24 +9,14 @@
   "orm": "drizzle",
   "backend": "hono",
   "runtime": "workers",
-  "frontend": [
-    "tanstack-router"
-  ],
-  "addons": [
-    "husky",
-    "oxlint",
-    "pwa",
-    "ruler",
-    "turborepo"
-  ],
-  "examples": [
-    "todo"
-  ],
+  "frontend": ["tanstack-router"],
+  "addons": ["husky", "oxlint", "pwa", "ruler", "turborepo"],
+  "examples": ["todo"],
   "auth": "better-auth",
   "payments": "none",
   "packageManager": "pnpm",
   "dbSetup": "d1",
   "api": "orpc",
   "webDeploy": "cloudflare",
-  "serverDeploy": "cloudflare"
+  "serverDeploy": "cloudflare",
 }

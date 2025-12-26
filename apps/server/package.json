@@ -8,25 +8,25 @@
     "compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server"
   },
   "dependencies": {
-    "hono": "catalog:",
-    "@orpc/server": "catalog:",
+    "@dono/api": "workspace:*",
+    "@dono/auth": "workspace:*",
+    "@dono/db": "workspace:*",
+    "@dono/env": "workspace:*",
     "@orpc/openapi": "catalog:",
+    "@orpc/server": "catalog:",
     "@orpc/zod": "catalog:",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
-    "zod": "catalog:",
-    "@dono/env": "workspace:*",
-    "@dono/api": "workspace:*",
-    "@dono/auth": "workspace:*",
-    "@dono/db": "workspace:*"
+    "hono": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "typescript": "catalog:",
-    "tsdown": "^0.16.5",
+    "@cloudflare/workers-types": "catalog:",
     "@dono/config": "workspace:*",
-    "alchemy": "catalog:",
-    "wrangler": "^4.54.0",
     "@types/node": "^22.13.11",
-    "@cloudflare/workers-types": "catalog:"
+    "alchemy": "catalog:",
+    "tsdown": "^0.16.5",
+    "typescript": "catalog:",
+    "wrangler": "^4.54.0"
   }
 }

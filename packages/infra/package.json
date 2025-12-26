@@ -12,8 +12,8 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@dono/config": "workspace:*",
     "alchemy": "catalog:",
-    "typescript": "catalog:",
-    "@dono/config": "workspace:*"
+    "typescript": "catalog:"
   }
 }

@@ -11,20 +11,20 @@
   },
   "scripts": {},
   "dependencies": {
-    "@orpc/server": "catalog:",
+    "@dono/auth": "workspace:*",
+    "@dono/db": "workspace:*",
+    "@dono/env": "workspace:*",
     "@orpc/client": "catalog:",
     "@orpc/openapi": "catalog:",
+    "@orpc/server": "catalog:",
     "@orpc/zod": "catalog:",
-    "hono": "catalog:",
-    "drizzle-orm": "catalog:",
     "dotenv": "catalog:",
-    "zod": "catalog:",
-    "@dono/env": "workspace:*",
-    "@dono/auth": "workspace:*",
-    "@dono/db": "workspace:*"
+    "drizzle-orm": "catalog:",
+    "hono": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "typescript": "catalog:",
-    "@dono/config": "workspace:*"
+    "@dono/config": "workspace:*",
+    "typescript": "catalog:"
   }
 }
