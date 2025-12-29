@@ -4,16 +4,19 @@ import { toast } from "sonner";
 import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
+import { useLocalUserInfo } from "@/components/local-user-info-provider";
 
 import Loader from "./loader";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { shouldNeverHappen } from "@/utils/should-never-happen";
 
 export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
   const navigate = useNavigate({
     from: "/",
   });
+  const { setLocalUserInfo, clearLocalUserInfo } = useLocalUserInfo();
   const { isPending } = authClient.useSession();
 
   const form = useForm({
@@ -22,23 +25,38 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
       password: "",
     },
     onSubmit: async ({ value }) => {
-      await authClient.signIn.email(
-        {
+      try {
+        const { data, error } = await authClient.signIn.email({
           email: value.email,
           password: value.password,
-        },
-        {
-          onSuccess: () => {
-            navigate({
-              to: "/dashboard",
-            });
-            toast.success("Sign in successful");
-          },
-          onError: (error) => {
-            toast.error(error.error.message || error.error.statusText);
-          },
-        },
-      );
+        });
+        if (error) {
+          return toast.error(error.message || error.statusText);
+        }
+
+        clearLocalUserInfo();
+
+        if (data) {
+          setLocalUserInfo({
+            id: data.user.id,
+            createdAt: data.user.createdAt,
+            updatedAt: data.user.updatedAt,
+            name: data.user.name,
+            image: data.user.image,
+          });
+
+          navigate({
+            to: "/dashboard",
+          });
+
+          return toast.success("Sign in successful");
+        }
+        shouldNeverHappen("Sign up failed");
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        }
+      }
     },
     validators: {
       onSubmit: z.object({
@@ -73,6 +91,7 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
                   id={field.name}
                   name={field.name}
                   type="email"
+                  autoComplete="email"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
@@ -96,6 +115,7 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
                   id={field.name}
                   name={field.name}
                   type="password"
+                  autoComplete="current-password"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}

@@ -9,12 +9,15 @@ import Loader from "./loader";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { useLocalUserInfo } from "./local-user-info-provider";
+import { shouldNeverHappen } from "@/utils/should-never-happen";
 
 export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () => void }) {
   const navigate = useNavigate({
     from: "/",
   });
   const { isPending } = authClient.useSession();
+  const { setLocalUserInfo, clearLocalUserInfo } = useLocalUserInfo();
 
   const form = useForm({
     defaultValues: {
@@ -23,24 +26,40 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
       name: "",
     },
     onSubmit: async ({ value }) => {
-      await authClient.signUp.email(
-        {
+      try {
+        const { data, error } = await authClient.signUp.email({
           email: value.email,
           password: value.password,
           name: value.name,
-        },
-        {
-          onSuccess: () => {
-            navigate({
-              to: "/dashboard",
-            });
-            toast.success("Sign up successful");
-          },
-          onError: (error) => {
-            toast.error(error.error.message || error.error.statusText);
-          },
-        },
-      );
+        });
+
+        if (error) {
+          return toast.error(error.message || error.statusText);
+        }
+
+        clearLocalUserInfo();
+
+        if (data) {
+          setLocalUserInfo({
+            id: data.user.id,
+            createdAt: data.user.createdAt,
+            updatedAt: data.user.updatedAt,
+            name: data.user.name,
+            image: data.user.image,
+          });
+
+          navigate({
+            to: "/dashboard",
+          });
+
+          return toast.success("Sign up successful");
+        }
+        shouldNeverHappen("Sign up failed");
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        }
+      }
     },
     validators: {
       onSubmit: z.object({
@@ -76,6 +95,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
+                  autoComplete="name"
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
@@ -98,6 +118,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
                   id={field.name}
                   name={field.name}
                   type="email"
+                  autoComplete="email"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
@@ -121,6 +142,7 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
                   id={field.name}
                   name={field.name}
                   type="password"
+                  autoComplete="current-password"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}

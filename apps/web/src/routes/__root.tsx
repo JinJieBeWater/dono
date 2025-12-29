@@ -1,19 +1,24 @@
 import type { QueryClient } from "@tanstack/react-query";
 
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { HeadContent, Outlet, createRootRouteWithContext } from "@tanstack/react-router";
+import { HeadContent, Outlet, createRootRouteWithContext, redirect } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-
 import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { orpc } from "@/utils/orpc";
 
 import "../index.css";
+import { StoreRegistry } from "@livestore/livestore";
+import { Suspense } from "react";
+import { StoreRegistryProvider } from "@livestore/react";
+import Loader from "@/components/loader";
+import { getLocalUserInfo } from "@/utils/get-local-user-info";
 
 export interface RouterAppContext {
   orpc: typeof orpc;
   queryClient: QueryClient;
+  storeRegistry: StoreRegistry;
 }
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
@@ -35,9 +40,24 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       },
     ],
   }),
+  beforeLoad: async ({ location }) => {
+    const localUserInfo = getLocalUserInfo();
+    if (localUserInfo) {
+      return { localUserInfo };
+    }
+
+    if (location.pathname !== "/login") {
+      redirect({
+        to: "/login",
+        throw: true,
+      });
+    }
+  },
 });
 
 function RootComponent() {
+  const { storeRegistry } = Route.useRouteContext();
+
   return (
     <>
       <HeadContent />
@@ -47,10 +67,20 @@ function RootComponent() {
         disableTransitionOnChange
         storageKey="vite-ui-theme"
       >
-        <div className="grid grid-rows-[auto_1fr] h-svh">
-          <Header />
-          <Outlet />
-        </div>
+        <Suspense
+          fallback={
+            <div className="flex h-svh items-center justify-center">
+              <Loader />
+            </div>
+          }
+        >
+          <StoreRegistryProvider storeRegistry={storeRegistry}>
+            <div className="grid grid-rows-[auto_1fr] h-svh">
+              <Header />
+              <Outlet />
+            </div>
+          </StoreRegistryProvider>
+        </Suspense>
         <Toaster richColors />
       </ThemeProvider>
       <TanStackRouterDevtools position="bottom-left" />

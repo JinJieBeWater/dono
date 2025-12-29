@@ -10,6 +10,10 @@ import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import * as SyncBackend from "@livestore/sync-cf/cf-worker";
+import { SyncBackendDO } from "./do/sync-backend-do";
+
+export { SyncBackendDO };
 
 const app = new Hono();
 
@@ -50,6 +54,27 @@ export const rpcHandler = new RPCHandler(appRouter, {
 app.use("/*", async (c, next) => {
   const context = await createContext({ context: c });
 
+  const searchParams = SyncBackend.matchSyncRequest(c.req.raw);
+
+  if (searchParams !== undefined) {
+    return SyncBackend.handleSyncRequest({
+      request: c.req.raw,
+      searchParams,
+      ctx: c.executionCtx,
+      syncBackendBinding: "SYNC_BACKEND_DO",
+      validatePayload: async (_payload, { storeId, headers }) => {
+        const session = await auth.api.getSession({
+          headers,
+        });
+
+        if (!session?.user) {
+          throw new Error("Unauthorized: Invalid session");
+        }
+
+        console.log("Validating user and store", session.user.id, storeId);
+      },
+    });
+  }
   const rpcResult = await rpcHandler.handle(c.req.raw, {
     prefix: "/rpc",
     context: context,

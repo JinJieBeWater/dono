@@ -12,6 +12,7 @@
     "@dono/auth": "workspace:*",
     "@dono/db": "workspace:*",
     "@dono/env": "workspace:*",
+    "@livestore/sync-cf": "0.4.0-dev.22",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",
     "@orpc/zod": "catalog:",

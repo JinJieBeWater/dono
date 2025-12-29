@@ -1,0 +1,1 @@
+export const LOCAL_USER_INFO_KEY = "LOCAL_USER_INFO_KEY";

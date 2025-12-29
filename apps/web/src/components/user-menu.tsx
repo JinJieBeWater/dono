@@ -12,17 +12,20 @@ import {
 import { authClient } from "@/lib/auth-client";
 
 import { Button } from "./ui/button";
-import { Skeleton } from "./ui/skeleton";
+// import { Skeleton } from "./ui/skeleton";
+import { useLocalUserInfo } from "./local-user-info-provider";
 
 export default function UserMenu() {
   const navigate = useNavigate();
-  const { data: session, isPending } = authClient.useSession();
+  // const { data: session, isPending } = authClient.useSession();
+  const { localUserInfo, clearLocalUserInfo } = useLocalUserInfo();
+  // const { clearLocalUserInfo } = useLocalUserInfo();
 
-  if (isPending) {
-    return <Skeleton className="h-9 w-24" />;
-  }
+  // if (isPending) {
+  //   return <Skeleton className="h-9 w-24" />;
+  // }
 
-  if (!session) {
+  if (!localUserInfo) {
     return (
       <Link to="/login">
         <Button variant="outline">Sign In</Button>
@@ -33,19 +36,19 @@ export default function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button variant="outline" />}>
-        {session.user.name}
+        {localUserInfo.name}
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-card">
         <DropdownMenuGroup>
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>{session.user.email}</DropdownMenuItem>
           <DropdownMenuItem
             variant="destructive"
             onClick={() => {
               authClient.signOut({
                 fetchOptions: {
                   onSuccess: () => {
+                    clearLocalUserInfo();
                     navigate({
                       to: "/",
                     });

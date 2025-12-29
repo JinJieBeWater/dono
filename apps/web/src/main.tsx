@@ -1,20 +1,45 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
+import { unstable_batchedUpdates as batchUpdates } from "react-dom";
 
 import Loader from "./components/loader";
 import { routeTree } from "./routeTree.gen";
 import { orpc, queryClient } from "./utils/orpc";
+import { StoreRegistry } from "@livestore/livestore";
+import { LocalUserInfoProvider } from "@/components/local-user-info-provider";
 
-const router = createRouter({
-  routeTree,
-  defaultPreload: "intent",
-  defaultPendingComponent: () => <Loader />,
-  context: { orpc, queryClient },
-  Wrap: function WrapComponent({ children }: { children: React.ReactNode }) {
-    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
-  },
-});
+export const getRouter = () => {
+  const storeRegistry = new StoreRegistry({
+    defaultOptions: {
+      batchUpdates,
+      debug: {
+        instanceId: "Tpb0Nb1lkG",
+      },
+    },
+  });
+
+  return createRouter({
+    routeTree,
+    scrollRestoration: true,
+    defaultPreload: "intent",
+    defaultPendingComponent: () => <Loader />,
+    context: {
+      storeRegistry,
+      orpc,
+      queryClient,
+    },
+    Wrap: function WrapComponent({ children }: { children: React.ReactNode }) {
+      return (
+        <QueryClientProvider client={queryClient}>
+          <LocalUserInfoProvider>{children}</LocalUserInfoProvider>
+        </QueryClientProvider>
+      );
+    },
+  });
+};
+
+const router = getRouter();
 
 declare module "@tanstack/react-router" {
   interface Register {
