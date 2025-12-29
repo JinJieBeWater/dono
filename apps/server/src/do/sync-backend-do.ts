@@ -1,6 +1,6 @@
+import { userIdFromStoreId } from "@/utils/shared";
 import { auth } from "@dono/auth";
 import * as SyncBackend from "@livestore/sync-cf/cf-worker";
-import type { SyncMessage } from "@livestore/sync-cf/common";
 
 export class SyncBackendDO extends SyncBackend.makeDurableObject({
   forwardHeaders: ["Cookie"],
@@ -17,7 +17,7 @@ export class SyncBackendDO extends SyncBackend.makeDurableObject({
       throw new Error("Invalid session");
     }
 
-    await ensureTenantAccess(session.user.id, message.batch);
+    await ensureTenantAccess(session.user.id, storeId);
 
     console.log("Push from user:", session.user.id, "store:", storeId);
 
@@ -36,12 +36,18 @@ export class SyncBackendDO extends SyncBackend.makeDurableObject({
       throw new Error("Invalid session");
     }
 
+    await ensureTenantAccess(session.user.id, storeId);
+
     console.log("Pull from user:", session.user.id, "store:", storeId);
 
     console.log("onPull", message);
   },
 }) {}
 
-const ensureTenantAccess = async (_userId: string, _batch: SyncMessage.PushRequest["batch"]) => {
-  // Replace with your application-specific access checks.
+const ensureTenantAccess = async (userId: string, storeId: string) => {
+  const storeOwner = userIdFromStoreId(storeId);
+
+  if (storeOwner !== userId) {
+    throw new Error("Access denied");
+  }
 };
