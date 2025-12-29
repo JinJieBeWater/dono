@@ -25,6 +25,20 @@ const novelEvents = {
       deleted: Schema.DateFromNumber,
     }),
   }),
+  novelRestored: Events.synced({
+    name: "v1.NovelRestored",
+    schema: Schema.Struct({
+      id: Schema.String,
+      modified: Schema.DateFromNumber,
+    }),
+  }),
+  novelAccessed: Events.synced({
+    name: "v1.NovelAccessed",
+    schema: Schema.Struct({
+      id: Schema.String,
+      lastAccessed: Schema.DateFromNumber,
+    }),
+  }),
 };
 
 export const userEvents = {

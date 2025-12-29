@@ -1,6 +1,6 @@
 import { makePersistedAdapter } from "@livestore/adapter-web";
 import LiveStoreSharedWorker from "@livestore/adapter-web/shared-worker?sharedworker";
-import { useStore } from "@livestore/react";
+import { storeOptions, useStore } from "@livestore/react";
 import { unstable_batchedUpdates as batchUpdates } from "react-dom";
 import { schema } from ".";
 
@@ -20,17 +20,22 @@ const adapter = makePersistedAdapter({
   resetPersistence,
 });
 
-export const useUserStore = () => {
+export const userStoreOptions = () => {
   const localUserInfo = getLocalUserInfo();
 
   if (!localUserInfo) {
     throw new Error("useNovelStore must be used after user has logged in");
   }
 
-  return useStore({
+  return storeOptions({
     storeId: `user-${localUserInfo.id}`,
     schema,
     adapter,
     batchUpdates,
+    unusedCacheTime: Number.POSITIVE_INFINITY,
   });
+};
+
+export const useUserStore = () => {
+  return useStore(userStoreOptions());
 };

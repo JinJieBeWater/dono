@@ -17,8 +17,6 @@ This is a monorepo with the following structure:
 ## Available Scripts
 
 - `pnpm run dev` - Start all apps in development mode
-- `pnpm run dev:web` - Start only the web app
-- `pnpm run dev:server` - Start only the server
 
 ## Database Commands
 
@@ -42,6 +40,26 @@ Authentication is enabled in this project:
 
 - Server auth logic is in `apps/server/src/lib/auth.ts`
 - Web app auth client is in `apps/web/src/lib/auth-client.ts`
+
+## UI Guidelines
+
+- Design system using shadcn UI, using its defined style variables in apps\web\src\index.css
+- The Shadcn UI component library uses the latest base-ui
+  When changing the default rendered element:
+
+```tsx
+<Button
+  render={
+    <Link
+      to="/novel/$novelId"
+      params={{ novelId: recentNovel.id }}
+    />
+  }
+  nativeButton={false}
+>
+  Click me
+</Button>
+```
 
 ## Adding More Features
 
@@ -76,5 +94,5 @@ This project includes a `bts.jsonc` configuration file that stores your Better-T
 - Run commands from the root to execute across all workspaces
 - Run workspace-specific commands with `pnpm run command-name`
 - Turborepo handles build caching and parallel execution
-- Use `pnpx
-create-better-t-stack add` to add more features later
+- Use `pnpx create-better-t-stack add` to add more features later
+- When you need to look up information about LiveStore, always use the `docs` directory that's shipped as part of the `@livestore/livestore` package in `node_modules/@livestore/livestore/docs`.

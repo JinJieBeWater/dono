@@ -18,8 +18,9 @@ import {
   EmptyContent,
   EmptyMedia,
 } from "./ui/empty";
-import { ArrowLeft, MoreVertical, FileText, Trash2, BookOpen } from "lucide-react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { MoreVertical, FileText, Trash2, BookOpen } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 export function NovelSpace({ novelId }: { novelId: string }) {
   const navigate = useNavigate();
@@ -28,6 +29,15 @@ export function NovelSpace({ novelId }: { novelId: string }) {
 
   const novel = userStore.useQuery(novel$({ novelId }));
   const volumes = novelStore.useQuery(visibleVolumes$());
+
+  useEffect(() => {
+    userStore.commit(
+      userEvents.novelAccessed({
+        id: novelId,
+        lastAccessed: new Date(),
+      }),
+    );
+  }, [novelId, userStore]);
 
   const createVolume = (title: string) => {
     const date = new Date();
@@ -56,12 +66,7 @@ export function NovelSpace({ novelId }: { novelId: string }) {
 
   return (
     <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
-      {/* 顶部导航栏 */}
-      <div className="flex items-center justify-between mb-6">
-        <Button variant="outline" render={<Link to="/"></Link>} nativeButton={false}>
-          <ArrowLeft className="w-4 h-4 " />
-          Back
-        </Button>
+      <div className="flex items-center justify-end mb-6">
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
