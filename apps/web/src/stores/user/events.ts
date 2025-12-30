@@ -1,4 +1,5 @@
 import { Events, Schema } from "@livestore/livestore";
+import { uiState } from "./schema/ui-state";
 
 const novelEvents = {
   novelCreated: Events.synced({
@@ -32,13 +33,7 @@ const novelEvents = {
       modified: Schema.DateFromNumber,
     }),
   }),
-  novelAccessed: Events.synced({
-    name: "v1.NovelAccessed",
-    schema: Schema.Struct({
-      id: Schema.String,
-      lastAccessed: Schema.DateFromNumber,
-    }),
-  }),
+  uiStateSet: uiState.set,
 };
 
 export const userEvents = {

@@ -33,8 +33,15 @@
       "cache": false,
       "persistent": true
     },
-
     "deploy": {
+      "dependsOn": ["^deploy"],
+      "cache": false
+    },
+    "server#destroy": {
+      "dependsOn": ["web#destroy"],
+      "cache": false
+    },
+    "web#destroy": {
       "cache": false
     },
     "destroy": {

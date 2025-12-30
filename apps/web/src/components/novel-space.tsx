@@ -21,6 +21,7 @@ import {
 import { MoreVertical, FileText, Trash2, BookOpen } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { id } from "@/utils/id";
 
 export function NovelSpace({ novelId }: { novelId: string }) {
   const navigate = useNavigate();
@@ -31,19 +32,14 @@ export function NovelSpace({ novelId }: { novelId: string }) {
   const volumes = novelStore.useQuery(visibleVolumes$());
 
   useEffect(() => {
-    userStore.commit(
-      userEvents.novelAccessed({
-        id: novelId,
-        lastAccessed: new Date(),
-      }),
-    );
-  }, [novelId, userStore]);
+    userStore.commit(userEvents.uiStateSet({ lastAccessedNovelId: novelId }));
+  }, [novelId]);
 
   const createVolume = (title: string) => {
     const date = new Date();
     novelStore.commit(
       novelEvents.volumeCreated({
-        id: crypto.randomUUID(),
+        id: id(),
         title: title,
         created: date,
         modified: date,

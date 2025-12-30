@@ -1,23 +1,63 @@
-# dono
+# dono - Local-First Novel Editor
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines React, TanStack Router, Hono, ORPC, and more.
+A local-first novel writing application built with modern web technologies.
 
 ## Features
 
-- **TypeScript** - For type safety and improved developer experience
+- 🖥️ **Local-First** - Powered by LiveStore, all data is stored locally in the browser first
+- 📝 **Real-time Editing** - Instant response without waiting for network
+- 🔄 **Auto Sync** - Automatically syncs to Cloudflare Durable Objects
+- 🌐 **Cross-Device** - Continue writing on any device after logging in
+- 💾 **Offline Support** - Works perfectly without internet connection
+
+## Tech Stack
+
+- **LiveStore** - Local-first data layer with automatic sync
 - **TanStack Router** - File-based routing with full type safety
-- **TailwindCSS** - Utility-first CSS for rapid UI development
+- **React** - UI framework
+- **TailwindCSS** - Utility-first CSS
 - **shadcn/ui** - Reusable UI components
-- **Hono** - Lightweight, performant server framework
-- **oRPC** - End-to-end type-safe APIs with OpenAPI integration
-- **workers** - Runtime environment
-- **Drizzle** - TypeScript-first ORM
-- **SQLite/Turso** - Database engine
-- **Authentication** - Better-Auth
-- **Husky** - Git hooks for code quality
-- **Oxlint** - Oxlint + Oxfmt (linting & formatting)
+- **Hono** - Backend server framework
+- **oRPC** - End-to-end type-safe APIs
+- **Cloudflare Workers** - Server runtime
+- **Durable Objects** - Persistent storage backend
+- **Drizzle** - TypeScript ORM
+- **Better-Auth** - Authentication
 - **PWA** - Progressive Web App support
-- **Turborepo** - Optimized monorepo build system
+
+## Features
+
+### ✅ Implemented
+
+**Authentication**
+
+- Sign up and login
+- Session management
+
+**Novel Management**
+
+- Create/edit/delete novels
+- Novel trash bin (soft delete/restore/permanent delete)
+- Track recently edited novels
+- Auto-generated cover images
+
+**Content Organization**
+
+- Create/delete volumes
+- View volume list
+
+**User Interface**
+
+- Dark/light theme toggle
+- Responsive design
+- PWA support
+- Loading states and empty states
+
+### 🚧 In Development
+
+- Chapter editor
+- Chapter management
+- Full data sync implementation
 
 ## Getting Started
 
@@ -29,14 +69,11 @@ pnpm install
 
 ## Database Setup
 
-This project uses SQLite with Drizzle ORM.
+This project uses Cloudflare D1 as the database backend.
 
-1. Start the local SQLite database (optional):
-   D1 local development and migrations are handled automatically by Alchemy during dev and deploy.
+1. Update your `.env` file in the `apps/server` directory with the appropriate connection details.
 
-2. Update your `.env` file in the `apps/server` directory with the appropriate connection details if needed.
-
-3. Apply the schema to your database:
+2. Apply the schema to your database:
 
 ```bash
 pnpm run db:push
@@ -50,6 +87,28 @@ pnpm run dev
 
 Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
 The API is running at [http://localhost:3000](http://localhost:3000).
+
+## Project Structure
+
+```
+dono/
+├── apps/
+│   ├── web/              # Frontend application
+│   │   ├── src/
+│   │   │   ├── routes/   # TanStack Router pages
+│   │   │   ├── stores/   # LiveStore definitions
+│   │   │   │   ├── user/ # User-level store (novels list)
+│   │   │   │   └── novel/# Novel-level store (volumes, chapters)
+│   │   │   └── components/# UI components
+│   └── server/           # Backend API
+│       └── src/
+│           ├── do/       # Durable Objects
+│           └── api/      # API endpoints
+└── packages/
+    ├── api/              # Shared API logic
+    ├── auth/             # Authentication configuration
+    └── db/               # Database schema
+```
 
 ## Before Deploying to Cloudflare
 
@@ -70,31 +129,18 @@ BETTER_AUTH_URL={your-production-server-domain}
 
 ## Deployment (Cloudflare via Alchemy)
 
-- Dev: pnpm run dev
-- Deploy: pnpm run deploy
-- Destroy: pnpm run destroy
-
-## Project Structure
-
-```
-dono/
-├── apps/
-│   ├── web/         # Frontend application (React + TanStack Router)
-│   └── server/      # Backend API (Hono, ORPC)
-├── packages/
-│   ├── api/         # API layer / business logic
-│   ├── auth/        # Authentication configuration & logic
-│   └── db/          # Database schema & queries
-```
+- Dev: `pnpm run dev`
+- Deploy: `pnpm run deploy`
+- Destroy: `pnpm run destroy`
 
 ## Available Scripts
 
-- `pnpm run dev`: Start all applications in development mode
-- `pnpm run build`: Build all applications
-- `pnpm run dev:web`: Start only the web application
-- `pnpm run dev:server`: Start only the server
-- `pnpm run check-types`: Check TypeScript types across all apps
-- `pnpm run db:push`: Push schema changes to database
-- `pnpm run db:studio`: Open database studio UI
-- `pnpm run check`: Run Oxlint and Oxfmt
-- `cd apps/web && pnpm run generate-pwa-assets`: Generate PWA assets
+- `pnpm run dev` - Start all applications in development mode
+- `pnpm run build` - Build all applications
+- `pnpm run dev:web` - Start only the web application
+- `pnpm run dev:server` - Start only the server
+- `pnpm run check-types` - Check TypeScript types across all apps
+- `pnpm run db:push` - Push schema changes to database
+- `pnpm run db:studio` - Open database studio UI
+- `pnpm run check` - Run Oxlint and Oxfmt
+- `cd apps/web && pnpm run generate-pwa-assets` - Generate PWA assets

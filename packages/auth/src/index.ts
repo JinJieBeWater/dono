@@ -3,6 +3,7 @@ import * as schema from "@dono/db/schema/auth";
 import { env } from "@dono/env/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { v7 as uuidv7 } from "uuid";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -28,6 +29,9 @@ export const auth = betterAuth({
       sameSite: "none",
       secure: true,
       httpOnly: true,
+    },
+    database: {
+      generateId: () => uuidv7(),
     },
     // uncomment crossSubDomainCookies setting when ready to deploy and replace <your-workers-subdomain> with your actual workers subdomain
     // https://developers.cloudflare.com/workers/wrangler/configuration/#workersdev

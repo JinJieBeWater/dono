@@ -1,10 +1,10 @@
 import { queryDb } from "@livestore/livestore";
-import { tables } from ".";
+import { novelTables } from ".";
 
 export const visibleVolumes$ = () =>
   queryDb(
     () => {
-      return tables.volume.where({
+      return novelTables.volume.where({
         deleted: null,
       });
     },

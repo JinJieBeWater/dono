@@ -28,7 +28,7 @@ export const userStoreOptions = () => {
   }
 
   return storeOptions({
-    storeId: `user-${localUserInfo.id}`,
+    storeId: `user_${localUserInfo.id}`,
     schema,
     adapter,
     batchUpdates,

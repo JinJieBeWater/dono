@@ -10,9 +10,7 @@ import { orpc } from "@/utils/orpc";
 
 import "../index.css";
 import { StoreRegistry } from "@livestore/livestore";
-import { Suspense } from "react";
 import { StoreRegistryProvider } from "@livestore/react";
-import Loader from "@/components/loader";
 import { getLocalUserInfo } from "@/utils/get-local-user-info";
 
 export interface RouterAppContext {
@@ -67,20 +65,12 @@ function RootComponent() {
         disableTransitionOnChange
         storageKey="vite-ui-theme"
       >
-        <Suspense
-          fallback={
-            <div className="flex h-svh items-center justify-center">
-              <Loader />
-            </div>
-          }
-        >
-          <StoreRegistryProvider storeRegistry={storeRegistry}>
-            <div className="grid grid-rows-[auto_1fr] h-svh">
-              <Header />
-              <Outlet />
-            </div>
-          </StoreRegistryProvider>
-        </Suspense>
+        <StoreRegistryProvider storeRegistry={storeRegistry}>
+          <div className="grid grid-rows-[auto_1fr] h-svh">
+            <Header />
+            <Outlet />
+          </div>
+        </StoreRegistryProvider>
         <Toaster richColors />
       </ThemeProvider>
       <TanStackRouterDevtools position="bottom-left" />

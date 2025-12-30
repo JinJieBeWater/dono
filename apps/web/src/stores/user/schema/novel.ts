@@ -7,7 +7,6 @@ export const novel = State.SQLite.table({
     title: State.SQLite.text({ default: "" }),
     created: State.SQLite.integer({ schema: Schema.DateFromNumber }),
     modified: State.SQLite.integer({ schema: Schema.DateFromNumber }),
-    lastAccessed: State.SQLite.integer({ nullable: true, schema: Schema.DateFromNumber }),
     deleted: State.SQLite.integer({ nullable: true, schema: Schema.DateFromNumber }),
   },
 });

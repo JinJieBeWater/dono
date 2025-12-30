@@ -1,4 +1,10 @@
-import { useUserStore, userEvents, visibleNovels$, trashedNovels$ } from "@/stores/user";
+import {
+  useUserStore,
+  userEvents,
+  visibleNovels$,
+  trashedNovels$,
+  userTables,
+} from "@/stores/user";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -52,9 +58,14 @@ import {
 } from "./ui/alert-dialog";
 import { useState } from "react";
 import type { Novel } from "@/stores/user";
+import { id } from "@/utils/id";
+import { useStoreRegistry } from "@livestore/react";
+import { novelStoreOptions } from "@/stores/novel";
 
 export function UserSpace() {
+  const storeRegistry = useStoreRegistry();
   const userStore = useUserStore();
+  const [{ lastAccessedNovelId }] = userStore.useClientDocument(userTables.uiState);
 
   // 查询所有可见的小说
   const novels = userStore.useQuery(visibleNovels$());
@@ -62,24 +73,27 @@ export function UserSpace() {
   const trashedNovels = userStore.useQuery(trashedNovels$());
 
   // 弹窗状态管理
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [newNovelTitle, setNewNovelTitle] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [emptyTrashDialogOpen, setEmptyTrashDialogOpen] = useState(false);
   const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [newNovelTitle, setNewNovelTitle] = useState("");
 
   // 创建新小说
   const createNovel = () => {
     if (!newNovelTitle.trim()) return;
+    const newNovelId = id();
     const date = new Date();
     userStore.commit(
       userEvents.novelCreated({
-        id: crypto.randomUUID(),
+        id: newNovelId,
         title: newNovelTitle,
         created: date,
         modified: date,
       }),
+      userEvents.uiStateSet({ lastAccessedNovelId: newNovelId }),
     );
+    storeRegistry.preload(novelStoreOptions(newNovelId));
     setNewNovelTitle("");
     setCreateDialogOpen(false);
   };
@@ -128,13 +142,7 @@ export function UserSpace() {
 
   // 获取最近访问的小说
   const recentNovel =
-    novels.length > 0
-      ? [...novels].sort((a, b) => {
-          const aTime = a.lastAccessed?.getTime() || a.modified.getTime();
-          const bTime = b.lastAccessed?.getTime() || b.modified.getTime();
-          return bTime - aTime;
-        })[0]
-      : null;
+    novels.length > 0 ? novels.find((novel) => novel.id === lastAccessedNovelId) : null;
 
   // 渲染小说卡片（用于活跃列表）
   const renderNovelCard = (novel: Novel) => (
@@ -152,7 +160,7 @@ export function UserSpace() {
       </ItemMedia>
       <ItemContent>
         <ItemTitle>{novel.title}</ItemTitle>
-        <ItemDescription>{novel.modified.toLocaleDateString()} updated</ItemDescription>
+        <ItemDescription>{novel.created.toLocaleDateString()} created</ItemDescription>
       </ItemContent>
       <ItemActions>
         <DropdownMenu>
@@ -196,9 +204,7 @@ export function UserSpace() {
       </ItemMedia>
       <ItemContent>
         <ItemTitle className="text-muted-foreground">{novel.title}</ItemTitle>
-        <ItemDescription>
-          Deleted: {novel.deleted?.toLocaleDateString() || "Unknown"}
-        </ItemDescription>
+        <ItemDescription>{novel.deleted?.toLocaleDateString()} deleted</ItemDescription>
       </ItemContent>
       <ItemActions>
         <DropdownMenu>
@@ -234,13 +240,11 @@ export function UserSpace() {
         <Card size="sm" className="mb-6 bg-linear-to-br from-accent/50 to-background ">
           <CardHeader>
             <div className="flex items-center gap-2 text-primary mb-1">
-              <Edit />
+              <Edit className="w-4 h-4" />
               <span className="text-xs font-medium">Continue Editing</span>
             </div>
             <CardTitle className="text-lg">{recentNovel.title}</CardTitle>
-            <CardDescription>
-              Last edited: {recentNovel.modified.toLocaleDateString()}
-            </CardDescription>
+            <CardDescription>{recentNovel.created.toLocaleDateString()} created</CardDescription>
           </CardHeader>
           <CardContent>
             <Button
@@ -263,7 +267,7 @@ export function UserSpace() {
 
       {/* Tabs 切换视图 */}
       <Tabs defaultValue="novels" className="w-full">
-        <TabsList className="mb-6">
+        <TabsList className="mb-2">
           <TabsTrigger value="novels" className="gap-2">
             <BookOpen />
             My Novels

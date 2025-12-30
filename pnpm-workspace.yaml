@@ -16,3 +16,4 @@ catalog:
   "@libsql/client": 0.15.15
   libsql: 0.5.22
   drizzle-orm: ^0.45.1
+  uuid: ^13.0.0

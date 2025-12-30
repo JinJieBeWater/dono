@@ -9,26 +9,28 @@ export * from "./store";
 export * from "./queries";
 export * from "./events";
 
-export const tables = {
+export const novelTables = {
   volume,
   chapter,
 };
 
 export const materializers = State.SQLite.materializers(novelEvents, {
   "v1.VolumeCreated": (data) =>
-    tables.volume.insert({
+    novelTables.volume.insert({
       id: data.id,
       title: data.title,
       created: data.created,
       modified: data.modified,
     }),
   "v1.VolumeTitleUpdated": (data) =>
-    tables.volume.update({ title: data.title, modified: data.modified }).where({ id: data.id }),
+    novelTables.volume
+      .update({ title: data.title, modified: data.modified })
+      .where({ id: data.id }),
   "v1.VolumeDeleted": (data) =>
-    tables.volume.update({ deleted: data.deleted }).where({ id: data.id }),
+    novelTables.volume.update({ deleted: data.deleted }).where({ id: data.id }),
 
   "v1.ChapterCreated": (data) =>
-    tables.chapter.insert({
+    novelTables.chapter.insert({
       id: data.id,
       volumeId: data.volumeId,
       title: data.title,
@@ -37,16 +39,20 @@ export const materializers = State.SQLite.materializers(novelEvents, {
       modified: data.modified,
     }),
   "v1.ChapterTitleUpdated": (data) =>
-    tables.chapter.update({ title: data.title, modified: data.modified }).where({ id: data.id }),
+    novelTables.chapter
+      .update({ title: data.title, modified: data.modified })
+      .where({ id: data.id }),
   "v1.ChapterBodyUpdated": (data) =>
-    tables.chapter.update({ body: data.body, modified: data.modified }).where({ id: data.id }),
+    novelTables.chapter.update({ body: data.body, modified: data.modified }).where({ id: data.id }),
   "v1.ChapterMoved": (data) =>
-    tables.chapter.update({ order: data.order, modified: data.modified }).where({ id: data.id }),
+    novelTables.chapter
+      .update({ order: data.order, modified: data.modified })
+      .where({ id: data.id }),
 
   "v1.ChapterDeleted": (data) =>
-    tables.chapter.update({ deleted: data.deleted }).where({ id: data.id }),
+    novelTables.chapter.update({ deleted: data.deleted }).where({ id: data.id }),
 });
 
-const state = State.SQLite.makeState({ tables, materializers });
+const state = State.SQLite.makeState({ tables: novelTables, materializers });
 
 export const schema = makeSchema({ events: novelEvents, state });

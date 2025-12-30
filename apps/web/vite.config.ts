@@ -5,6 +5,7 @@ import react from "@vitejs/plugin-react";
 import path from "node:path";
 import { defineConfig } from "vite";
 import { livestoreDevtoolsPlugin } from "@livestore/devtools-vite";
+import alchemy from "alchemy/cloudflare/vite";
 
 export default defineConfig({
   plugins: [
@@ -25,6 +26,7 @@ export default defineConfig({
     livestoreDevtoolsPlugin({
       schemaPath: ["./src/stores/user/index.ts", "./src/stores/novel/index.ts"],
     }),
+    alchemy(),
   ],
   worker: {
     format: "es",

@@ -2,11 +2,7 @@
   "name": "@dono/infra",
   "private": true,
   "type": "module",
-  "scripts": {
-    "dev": "alchemy dev",
-    "deploy": "alchemy deploy",
-    "destroy": "alchemy destroy"
-  },
+  "scripts": {},
   "dependencies": {
     "dotenv": "catalog:",
     "zod": "catalog:"

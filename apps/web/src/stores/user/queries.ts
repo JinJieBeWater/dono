@@ -1,15 +1,15 @@
 import { queryDb } from "@livestore/livestore";
-import { tables } from ".";
+import { userTables } from ".";
 
 // 常规可见的小说
 export const visibleNovels$ = () =>
   queryDb(
     () => {
-      return tables.novel
+      return userTables.novel
         .where({
           deleted: null,
         })
-        .orderBy("modified", "desc");
+        .orderBy("created", "desc");
     },
     { label: "visibleNovels" },
   );
@@ -17,7 +17,7 @@ export const visibleNovels$ = () =>
 export const novel$ = ({ novelId }: { novelId: string }) =>
   queryDb(
     () => {
-      return tables.novel.where({ id: novelId }).first();
+      return userTables.novel.where({ id: novelId }).first();
     },
     { label: "novel" },
   );
@@ -26,7 +26,7 @@ export const novel$ = ({ novelId }: { novelId: string }) =>
 export const trashedNovels$ = () =>
   queryDb(
     () => {
-      return tables.novel
+      return userTables.novel
         .where({
           deleted: { op: "!=", value: null },
         })
