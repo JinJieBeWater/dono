@@ -1,9 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { HeadContent, Outlet, createRootRouteWithContext, redirect } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { orpc } from "@/utils/orpc";
@@ -12,6 +9,7 @@ import "../index.css";
 import { StoreRegistry } from "@livestore/livestore";
 import { StoreRegistryProvider } from "@livestore/react";
 import { getLocalUserInfo } from "@/utils/get-local-user-info";
+import { userStoreOptions } from "@/stores/user";
 
 export interface RouterAppContext {
   orpc: typeof orpc;
@@ -51,6 +49,12 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
       });
     }
   },
+  loader: ({ context, location }) => {
+    if (location.pathname === "/login") {
+      return;
+    }
+    context.storeRegistry.preload(userStoreOptions());
+  },
 });
 
 function RootComponent() {
@@ -66,15 +70,14 @@ function RootComponent() {
         storageKey="vite-ui-theme"
       >
         <StoreRegistryProvider storeRegistry={storeRegistry}>
-          <div className="grid grid-rows-[auto_1fr] h-svh">
-            <Header />
+          <div className="h-svh">
             <Outlet />
           </div>
         </StoreRegistryProvider>
         <Toaster richColors />
       </ThemeProvider>
-      <TanStackRouterDevtools position="bottom-left" />
-      <ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
+      {/* <TanStackRouterDevtools position="bottom-left" />
+      <ReactQueryDevtools position="bottom" buttonPosition="bottom-right" /> */}
     </>
   );
 }

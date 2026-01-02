@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { UserSpace } from "@/components/user-space";
 import { userStoreOptions } from "@/stores/user";
 import { StoreLoading } from "@/components/loader";
+import Header from "@/components/header";
 
 export const Route = createFileRoute("/")({
   component: HomeComponent,
@@ -12,5 +13,10 @@ export const Route = createFileRoute("/")({
 });
 
 function HomeComponent() {
-  return <UserSpace />;
+  return (
+    <div className="grid grid-rows-[auto_1fr] h-svh">
+      <Header />
+      <UserSpace />;
+    </div>
+  );
 }

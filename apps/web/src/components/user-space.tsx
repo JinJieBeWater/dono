@@ -6,8 +6,6 @@ import {
   userTables,
 } from "@/stores/user";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 import { Link } from "@tanstack/react-router";
 import {
   BookOpen,
@@ -46,105 +44,29 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "./ui/dropdown-menu";
+import { AlertDialogTrigger } from "./ui/alert-dialog";
+import { CreateNovelDialog, createNovelDialog } from "./dialogs/create-novel-dialog";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "./ui/alert-dialog";
-import { useState } from "react";
+  DeleteNovelPermanentlyDialog,
+  deleteNovelPermanentlyDialog,
+} from "./dialogs/delete-novel-permanently-dialog";
+import { EmptyTrashDialog, emptyTrashDialog } from "./dialogs/empty-trash-dialog";
 import type { Novel } from "@/stores/user";
-import { id } from "@/utils/id";
-import { useStoreRegistry } from "@livestore/react";
-import { novelStoreOptions } from "@/stores/novel";
 
 export function UserSpace() {
-  const storeRegistry = useStoreRegistry();
   const userStore = useUserStore();
   const [{ lastAccessedNovelId }] = userStore.useClientDocument(userTables.uiState);
 
-  // 查询所有可见的小说
   const novels = userStore.useQuery(visibleNovels$());
-  // 查询回收站中的小说
   const trashedNovels = userStore.useQuery(trashedNovels$());
 
-  // 弹窗状态管理
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [newNovelTitle, setNewNovelTitle] = useState("");
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [emptyTrashDialogOpen, setEmptyTrashDialogOpen] = useState(false);
-  const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
-
-  // 创建新小说
-  const createNovel = () => {
-    if (!newNovelTitle.trim()) return;
-    const newNovelId = id();
-    const date = new Date();
-    userStore.commit(
-      userEvents.novelCreated({
-        id: newNovelId,
-        title: newNovelTitle,
-        created: date,
-        modified: date,
-      }),
-      userEvents.uiStateSet({ lastAccessedNovelId: newNovelId }),
-    );
-    storeRegistry.preload(novelStoreOptions(newNovelId));
-    setNewNovelTitle("");
-    setCreateDialogOpen(false);
-  };
-
-  // 软删除小说（移至回收站）
-  const moveToTrash = (novel: Novel) => {
-    userStore.commit(
-      userEvents.novelDeleted({
-        id: novel.id,
-        deleted: new Date(),
-      }),
-    );
-  };
-
-  // 恢复小说
-  const restoreNovel = (novel: Novel) => {
-    userStore.commit(
-      userEvents.novelRestored({
-        id: novel.id,
-        modified: new Date(),
-      }),
-    );
-  };
-
-  // 永久删除小说（这里暂时用软删除，后续可以添加真正的删除事件）
-  const deleteForever = (novel: Novel) => {
-    // TODO: 实现真正的永久删除逻辑
-    // 目前保持deleted状态，后续可添加 novelPermanentlyDeleted 事件
-    console.log("永久删除小说:", novel.title);
-    setDeleteDialogOpen(false);
-  };
-
-  // 清空回收站
-  const emptyTrash = () => {
-    trashedNovels.forEach((novel) => {
-      // TODO: 使用永久删除事件
-      console.log("永久删除小说:", novel.title);
-    });
-    setEmptyTrashDialogOpen(false);
-  };
-
-  // 生成封面图片 URL
   const getBookCoverUrl = (novelId: string) => {
     return `https://picsum.photos/seed/${novelId}/400/600`;
   };
 
-  // 获取最近访问的小说
   const recentNovel =
     novels.length > 0 ? novels.find((novel) => novel.id === lastAccessedNovelId) : null;
 
-  // 渲染小说卡片（用于活跃列表）
   const renderNovelCard = (novel: Novel) => (
     <Item
       key={novel.id}
@@ -180,7 +102,12 @@ export function UserSpace() {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                moveToTrash(novel);
+                userStore.commit(
+                  userEvents.novelDeleted({
+                    id: novel.id,
+                    deleted: new Date(),
+                  }),
+                );
               }}
             >
               <Trash2 />
@@ -192,7 +119,6 @@ export function UserSpace() {
     </Item>
   );
 
-  // 渲染回收站卡片
   const renderTrashedCard = (novel: Novel) => (
     <Item key={novel.id} variant="outline">
       <ItemMedia variant="image">
@@ -217,25 +143,37 @@ export function UserSpace() {
               Restore
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
-              onClick={() => {
-                setSelectedNovel(novel);
-                setDeleteDialogOpen(true);
-              }}
-            >
-              <X />
-              Delete Forever
-            </DropdownMenuItem>
+            <AlertDialogTrigger
+              handle={deleteNovelPermanentlyDialog}
+              payload={{ novelId: novel.id, novelTitle: novel.title }}
+              render={
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  <X />
+                  Delete Forever
+                </DropdownMenuItem>
+              }
+              nativeButton={false}
+            />
           </DropdownMenuContent>
         </DropdownMenu>
       </ItemActions>
     </Item>
   );
 
+  const restoreNovel = (novel: Novel) => {
+    userStore.commit(
+      userEvents.novelRestored({
+        id: novel.id,
+        modified: new Date(),
+      }),
+    );
+  };
+
   return (
     <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
-      {/* 快速继续卡片 - 只在有小说时显示 */}
       {recentNovel && (
         <Card size="sm" className="mb-6 bg-linear-to-br from-accent/50 to-background ">
           <CardHeader>
@@ -265,7 +203,6 @@ export function UserSpace() {
         </Card>
       )}
 
-      {/* Tabs 切换视图 */}
       <Tabs defaultValue="novels" className="w-full">
         <TabsList className="mb-2">
           <TabsTrigger value="novels" className="gap-2">
@@ -278,9 +215,7 @@ export function UserSpace() {
           </TabsTrigger>
         </TabsList>
 
-        {/* My Novels 视图 */}
         <TabsContent value="novels">
-          {/* 头部：标题和新建按钮 */}
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-xl font-bold mb-1">My Novels</h1>
@@ -288,16 +223,20 @@ export function UserSpace() {
                 {novels.length} {novels.length === 1 ? "novel" : "novels"}
               </p>
             </div>
-            <Button onClick={() => setCreateDialogOpen(true)} size="icon" variant="ghost">
-              <Plus />
-            </Button>
+            <AlertDialogTrigger
+              handle={createNovelDialog}
+              render={
+                <Button size="icon" variant="ghost">
+                  <Plus />
+                </Button>
+              }
+              nativeButton={false}
+            />
           </div>
 
-          {/* 小说列表 */}
           {novels.length > 0 ? (
             <ItemGroup>{novels.map(renderNovelCard)}</ItemGroup>
           ) : (
-            /* 空状态 */
             <Empty>
               <EmptyHeader>
                 <EmptyMedia variant="icon">
@@ -309,18 +248,22 @@ export function UserSpace() {
                 </EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
-                <Button onClick={() => setCreateDialogOpen(true)}>
-                  <FileText />
-                  Create Your First Novel
-                </Button>
+                <AlertDialogTrigger
+                  handle={createNovelDialog}
+                  render={
+                    <Button>
+                      <FileText />
+                      Create Your First Novel
+                    </Button>
+                  }
+                  nativeButton={false}
+                />
               </EmptyContent>
             </Empty>
           )}
         </TabsContent>
 
-        {/* Trash 视图 */}
         <TabsContent value="trash">
-          {/* 头部：标题和清空按钮 */}
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-xl font-bold mb-1">Trash</h1>
@@ -334,23 +277,28 @@ export function UserSpace() {
                   <MoreVertical />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    className="text-destructive focus:text-destructive"
-                    onClick={() => setEmptyTrashDialogOpen(true)}
-                  >
-                    <Trash2 />
-                    Empty Trash
-                  </DropdownMenuItem>
+                  <AlertDialogTrigger
+                    handle={emptyTrashDialog}
+                    payload={{ count: trashedNovels.length }}
+                    render={
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive"
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        <Trash2 />
+                        Empty Trash
+                      </DropdownMenuItem>
+                    }
+                    nativeButton={false}
+                  />
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
           </div>
 
-          {/* 回收站列表 */}
           {trashedNovels.length > 0 ? (
             <ItemGroup>{trashedNovels.map(renderTrashedCard)}</ItemGroup>
           ) : (
-            /* 空状态 */
             <Empty>
               <EmptyHeader>
                 <EmptyMedia variant="icon">
@@ -366,79 +314,9 @@ export function UserSpace() {
         </TabsContent>
       </Tabs>
 
-      {/* 创建小说弹窗 */}
-      <AlertDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Create New Novel</AlertDialogTitle>
-            <AlertDialogDescription>Enter a title for your new novel</AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="space-y-2">
-            <Label htmlFor="novel-title">Novel Title</Label>
-            <Input
-              id="novel-title"
-              placeholder="Enter novel title..."
-              value={newNovelTitle}
-              onChange={(e) => setNewNovelTitle(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  createNovel();
-                }
-              }}
-              autoFocus
-            />
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={createNovel} disabled={!newNovelTitle.trim()}>
-              Create
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* 永久删除确认弹窗 */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Forever?</AlertDialogTitle>
-            <AlertDialogDescription>
-              "{selectedNovel?.title}" will be permanently deleted. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => selectedNovel && deleteForever(selectedNovel)}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              Delete Forever
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* 清空回收站确认弹窗 */}
-      <AlertDialog open={emptyTrashDialogOpen} onOpenChange={setEmptyTrashDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Empty Trash?</AlertDialogTitle>
-            <AlertDialogDescription>
-              All {trashedNovels.length} {trashedNovels.length === 1 ? "item" : "items"} will be
-              permanently deleted. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={emptyTrash}
-              className="bg-destructive hover:bg-destructive/90"
-            >
-              Empty Trash
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <CreateNovelDialog />
+      <DeleteNovelPermanentlyDialog />
+      <EmptyTrashDialog />
     </div>
   );
 }

@@ -1,5 +1,5 @@
-import { v7 as uuidv7 } from "uuid";
+import { nanoid } from "nanoid";
 
 export const id = () => {
-  return uuidv7();
+  return nanoid();
 };

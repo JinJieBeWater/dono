@@ -86,8 +86,8 @@ export function NovelSpace({ novelId }: { novelId: string }) {
       {/* 小说信息卡片 */}
       <Card size="sm" className="mb-6">
         <CardHeader>
-          <CardTitle className="text-2xl">{novel?.title}</CardTitle>
-          <CardDescription>Last edited: {novel?.modified.toLocaleDateString()}</CardDescription>
+          <CardTitle className="text-2xl">{novel.title}</CardTitle>
+          <CardDescription>Last edited: {novel.modified.toLocaleDateString()}</CardDescription>
         </CardHeader>
       </Card>
 

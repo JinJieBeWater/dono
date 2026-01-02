@@ -27,7 +27,7 @@ export const novelStoreOptions = (novelId: string) => {
   }
 
   return {
-    storeId: `user_${localUserInfo.id}_novel_${novelId}`,
+    storeId: `user-${localUserInfo.id}-novel-${novelId}`,
     schema,
     adapter,
     batchUpdates,

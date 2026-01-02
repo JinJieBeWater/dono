@@ -10,14 +10,23 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TodosRouteImport } from './routes/todos'
+import { Route as NovelRouteImport } from './routes/novel'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NovelNovelIdRouteImport } from './routes/novel.$novelId'
+import { Route as NovelNovelIdIndexRouteImport } from './routes/novel.$novelId.index'
+import { Route as NovelNovelIdVolumeIdRouteImport } from './routes/novel.$novelId.$volumeId'
+import { Route as NovelNovelIdVolumeIdChapterIdRouteImport } from './routes/novel.$novelId.$volumeId.$chapterId'
 
 const TodosRoute = TodosRouteImport.update({
   id: '/todos',
   path: '/todos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NovelRoute = NovelRouteImport.update({
+  id: '/novel',
+  path: '/novel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -36,47 +45,101 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const NovelNovelIdRoute = NovelNovelIdRouteImport.update({
-  id: '/novel/$novelId',
-  path: '/novel/$novelId',
-  getParentRoute: () => rootRouteImport,
+  id: '/$novelId',
+  path: '/$novelId',
+  getParentRoute: () => NovelRoute,
 } as any)
+const NovelNovelIdIndexRoute = NovelNovelIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => NovelNovelIdRoute,
+} as any)
+const NovelNovelIdVolumeIdRoute = NovelNovelIdVolumeIdRouteImport.update({
+  id: '/$volumeId',
+  path: '/$volumeId',
+  getParentRoute: () => NovelNovelIdRoute,
+} as any)
+const NovelNovelIdVolumeIdChapterIdRoute =
+  NovelNovelIdVolumeIdChapterIdRouteImport.update({
+    id: '/$chapterId',
+    path: '/$chapterId',
+    getParentRoute: () => NovelNovelIdVolumeIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/novel': typeof NovelRouteWithChildren
   '/todos': typeof TodosRoute
-  '/novel/$novelId': typeof NovelNovelIdRoute
+  '/novel/$novelId': typeof NovelNovelIdRouteWithChildren
+  '/novel/$novelId/$volumeId': typeof NovelNovelIdVolumeIdRouteWithChildren
+  '/novel/$novelId/': typeof NovelNovelIdIndexRoute
+  '/novel/$novelId/$volumeId/$chapterId': typeof NovelNovelIdVolumeIdChapterIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/novel': typeof NovelRouteWithChildren
   '/todos': typeof TodosRoute
-  '/novel/$novelId': typeof NovelNovelIdRoute
+  '/novel/$novelId/$volumeId': typeof NovelNovelIdVolumeIdRouteWithChildren
+  '/novel/$novelId': typeof NovelNovelIdIndexRoute
+  '/novel/$novelId/$volumeId/$chapterId': typeof NovelNovelIdVolumeIdChapterIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/novel': typeof NovelRouteWithChildren
   '/todos': typeof TodosRoute
-  '/novel/$novelId': typeof NovelNovelIdRoute
+  '/novel/$novelId': typeof NovelNovelIdRouteWithChildren
+  '/novel/$novelId/$volumeId': typeof NovelNovelIdVolumeIdRouteWithChildren
+  '/novel/$novelId/': typeof NovelNovelIdIndexRoute
+  '/novel/$novelId/$volumeId/$chapterId': typeof NovelNovelIdVolumeIdChapterIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/login' | '/todos' | '/novel/$novelId'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/novel'
+    | '/todos'
+    | '/novel/$novelId'
+    | '/novel/$novelId/$volumeId'
+    | '/novel/$novelId/'
+    | '/novel/$novelId/$volumeId/$chapterId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/todos' | '/novel/$novelId'
-  id: '__root__' | '/' | '/dashboard' | '/login' | '/todos' | '/novel/$novelId'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/novel'
+    | '/todos'
+    | '/novel/$novelId/$volumeId'
+    | '/novel/$novelId'
+    | '/novel/$novelId/$volumeId/$chapterId'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/novel'
+    | '/todos'
+    | '/novel/$novelId'
+    | '/novel/$novelId/$volumeId'
+    | '/novel/$novelId/'
+    | '/novel/$novelId/$volumeId/$chapterId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
+  NovelRoute: typeof NovelRouteWithChildren
   TodosRoute: typeof TodosRoute
-  NovelNovelIdRoute: typeof NovelNovelIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -86,6 +149,13 @@ declare module '@tanstack/react-router' {
       path: '/todos'
       fullPath: '/todos'
       preLoaderRoute: typeof TodosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/novel': {
+      id: '/novel'
+      path: '/novel'
+      fullPath: '/novel'
+      preLoaderRoute: typeof NovelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -111,20 +181,76 @@ declare module '@tanstack/react-router' {
     }
     '/novel/$novelId': {
       id: '/novel/$novelId'
-      path: '/novel/$novelId'
+      path: '/$novelId'
       fullPath: '/novel/$novelId'
       preLoaderRoute: typeof NovelNovelIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof NovelRoute
+    }
+    '/novel/$novelId/': {
+      id: '/novel/$novelId/'
+      path: '/'
+      fullPath: '/novel/$novelId/'
+      preLoaderRoute: typeof NovelNovelIdIndexRouteImport
+      parentRoute: typeof NovelNovelIdRoute
+    }
+    '/novel/$novelId/$volumeId': {
+      id: '/novel/$novelId/$volumeId'
+      path: '/$volumeId'
+      fullPath: '/novel/$novelId/$volumeId'
+      preLoaderRoute: typeof NovelNovelIdVolumeIdRouteImport
+      parentRoute: typeof NovelNovelIdRoute
+    }
+    '/novel/$novelId/$volumeId/$chapterId': {
+      id: '/novel/$novelId/$volumeId/$chapterId'
+      path: '/$chapterId'
+      fullPath: '/novel/$novelId/$volumeId/$chapterId'
+      preLoaderRoute: typeof NovelNovelIdVolumeIdChapterIdRouteImport
+      parentRoute: typeof NovelNovelIdVolumeIdRoute
     }
   }
 }
+
+interface NovelNovelIdVolumeIdRouteChildren {
+  NovelNovelIdVolumeIdChapterIdRoute: typeof NovelNovelIdVolumeIdChapterIdRoute
+}
+
+const NovelNovelIdVolumeIdRouteChildren: NovelNovelIdVolumeIdRouteChildren = {
+  NovelNovelIdVolumeIdChapterIdRoute: NovelNovelIdVolumeIdChapterIdRoute,
+}
+
+const NovelNovelIdVolumeIdRouteWithChildren =
+  NovelNovelIdVolumeIdRoute._addFileChildren(NovelNovelIdVolumeIdRouteChildren)
+
+interface NovelNovelIdRouteChildren {
+  NovelNovelIdVolumeIdRoute: typeof NovelNovelIdVolumeIdRouteWithChildren
+  NovelNovelIdIndexRoute: typeof NovelNovelIdIndexRoute
+}
+
+const NovelNovelIdRouteChildren: NovelNovelIdRouteChildren = {
+  NovelNovelIdVolumeIdRoute: NovelNovelIdVolumeIdRouteWithChildren,
+  NovelNovelIdIndexRoute: NovelNovelIdIndexRoute,
+}
+
+const NovelNovelIdRouteWithChildren = NovelNovelIdRoute._addFileChildren(
+  NovelNovelIdRouteChildren,
+)
+
+interface NovelRouteChildren {
+  NovelNovelIdRoute: typeof NovelNovelIdRouteWithChildren
+}
+
+const NovelRouteChildren: NovelRouteChildren = {
+  NovelNovelIdRoute: NovelNovelIdRouteWithChildren,
+}
+
+const NovelRouteWithChildren = NovelRoute._addFileChildren(NovelRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
+  NovelRoute: NovelRouteWithChildren,
   TodosRoute: TodosRoute,
-  NovelNovelIdRoute: NovelNovelIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

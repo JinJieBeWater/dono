@@ -15,7 +15,7 @@
     "@dono/env": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
-    "uuid": "catalog:",
+    "nanoid": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

@@ -1,7 +1,6 @@
 import { queryDb } from "@livestore/livestore";
 import { userTables } from ".";
 
-// 常规可见的小说
 export const visibleNovels$ = () =>
   queryDb(
     () => {
@@ -17,12 +16,16 @@ export const visibleNovels$ = () =>
 export const novel$ = ({ novelId }: { novelId: string }) =>
   queryDb(
     () => {
-      return userTables.novel.where({ id: novelId }).first();
+      return userTables.novel.where({ id: novelId }).first({
+        behaviour: "error",
+      });
     },
-    { label: "novel" },
+    {
+      label: "novel",
+      deps: [novelId],
+    },
   );
 
-// 处于回收站的小说
 export const trashedNovels$ = () =>
   queryDb(
     () => {

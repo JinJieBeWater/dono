@@ -5,7 +5,12 @@ export const uiState = State.SQLite.clientDocument({
   schema: Schema.Struct({
     lastAccessedNovelId: Schema.String,
   }),
-  default: { id: SessionIdSymbol, value: { lastAccessedNovelId: "" } },
+  default: {
+    id: SessionIdSymbol,
+    value: {
+      lastAccessedNovelId: "",
+    },
+  },
 });
 
 export type UiState = typeof uiState.Type;

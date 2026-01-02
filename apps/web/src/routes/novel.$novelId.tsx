@@ -1,10 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { NovelSpace } from "@/components/novel-space";
-import { novelStoreOptions } from "@/stores/novel";
 import { StoreLoading } from "@/components/loader";
+import { NovelMobileBar } from "@/components/novel-mobile-bar";
+import { NovelSidebar } from "@/components/novel-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { OutlineProvider } from "@/hooks/use-outline";
+import { novelStoreOptions } from "@/stores/novel";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { userEvents, useUserStore } from "@/stores/user";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/novel/$novelId")({
-  component: NovelComponent,
+  component: RouteComponent,
   preload: true,
   pendingComponent: () => <StoreLoading title="Opening your novel..." />,
   loader: ({ context, params: { novelId } }) => {
@@ -12,7 +17,29 @@ export const Route = createFileRoute("/novel/$novelId")({
   },
 });
 
-function NovelComponent() {
+function RouteComponent() {
   const { novelId } = Route.useParams();
-  return <NovelSpace novelId={novelId} />;
+  const userStore = useUserStore();
+  useEffect(() => {
+    userStore.commit(userEvents.uiStateSet({ lastAccessedNovelId: novelId }));
+  }, [novelId]);
+  return (
+    <div className="[--header-height:calc(--spacing(0))]">
+      <SidebarProvider className="flex flex-col">
+        <OutlineProvider>
+          <div className="flex flex-1 overflow-hidden">
+            <NovelSidebar variant="floating" />
+            <SidebarInset>
+              <div className="h-full grid grid-rows-[auto_1fr]">
+                <NovelMobileBar />
+                <div className="h-full w-full overflow-auto">
+                  <Outlet />
+                </div>
+              </div>
+            </SidebarInset>
+          </div>
+        </OutlineProvider>
+      </SidebarProvider>
+    </div>
+  );
 }
