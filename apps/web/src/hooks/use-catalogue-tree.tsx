@@ -81,6 +81,8 @@ export function CatalogueTreeProvider({ children }: { children: React.ReactNode 
   ];
   const [expandedItems, setExpandedItems] = useLocalStorage<string[]>("SIDEBAR_EXPANDED_ITEMS", []);
 
+  console.log(dataSet);
+
   const tree = useTree<CatalogueTreeItem>({
     rootItemId: "root",
     state: { expandedItems },

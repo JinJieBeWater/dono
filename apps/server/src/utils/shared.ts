@@ -1,21 +1,36 @@
 /**
- * 本项目中，store ID 的格式为 `user-userId-otherId-otherId...`，
- * 其中 `userId` 是用户的唯一标识符，`otherId` 是其他可能的唯一标识符。
+ * nanoid 默认生成的 ID 长度
+ * @see https://github.com/ai/nanoid
  */
-function idFromStoreId(storeId: string, key: string): string | null {
-  const prefix = key + "-";
-  const start = storeId.indexOf(prefix);
-  if (start === -1) return null;
+const NANOID_LENGTH = 21;
 
-  const valueStart = start + prefix.length;
-  let end = storeId.indexOf("-", valueStart);
+/**
+ * 匹配 21 位 nanoid 的正则片段
+ * nanoid 默认字符集: A-Za-z0-9_-
+ */
+const NANOID_PATTERN = `[A-Za-z0-9_-]{${NANOID_LENGTH}}`;
 
-  // 如果找不到下一个冒号，说明该值在字符串末尾
-  if (end === -1) end = storeId.length;
+const USER_STORE_PATTERN = new RegExp(`^user-(${NANOID_PATTERN})$`);
 
-  return storeId.substring(valueStart, end);
-}
+const NOVEL_STORE_PATTERN = new RegExp(`^user-(${NANOID_PATTERN})-novel-(${NANOID_PATTERN})$`);
 
 export function userIdFromStoreId(storeId: string): string | null {
-  return idFromStoreId(storeId, "user");
+  // 尝试匹配格式1：user-{userId}
+  let match = storeId.match(USER_STORE_PATTERN);
+  if (match?.[1]) {
+    return match[1];
+  }
+
+  match = storeId.match(NOVEL_STORE_PATTERN);
+  if (match?.[1]) {
+    return match[1];
+  }
+
+  return null;
+}
+
+export function novelIdFromStoreId(storeId: string): string | null {
+  // 匹配格式2：user-{userId}-novel-{novelId}
+  const match = storeId.match(NOVEL_STORE_PATTERN);
+  return match?.[2] ?? null; // 第2个捕获组是 novelId
 }
