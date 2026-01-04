@@ -9,7 +9,7 @@ catalog:
   "@orpc/openapi": ^1.12.2
   "@orpc/server": ^1.12.2
   "@orpc/zod": ^1.12.2
-  alchemy: ^0.82.1
+  alchemy: ^0.82.2
   better-auth: ^1.4.9
   dotenv: ^17.2.2
   drizzle-orm: ^0.45.1

@@ -11,8 +11,8 @@
     "generate-pwa-assets": "pwa-assets-generator",
     "dev:bare": "vite dev",
     "dev": "alchemy dev --app web",
-    "deploy": "alchemy deploy --app web",
-    "destroy": "alchemy destroy --app web"
+    "deploy": "alchemy deploy --env-file .env.prod --app web",
+    "destroy": "alchemy destroy --env-file .env.prod --app web"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",

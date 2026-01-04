@@ -3,9 +3,11 @@ import { useState } from "react";
 
 import SignInForm from "@/components/sign-in-form";
 import SignUpForm from "@/components/sign-up-form";
+import { StoreLoading } from "@/components/loader";
 
 export const Route = createFileRoute("/login")({
   component: RouteComponent,
+  pendingComponent: () => <StoreLoading />,
 });
 
 function RouteComponent() {

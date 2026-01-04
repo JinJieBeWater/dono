@@ -6,7 +6,7 @@ import Header from "@/components/header";
 
 export const Route = createFileRoute("/")({
   component: HomeComponent,
-  pendingComponent: StoreLoading,
+  pendingComponent: () => <StoreLoading title="Opening your space..." />,
   loader: ({ context }) => {
     context.storeRegistry.preload(userStoreOptions());
   },

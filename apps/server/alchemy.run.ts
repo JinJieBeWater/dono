@@ -6,7 +6,7 @@ import path from "path";
 
 config({ path: path.join(import.meta.dirname, ".env") });
 
-const app = await alchemy("server");
+const app = await alchemy("dono");
 
 const db = await D1Database("auth_db", {
   name: `${app.name}-${app.stage}-auth-db`,

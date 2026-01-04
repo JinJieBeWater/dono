@@ -10,8 +10,8 @@
     "check-types": "tsc -b",
     "compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
     "dev": "alchemy dev --app server",
-    "deploy": "alchemy deploy --app server",
-    "destroy": "alchemy destroy --app server"
+    "deploy": "alchemy deploy --env-file .env.prod --app server",
+    "destroy": "alchemy destroy --env-file .env.prod --app server"
   },
   "dependencies": {
     "@dono/api": "workspace:*",

@@ -3,7 +3,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
 import { unstable_batchedUpdates as batchUpdates } from "react-dom";
 
-import Loader from "./components/loader";
+import { StoreLoading } from "./components/loader";
 import { routeTree } from "./routeTree.gen";
 import { orpc, queryClient } from "./utils/orpc";
 import { StoreRegistry } from "@livestore/livestore";
@@ -23,7 +23,7 @@ export const getRouter = () => {
     routeTree,
     scrollRestoration: true,
     defaultPreload: "intent",
-    defaultPendingComponent: () => <Loader />,
+    defaultPendingComponent: () => <StoreLoading />,
     context: {
       storeRegistry,
       orpc,

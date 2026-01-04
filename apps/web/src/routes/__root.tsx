@@ -10,6 +10,7 @@ import { StoreRegistry } from "@livestore/livestore";
 import { StoreRegistryProvider } from "@livestore/react";
 import { getLocalUserInfo } from "@/utils/get-local-user-info";
 import { userStoreOptions } from "@/stores/user";
+import { StoreLoading } from "@/components/loader";
 
 export interface RouterAppContext {
   orpc: typeof orpc;
@@ -19,6 +20,8 @@ export interface RouterAppContext {
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   component: RootComponent,
+  pendingComponent: () => <StoreLoading />,
+
   head: () => ({
     meta: [
       {

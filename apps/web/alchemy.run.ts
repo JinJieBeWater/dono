@@ -8,10 +8,9 @@ import path from "path";
 
 config({ path: path.join(import.meta.dirname, ".env") });
 
-const app = await alchemy("web");
+const app = await alchemy("dono");
 
 export const web = await Vite("web", {
-  assets: "dist",
   bindings: {
     VITE_SERVER_URL: alchemy.env.VITE_SERVER_URL!,
     server,

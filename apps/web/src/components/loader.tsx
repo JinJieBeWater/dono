@@ -17,7 +17,7 @@ interface LoaderProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function StoreLoading({
-  title = "Opening your space...",
+  title = "Loading...",
   subtitle = "Please wait while we prepare everything for you",
   size = "md",
   className,
