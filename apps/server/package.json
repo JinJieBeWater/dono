@@ -25,6 +25,7 @@
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "hono": "catalog:",
+    "y-durableobjects": "^1.0.5",
     "zod": "catalog:"
   },
   "devDependencies": {

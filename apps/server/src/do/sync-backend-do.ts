@@ -4,14 +4,14 @@ import * as SyncBackend from "@livestore/sync-cf/cf-worker";
 
 export class SyncBackendDO extends SyncBackend.makeDurableObject({
   forwardHeaders: ["Cookie"],
-  onPush: async (message, context) => {
+  onPush: async (_message, context) => {
     const { storeId, headers } = context;
-    console.log("SyncBackendDO:headers", headers);
+    // console.log("SyncBackendDO:headers", headers);
 
     const session = await auth.api.getSession({
       headers: headers as HeadersInit,
     });
-    console.log("SyncBackendDO:sessionToken", session);
+    // console.log("SyncBackendDO:sessionToken", session);
 
     if (!session?.user.id) {
       throw new Error("Invalid session");
@@ -19,18 +19,18 @@ export class SyncBackendDO extends SyncBackend.makeDurableObject({
 
     await ensureTenantAccess(session.user.id, storeId);
 
-    console.log("Push from user:", session.user.id, "store:", storeId);
+    // console.log("Push from user:", session.user.id, "store:", storeId);
 
-    console.log("onPush", message.batch);
+    // console.log("onPush", message.batch);
   },
-  onPull: async (message, context) => {
+  onPull: async (_message, context) => {
     const { storeId, headers } = context;
-    console.log("SyncBackendDO:headers", headers);
+    // console.log("SyncBackendDO:headers", headers);
 
     const session = await auth.api.getSession({
       headers: headers as HeadersInit,
     });
-    console.log("SyncBackendDO:sessionToken", session);
+    // console.log("SyncBackendDO:sessionToken", session);
 
     if (!session?.user.id) {
       throw new Error("Invalid session");
@@ -38,9 +38,9 @@ export class SyncBackendDO extends SyncBackend.makeDurableObject({
 
     await ensureTenantAccess(session.user.id, storeId);
 
-    console.log("Pull from user:", session.user.id, "store:", storeId);
+    // console.log("Pull from user:", session.user.id, "store:", storeId);
 
-    console.log("onPull", message);
+    // console.log("onPull", message);
   },
 }) {}
 

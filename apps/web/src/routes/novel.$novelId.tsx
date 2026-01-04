@@ -8,6 +8,8 @@ import { userEvents, useUserStore } from "@/stores/user";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, PanelLeft } from "lucide-react";
+import { Item, ItemActions } from "@/components/ui/item";
+import { cn } from "@/lib/utils";
 import { ButtonGroup } from "@/components/ui/button-group";
 
 export const Route = createFileRoute("/novel/$novelId")({
@@ -19,53 +21,85 @@ export const Route = createFileRoute("/novel/$novelId")({
   },
 });
 
-// 浮动胶囊按钮组件，在 sidebar 隐藏时显示
 function Header() {
-  const { open, isMobile, openMobile, toggleSidebar } = useSidebar();
+  const { open, isMobile, toggleSidebar } = useSidebar();
+  // const novelId = useParams({
+  //   from: "/novel/$novelId",
+  //   select: (params) => params.novelId,
+  // });
+  // const userStore = useUserStore();
+  // const novel = userStore.useQuery(novel$({ novelId }));
 
-  // 只在 sidebar 隐藏时显示（桌面端收缩或移动端关闭）
-  const shouldShow = isMobile ? !openMobile : !open;
+  // 移动端一直显示，桌面端根据 open 状态切换
+  const shouldShow = isMobile ? true : !open;
 
   return (
-    <header className="flex flex-row items-center justify-between px-2 py-1 bg-sidebar">
-      {shouldShow && (
-        <ButtonGroup orientation="horizontal">
-          <Button variant="outline" size="sm" nativeButton={false} render={<Link to="/" />}>
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={toggleSidebar}>
-            <PanelLeft />
-          </Button>
-        </ButtonGroup>
+    <header
+      className={cn(
+        "mt-2 px-1 flex flex-row items-center justify-between py-1 w-full h-(--header-height)",
+        isMobile && "mt-1 py-0.5",
       )}
+    >
+      <Item
+        variant="outline"
+        size="sm"
+        className={cn(
+          "py-0.5 px-1 gap-1 opacity-0 w-fit",
+          shouldShow && "opacity-100",
+          isMobile && "py-0",
+        )}
+      >
+        <ItemActions>
+          <ButtonGroup>
+            <Button variant="ghost" size={"icon"} nativeButton={false} render={<Link to="/" />}>
+              <ArrowLeft />
+            </Button>
+            <Button variant="ghost" size={"icon"} onClick={toggleSidebar}>
+              <PanelLeft />
+            </Button>
+          </ButtonGroup>
+        </ItemActions>
+        {/* <Link
+          className="px-1 py-1 focus:underline h-full hover:underline font-medium"
+          to="/novel/$novelId"
+          params={{
+            novelId: novel.id,
+          }}
+          aria-label="home"
+        >
+          <h1 className="line-clamp-1 text-sm">{novel.title}</h1>
+        </Link> */}
+      </Item>
       <hr />
     </header>
   );
 }
-// [--header-height:calc(--spacing(0))]
+
 function RouteComponent() {
-  const { novelId } = Route.useParams();
+  const novelId = Route.useParams({
+    select: (params) => params.novelId,
+  });
   const userStore = useUserStore();
+
   useEffect(() => {
     userStore.commit(userEvents.uiStateSet({ lastAccessedNovelId: novelId }));
   }, [novelId]);
+
   return (
-    <div className="">
-      <SidebarProvider className="flex flex-col">
-        <OutlineProvider>
-          <div className="flex flex-1 overflow-hidden">
-            <NovelSidebar variant="floating" />
-            <SidebarInset>
-              <div className="h-full grid grid-rows-[auto_1fr]">
-                <Header />
-                <div className="h-full w-full overflow-auto">
-                  <Outlet />
-                </div>
+    <SidebarProvider className="flex flex-col">
+      <OutlineProvider>
+        <div className="flex flex-1 overflow-hidden">
+          <NovelSidebar variant="floating" />
+          <SidebarInset>
+            <div className="h-full grid grid-rows-[auto_1fr] px-1 pr-2">
+              <Header />
+              <div className="h-full w-full overflow-auto">
+                <Outlet />
               </div>
-            </SidebarInset>
-          </div>
-        </OutlineProvider>
-      </SidebarProvider>
-    </div>
+            </div>
+          </SidebarInset>
+        </div>
+      </OutlineProvider>
+    </SidebarProvider>
   );
 }

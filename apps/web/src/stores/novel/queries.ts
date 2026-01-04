@@ -24,6 +24,34 @@ export const visibleVolumes$ = () =>
     { label: "visibleVolumes" },
   );
 
+export const volume$ = ({ volumeId }: { volumeId: string }) =>
+  queryDb(
+    () => {
+      return novelTables.volume.where({ id: volumeId }).first({
+        behaviour: "error",
+      });
+    },
+    {
+      label: "volume",
+      deps: [volumeId],
+    },
+  );
+
+export const latestVisibleVolume$ = () =>
+  queryDb(
+    () => {
+      return novelTables.volume
+        .where({
+          deleted: null,
+        })
+        .orderBy("created", "desc")
+        .first();
+    },
+    {
+      label: "latestVisibleVolume",
+    },
+  );
+
 export const visibleChaptersCount$ = ({ volumeId }: { volumeId: string }) =>
   queryDb(
     () => {
@@ -46,6 +74,19 @@ export const visibleChapters$ = () =>
     },
     {
       label: "visibleChapters",
+    },
+  );
+
+export const chapter$ = ({ chapterId }: { chapterId: string }) =>
+  queryDb(
+    () => {
+      return novelTables.chapter.where({ id: chapterId }).first({
+        behaviour: "error",
+      });
+    },
+    {
+      label: "chapter",
+      deps: [chapterId],
     },
   );
 

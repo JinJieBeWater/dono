@@ -8,11 +8,7 @@ import {
   ItemActions,
 } from "@/components/ui/item";
 
-interface ContinueWritingCardProps {
-  novelId: string;
-}
-
-export function ContinueWritingCards({ novelId }: ContinueWritingCardProps) {
+export function ContinueWritingCards() {
   const options = [
     {
       value: "latest-chapter",

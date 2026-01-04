@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as NovelNovelIdRouteImport } from './routes/novel.$novelId'
 import { Route as NovelNovelIdIndexRouteImport } from './routes/novel.$novelId.index'
 import { Route as NovelNovelIdVolumeIdRouteImport } from './routes/novel.$novelId.$volumeId'
+import { Route as NovelNovelIdVolumeIdIndexRouteImport } from './routes/novel.$novelId.$volumeId.index'
 import { Route as NovelNovelIdVolumeIdChapterIdRouteImport } from './routes/novel.$novelId.$volumeId.$chapterId'
 
 const TodosRoute = TodosRouteImport.update({
@@ -59,6 +60,12 @@ const NovelNovelIdVolumeIdRoute = NovelNovelIdVolumeIdRouteImport.update({
   path: '/$volumeId',
   getParentRoute: () => NovelNovelIdRoute,
 } as any)
+const NovelNovelIdVolumeIdIndexRoute =
+  NovelNovelIdVolumeIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => NovelNovelIdVolumeIdRoute,
+  } as any)
 const NovelNovelIdVolumeIdChapterIdRoute =
   NovelNovelIdVolumeIdChapterIdRouteImport.update({
     id: '/$chapterId',
@@ -76,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/novel/$novelId/$volumeId': typeof NovelNovelIdVolumeIdRouteWithChildren
   '/novel/$novelId/': typeof NovelNovelIdIndexRoute
   '/novel/$novelId/$volumeId/$chapterId': typeof NovelNovelIdVolumeIdChapterIdRoute
+  '/novel/$novelId/$volumeId/': typeof NovelNovelIdVolumeIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,9 +91,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/novel': typeof NovelRouteWithChildren
   '/todos': typeof TodosRoute
-  '/novel/$novelId/$volumeId': typeof NovelNovelIdVolumeIdRouteWithChildren
   '/novel/$novelId': typeof NovelNovelIdIndexRoute
   '/novel/$novelId/$volumeId/$chapterId': typeof NovelNovelIdVolumeIdChapterIdRoute
+  '/novel/$novelId/$volumeId': typeof NovelNovelIdVolumeIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/novel/$novelId/$volumeId': typeof NovelNovelIdVolumeIdRouteWithChildren
   '/novel/$novelId/': typeof NovelNovelIdIndexRoute
   '/novel/$novelId/$volumeId/$chapterId': typeof NovelNovelIdVolumeIdChapterIdRoute
+  '/novel/$novelId/$volumeId/': typeof NovelNovelIdVolumeIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/novel/$novelId/$volumeId'
     | '/novel/$novelId/'
     | '/novel/$novelId/$volumeId/$chapterId'
+    | '/novel/$novelId/$volumeId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -118,9 +128,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/novel'
     | '/todos'
-    | '/novel/$novelId/$volumeId'
     | '/novel/$novelId'
     | '/novel/$novelId/$volumeId/$chapterId'
+    | '/novel/$novelId/$volumeId'
   id:
     | '__root__'
     | '/'
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/novel/$novelId/$volumeId'
     | '/novel/$novelId/'
     | '/novel/$novelId/$volumeId/$chapterId'
+    | '/novel/$novelId/$volumeId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -200,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NovelNovelIdVolumeIdRouteImport
       parentRoute: typeof NovelNovelIdRoute
     }
+    '/novel/$novelId/$volumeId/': {
+      id: '/novel/$novelId/$volumeId/'
+      path: '/'
+      fullPath: '/novel/$novelId/$volumeId/'
+      preLoaderRoute: typeof NovelNovelIdVolumeIdIndexRouteImport
+      parentRoute: typeof NovelNovelIdVolumeIdRoute
+    }
     '/novel/$novelId/$volumeId/$chapterId': {
       id: '/novel/$novelId/$volumeId/$chapterId'
       path: '/$chapterId'
@@ -212,10 +230,12 @@ declare module '@tanstack/react-router' {
 
 interface NovelNovelIdVolumeIdRouteChildren {
   NovelNovelIdVolumeIdChapterIdRoute: typeof NovelNovelIdVolumeIdChapterIdRoute
+  NovelNovelIdVolumeIdIndexRoute: typeof NovelNovelIdVolumeIdIndexRoute
 }
 
 const NovelNovelIdVolumeIdRouteChildren: NovelNovelIdVolumeIdRouteChildren = {
   NovelNovelIdVolumeIdChapterIdRoute: NovelNovelIdVolumeIdChapterIdRoute,
+  NovelNovelIdVolumeIdIndexRoute: NovelNovelIdVolumeIdIndexRoute,
 }
 
 const NovelNovelIdVolumeIdRouteWithChildren =

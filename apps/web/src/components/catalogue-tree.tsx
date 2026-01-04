@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { useCatalogueTree, type CatalogueTreeItem } from "@/hooks/use-catalogue-tree";
 import { Link } from "@tanstack/react-router";
 import { type ComponentProps } from "react";
-import { SidebarMenuAction, SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar";
+import { SidebarMenuAction, SidebarMenuButton, SidebarMenuItem, useSidebar } from "./ui/sidebar";
 import type { ItemInstance } from "@headless-tree/core";
 import { ChevronRight, ScrollText, BookDashed, MoreHorizontal, Trash, Plus } from "lucide-react";
 import {
@@ -100,14 +100,15 @@ const VolumeItem = ({
 }) => {
   const isExpanded = item.isExpanded();
   const novelStore = useNovelStore(novelId);
-  const data = item.getItemData();
+  const volumeData = item.getItemData();
+  const { isMobile } = useSidebar();
 
-  if (data.type !== "volume") throw shouldNeverHappen("data.type !== volume");
+  if (volumeData.type !== "volume") throw shouldNeverHappen("data.type !== volume");
 
   const handleDelete = () => {
     novelStore.commit(
-      novelEvents.chapterDeleted({
-        id: data.id,
+      novelEvents.volumeDeleted({
+        id: volumeData.id,
         deleted: new Date(),
       }),
     );
@@ -120,6 +121,7 @@ const VolumeItem = ({
           className={cn(
             "peer-data-active/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-0 group-hover/menu-item:opacity-0 data-open:opacity-0 group-focus-within/menu-item:hidden group-hover/menu-item:hidden data-open:hidden md:opacity-100 md:block",
             isExpanded && "opacity-0! hidden!",
+            isMobile && "hidden",
           )}
         />
         <ChevronRight
@@ -148,18 +150,21 @@ const VolumeItem = ({
           <MoreHorizontal />
           <span className="sr-only">More</span>
         </SidebarMenuAction>
-        <DropdownMenuContent align="end">
-          <AlertDialogTrigger
-            handle={createChapterDialog}
-            payload={{ volumeId: data.id }}
+        <DropdownMenuContent>
+          <DropdownMenuItem
+            nativeButton={true}
             render={
-              <DropdownMenuItem>
-                <Plus />
-                Add Chapter
-              </DropdownMenuItem>
+              <AlertDialogTrigger
+                className="w-full"
+                handle={createChapterDialog}
+                payload={{ volumeId: volumeData.id }}
+              />
             }
-            nativeButton={false}
-          />
+          >
+            <Plus />
+            Add Chapter
+          </DropdownMenuItem>
+
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={handleDelete}>
             <Trash />
@@ -181,12 +186,12 @@ const ChapterItem = ({
   item: ItemInstance<CatalogueTreeItem>;
 }) => {
   const novelStore = useNovelStore(novelId);
-  const data = item.getItemData();
-  if (data.type !== "chapter") throw shouldNeverHappen("data.type !== chapter");
+  const chapterData = item.getItemData();
+  if (chapterData.type !== "chapter") throw shouldNeverHappen("data.type !== chapter");
   const handleDelete = () => {
     novelStore.commit(
       novelEvents.chapterDeleted({
-        id: data.id,
+        id: chapterData.id,
         deleted: new Date(),
       }),
     );
@@ -212,7 +217,7 @@ const ChapterItem = ({
           <MoreHorizontal />
           <span className="sr-only">More</span>
         </SidebarMenuAction>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={handleDelete}>
             <Trash />

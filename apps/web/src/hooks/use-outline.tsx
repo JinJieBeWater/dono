@@ -10,7 +10,7 @@ const OutlineContext = createContext<OutlineContextType | null>(null);
 
 // Provider 组件，包含状态管理
 export function OutlineProvider({ children }: { children: ReactNode }) {
-  const [isOutlineOpen, setIsOutlineOpen] = useState(true);
+  const [isOutlineOpen, setIsOutlineOpen] = useState(false);
 
   return (
     <OutlineContext.Provider value={{ isOutlineOpen, setIsOutlineOpen }}>

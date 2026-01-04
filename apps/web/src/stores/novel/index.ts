@@ -43,7 +43,7 @@ export const materializers = State.SQLite.materializers(novelEvents, {
       .update({ title: data.title, modified: data.modified })
       .where({ id: data.id }),
   "v1.ChapterBodyUpdated": (data) =>
-    novelTables.chapter.update({ body: data.body, modified: data.modified }).where({ id: data.id }),
+    novelTables.chapter.update({ modified: data.modified }).where({ id: data.id }),
   "v1.ChapterMoved": (data) =>
     novelTables.chapter
       .update({ order: data.order, modified: data.modified })

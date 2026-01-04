@@ -8,7 +8,6 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
-  SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { CatalogueTree } from "@/components/catalogue-tree";
@@ -20,6 +19,48 @@ import { CatalogueTreeProvider } from "@/hooks/use-catalogue-tree";
 import { QuickAccess } from "./quick-access";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
+import { novel$, useUserStore } from "@/stores/user";
+import { Item, ItemHeader } from "@/components/ui/item";
+
+export function NovelSidebar(props: React.ComponentProps<typeof Sidebar>) {
+  const { toggleSidebar } = useSidebar();
+  const novelId = useParams({
+    from: "/novel/$novelId",
+    select: (params) => params.novelId,
+  });
+  const userStore = useUserStore();
+  const novel = userStore.useQuery(novel$({ novelId }));
+
+  return (
+    <Sidebar className="h-[calc(100svh-var(--header-height))]!" {...props}>
+      <SidebarHeader className="p-1">
+        <Item size="sm" className="p-1 gap-0">
+          <ItemHeader className="items-start">
+            <Button variant="ghost" size="icon" render={<Link to="/" />} nativeButton={false}>
+              <ArrowLeft />
+              <span className="sr-only">Back to Home</span>
+            </Button>
+            <Link
+              className="px-2 pt-2 pb-1 focus:underline w-full hover:underline"
+              to="/novel/$novelId"
+              params={{
+                novelId: novel.id,
+              }}
+              aria-label="home"
+            >
+              <h1 className="text-sm line-clamp-2 text-center font-medium">{novel.title}</h1>
+            </Link>
+            <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+              <PanelLeft />
+              <span className="sr-only">Expand / Collapse Sidebar</span>
+            </Button>
+          </ItemHeader>
+        </Item>
+      </SidebarHeader>
+      <NovelSidebarContent />
+    </Sidebar>
+  );
+}
 
 function NovelSidebarContent({ ...props }: React.ComponentProps<typeof SidebarContent>) {
   const { novelId } = useParams({
@@ -47,29 +88,5 @@ function NovelSidebarContent({ ...props }: React.ComponentProps<typeof SidebarCo
 
       <CreateVolumeDialog />
     </SidebarContent>
-  );
-}
-
-export function NovelSidebar(props: React.ComponentProps<typeof Sidebar>) {
-  const { toggleSidebar } = useSidebar();
-
-  return (
-    <Sidebar className="top-(--header-height) h-[calc(100svh-var(--header-height))]!" {...props}>
-      <SidebarHeader className="flex flex-row items-center gap-2 p-2">
-        {/* 返回主页按钮 */}
-        <Button variant="ghost" size="icon" render={<Link to="/" />} nativeButton={false}>
-          <ArrowLeft />
-          <span className="sr-only">Back to Home</span>
-        </Button>
-
-        {/* 收缩 Sidebar 按钮 */}
-        <Button variant="ghost" size="icon" className="ml-auto h-8 w-8" onClick={toggleSidebar}>
-          <PanelLeft />
-          <span className="sr-only">Expand / Collapse Sidebar</span>
-        </Button>
-      </SidebarHeader>
-      <NovelSidebarContent />
-      <SidebarRail />
-    </Sidebar>
   );
 }

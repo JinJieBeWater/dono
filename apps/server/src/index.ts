@@ -12,7 +12,13 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import * as SyncBackend from "@livestore/sync-cf/cf-worker";
 import { SyncBackendDO } from "./do/sync-backend-do";
+import { type YDurableObjectsAppType } from "y-durableobjects";
+import { upgrade } from "y-durableobjects/helpers/upgrade";
+import { hc } from "hono/client";
+import { userIdFromStoreId } from "./utils/shared";
+import { YDurableObjects } from "./do/y-do";
 
+export { YDurableObjects };
 export { SyncBackendDO };
 
 const app = new Hono();
@@ -49,6 +55,45 @@ export const rpcHandler = new RPCHandler(appRouter, {
       console.error(error);
     }),
   ],
+});
+
+app.get("/sync/room/:roomId", upgrade(), async (c) => {
+  const roomId = c.req.param("roomId");
+  const context = await createContext({ context: c });
+
+  if (!context.session?.user) {
+    return c.json({
+      message: "This is private",
+      user: context.session?.user,
+    });
+  }
+
+  if (context.session.user.id !== userIdFromStoreId(roomId)) {
+    return c.json({
+      message: "Your session is not authorized to access this resource",
+      user: context.session?.user,
+    });
+  }
+
+  const doId = env.SYNC_BACKEND_DO.idFromName(roomId);
+  const yDurableObjects = env.Y_DURABLE_OBJECTS as DurableObjectNamespace<YDurableObjects>;
+  const stub = yDurableObjects.get(doId);
+
+  const url = new URL("/", c.req.url);
+  const client = hc<YDurableObjectsAppType>(url.toString(), {
+    fetch: stub.fetch.bind(stub),
+  });
+
+  const res = await client.rooms[":roomId"].$get(
+    { param: { roomId } },
+    { init: { headers: c.req.raw.headers } },
+  );
+
+  return new Response(null, {
+    webSocket: res.webSocket,
+    status: res.status,
+    statusText: res.statusText,
+  });
 });
 
 app.use("/*", async (c, next) => {

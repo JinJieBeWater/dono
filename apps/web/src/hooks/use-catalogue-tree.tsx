@@ -13,7 +13,7 @@ import {
 } from "@headless-tree/core";
 import { useTree } from "@headless-tree/react";
 import { useParams } from "@tanstack/react-router";
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useLocalStorage } from "./use-local-storage";
 
 export type CatalogueTreeItem =
@@ -59,8 +59,6 @@ const customClickBehavior: FeatureImplementation = {
             item.expand();
           }
         }
-
-        item.setFocused();
       },
     }),
   },
@@ -69,6 +67,7 @@ const customClickBehavior: FeatureImplementation = {
 const CatalogueTreeContext = createContext<CatalogueTreeContextValue | null>(null);
 
 export function CatalogueTreeProvider({ children }: { children: React.ReactNode }) {
+  const params = useParams({ strict: false });
   const { novelId } = useParams({
     from: "/novel/$novelId",
   });
@@ -80,13 +79,13 @@ export function CatalogueTreeProvider({ children }: { children: React.ReactNode 
     ...chapters.map((chapter) => ({ type: "chapter", ...chapter })),
   ];
   const [expandedItems, setExpandedItems] = useLocalStorage<string[]>("SIDEBAR_EXPANDED_ITEMS", []);
-
-  console.log(dataSet);
+  const [focusedItem, setFocusedItem] = useState<string | null>(null);
 
   const tree = useTree<CatalogueTreeItem>({
     rootItemId: "root",
-    state: { expandedItems },
+    state: { expandedItems, focusedItem },
     setExpandedItems,
+    setFocusedItem,
     getItemName: (item) => {
       const data = item.getItemData();
       const type = data.type;
@@ -131,6 +130,33 @@ export function CatalogueTreeProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     tree.rebuildTree();
   }, [chapters]);
+
+  // 根据当前路由参数自动聚焦对应的章节或卷
+  useEffect(() => {
+    const chapterId = params.chapterId;
+    const volumeId = params.volumeId;
+
+    // 优先聚焦章节，如果没有章节则聚焦卷
+    const focusId = chapterId || volumeId;
+
+    if (focusId) {
+      const item = tree.getItemInstance(focusId);
+      if (item) {
+        item.setFocused();
+
+        // 如果是章节，确保其父卷是展开的
+        if (chapterId && volumeId) {
+          const volumeItem = tree.getItemInstance(volumeId);
+          if (volumeItem && !volumeItem.isExpanded()) {
+            volumeItem.expand();
+          }
+        }
+      }
+    } else {
+      // 直接通过tree的状态更新
+      setFocusedItem("root");
+    }
+  }, [params.chapterId, params.volumeId, tree, volumes, chapters]);
 
   return <CatalogueTreeContext.Provider value={{ tree }}>{children}</CatalogueTreeContext.Provider>;
 }

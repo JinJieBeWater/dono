@@ -223,15 +223,14 @@ export function UserSpace() {
                 {novels.length} {novels.length === 1 ? "novel" : "novels"}
               </p>
             </div>
-            <AlertDialogTrigger
-              handle={createNovelDialog}
-              render={
-                <Button size="icon" variant="ghost">
-                  <Plus />
-                </Button>
-              }
-              nativeButton={false}
-            />
+
+            <Button
+              size="icon"
+              variant="ghost"
+              render={<AlertDialogTrigger handle={createNovelDialog} />}
+            >
+              <Plus />
+            </Button>
           </div>
 
           {novels.length > 0 ? (
@@ -248,16 +247,10 @@ export function UserSpace() {
                 </EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
-                <AlertDialogTrigger
-                  handle={createNovelDialog}
-                  render={
-                    <Button>
-                      <FileText />
-                      Create Your First Novel
-                    </Button>
-                  }
-                  nativeButton={false}
-                />
+                <Button render={<AlertDialogTrigger handle={createNovelDialog} />}>
+                  <FileText />
+                  Create Your First Novel
+                </Button>
               </EmptyContent>
             </Empty>
           )}

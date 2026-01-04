@@ -6,7 +6,6 @@ export const chapter = State.SQLite.table({
     id: State.SQLite.text({ primaryKey: true }),
     volumeId: State.SQLite.text(),
     title: State.SQLite.text({ default: "" }),
-    body: State.SQLite.text({ default: "" }),
     /** Fractional index for ordering tasks in the list */
     order: State.SQLite.text({ nullable: false, default: "" }),
     created: State.SQLite.integer({ schema: Schema.DateFromNumber }),

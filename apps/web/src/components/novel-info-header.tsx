@@ -53,20 +53,19 @@ export function NovelInfoHeader({ novelId }: NovelInfoHeaderProps) {
                 Reorganize
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <AlertDialogTrigger
-                handle={deleteNovelDialog}
-                payload={{ novelId, novelTitle: novel?.title ?? "" }}
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
                 render={
-                  <DropdownMenuItem
-                    className="text-destructive focus:text-destructive"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete Novel
-                  </DropdownMenuItem>
+                  <AlertDialogTrigger
+                    handle={deleteNovelDialog}
+                    payload={{ novelId, novelTitle: novel?.title ?? "" }}
+                    nativeButton={false}
+                  />
                 }
-                nativeButton={false}
-              />
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Novel
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

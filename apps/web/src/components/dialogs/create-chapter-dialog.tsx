@@ -16,7 +16,6 @@ import { novelEvents, novelTables } from "@/stores/novel";
 import { useNovelStore } from "@/stores/novel";
 import { id } from "@/utils/id";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { useCatalogueTree } from "@/hooks/use-catalogue-tree";
 import { generateKeyBetween } from "fractional-indexing";
 
 const createChapterDialog = AlertDialogPrimitive.createHandle<{ volumeId: string }>();
@@ -27,7 +26,6 @@ export function CreateChapterDialog() {
   });
   const novelStore = useNovelStore(novelId);
   const [chapterTitle, setChapterTitle] = useState("");
-  const { tree } = useCatalogueTree();
   const navigate = useNavigate();
 
   const handleCreate = (volumeId: string) => {
@@ -56,8 +54,6 @@ export function CreateChapterDialog() {
       }),
     );
     setChapterTitle("");
-    tree.getItemInstance(volumeId).expand();
-    tree.getItemInstance(newId).setFocused();
     navigate({
       to: "/novel/$novelId/$volumeId/$chapterId",
       params: {

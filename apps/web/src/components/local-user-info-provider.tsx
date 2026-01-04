@@ -43,7 +43,7 @@ export function useLocalUserInfo() {
   return context;
 }
 
-export function useSafeLocalUserInfo() {
+export function useLocalUserInfoOrThrow() {
   const { localUserInfo } = useLocalUserInfo();
   if (!localUserInfo) throw shouldNeverHappen("localUserInfo should not be null");
   return localUserInfo;

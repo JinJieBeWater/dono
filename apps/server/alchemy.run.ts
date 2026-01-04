@@ -18,15 +18,21 @@ const syncBackendDO = DurableObjectNamespace("SYNC_BACKEND_DO", {
   sqlite: true,
 });
 
+const yDurableObjects = DurableObjectNamespace("Y_DURABLE_OBJECTS", {
+  className: "YDurableObjects",
+  sqlite: true,
+});
+
 export const server = await Worker("server", {
   entrypoint: path.join(import.meta.dirname, "src", "index.ts"),
   compatibility: "node",
   bindings: {
-    DB: db,
-    SYNC_BACKEND_DO: syncBackendDO,
     CORS_ORIGIN: alchemy.env.CORS_ORIGIN!,
     BETTER_AUTH_SECRET: alchemy.secret.env.BETTER_AUTH_SECRET!,
     BETTER_AUTH_URL: alchemy.env.BETTER_AUTH_URL!,
+    DB: db,
+    SYNC_BACKEND_DO: syncBackendDO,
+    Y_DURABLE_OBJECTS: yDurableObjects,
   },
   dev: {
     port: 3000,

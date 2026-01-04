@@ -39,8 +39,8 @@ export function QuickAccess() {
               >
                 <Sparkles className="size-4 shrink-0" />
                 <div className="flex-1 flex items-center justify-between gap-2 min-w-0">
-                  <span className="text-sm font-medium truncate">Latest Chapter</span>
-                  <span className="text-xs text-muted-foreground shrink-0">
+                  <span className="text-sm font-medium text-nowrap">Latest Chapter</span>
+                  <span className="text-xs text-muted-foreground truncate">
                     {lastestChapter.title}
                   </span>
                 </div>

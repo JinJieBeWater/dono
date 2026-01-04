@@ -1,4 +1,4 @@
-// import { VitePWA } from "vite-plugin-pwa";
+import { VitePWA } from "vite-plugin-pwa";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
@@ -12,17 +12,17 @@ export default defineConfig({
     tailwindcss(),
     tanstackRouter({}),
     react(),
-    // VitePWA({
-    //   registerType: "autoUpdate",
-    //   manifest: {
-    //     name: "dono",
-    //     short_name: "dono",
-    //     description: "dono - PWA Application",
-    //     theme_color: "#0c0c0c",
-    //   },
-    //   pwaAssets: { disabled: false, config: true },
-    //   devOptions: { enabled: true },
-    // }),
+    VitePWA({
+      registerType: "autoUpdate",
+      manifest: {
+        name: "dono",
+        short_name: "dono",
+        description: "dono - PWA Application",
+        theme_color: "#0c0c0c",
+      },
+      pwaAssets: { disabled: false, config: true },
+      devOptions: { enabled: true },
+    }),
     livestoreDevtoolsPlugin({
       schemaPath: ["./src/stores/user/index.ts", "./src/stores/novel/index.ts"],
     }),

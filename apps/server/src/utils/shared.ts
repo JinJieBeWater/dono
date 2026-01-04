@@ -10,23 +10,17 @@ const NANOID_LENGTH = 21;
  */
 const NANOID_PATTERN = `[A-Za-z0-9_-]{${NANOID_LENGTH}}`;
 
-const USER_STORE_PATTERN = new RegExp(`^user-(${NANOID_PATTERN})$`);
+// 匹配所有以 user-{userId} 开头的 storeId，不关心后续内容
+const USER_ID_PATTERN = new RegExp(`^user-(${NANOID_PATTERN})`);
+
+// const USER_STORE_PATTERN = new RegExp(`^user-(${NANOID_PATTERN})$`);
 
 const NOVEL_STORE_PATTERN = new RegExp(`^user-(${NANOID_PATTERN})-novel-(${NANOID_PATTERN})$`);
 
 export function userIdFromStoreId(storeId: string): string | null {
-  // 尝试匹配格式1：user-{userId}
-  let match = storeId.match(USER_STORE_PATTERN);
-  if (match?.[1]) {
-    return match[1];
-  }
-
-  match = storeId.match(NOVEL_STORE_PATTERN);
-  if (match?.[1]) {
-    return match[1];
-  }
-
-  return null;
+  // 只需要提取 userId，不关心后续内容
+  const match = storeId.match(USER_ID_PATTERN);
+  return match?.[1] ?? null;
 }
 
 export function novelIdFromStoreId(storeId: string): string | null {
