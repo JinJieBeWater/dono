@@ -47,5 +47,6 @@ pnpm run dev
 
 - [x] Implement user login with better-auth, each user gets a `UserStore` after logging in
 - [x] Use better-auth for authentication on sync backend and implement store access control
-- [ ] Add rich text editing functionality, introduce Yjs to implement CRDT data synchronization
+- [x] Add rich text editing functionality, introduce Yjs to implement CRDT data synchronization
+- [ ] Explore ways to pull down the content of all chapters of a novelStore for offline use
 - [ ] Current data is soft-deleted, accumulating infinitely in DO, need to implement real data deletion to free storage space
