@@ -6,9 +6,22 @@ import { cn } from "@/lib/utils";
 import { ChapterEditArea } from "@/components/chapter-edit-area";
 import { OutlineEditArea } from "@/components/outline-edit-area";
 import { ChapterHeader } from "@/components/chapter-header";
+import { preloadYjsInstance } from "@/components/editor/extension/yjs";
+import { getChapterRoomId } from "@/utils/get-room-id";
 
 export const Route = createFileRoute("/novel/$novelId/$volumeId/$chapterId")({
   component: RouteComponent,
+  preload: true,
+  loader: async ({ params, preload }) => {
+    // 获取章节的 room ID 并预加载 Yjs 数据
+    const roomId = getChapterRoomId(params.chapterId);
+    if (roomId) {
+      // 传递 preload 标志
+      // 如果是预加载，数据加载完成后会自动清理实例
+      // 如果是正常导航，实例会保留给组件使用
+      await preloadYjsInstance(roomId, preload);
+    }
+  },
 });
 
 function RouteComponent() {
@@ -26,14 +39,8 @@ function RouteComponent() {
             {/* 居中容器：为所有子组件提供统一的居中和宽度限制 */}
             <div
               className={cn(
-                "mx-auto h-full flex flex-col",
-                // 不同屏幕尺寸下的最大宽度（使用px）
-                "max-w-140", // 默认（移动端）: 560px
-                "sm:max-w-150", // 小屏: 600px
-                "md:max-w-160", // 中屏: 640px
-                "lg:max-w-170", // 大屏: 680px
-                "xl:max-w-180", // 超大屏: 720px
-                "2xl:max-w-190", // 2xl屏: 760px
+                "mx-auto h-full flex flex-col transition-[width] duration-200 ease-linear",
+                "max-w-180",
               )}
             >
               <ChapterHeader />

@@ -96,6 +96,7 @@ const VolumeItem = ({
               novelId,
               volumeId: volumeData.id,
             }}
+            preload="render"
           ></Link>
         }
         isActive={isFocused}
@@ -103,6 +104,20 @@ const VolumeItem = ({
       >
         <span className="flex-1">{item.getItemName()}</span>
       </SidebarMenuButton>
+      {/* 快捷添加章节按钮 */}
+      <SidebarMenuAction
+        className="right-7"
+        showOnHover={!isExpanded}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+        render={
+          <AlertDialogTrigger handle={createChapterDialog} payload={{ volumeId: volumeData.id }} />
+        }
+      >
+        <Plus />
+        <span className="sr-only">添加章节</span>
+      </SidebarMenuAction>
       <DropdownMenu>
         <SidebarMenuAction
           showOnHover={!isExpanded}
@@ -171,6 +186,7 @@ const ChapterItem = ({
           <Link
             className={cn(className)}
             to="/novel/$novelId/$volumeId/$chapterId"
+            preload="viewport"
             params={{
               novelId,
               volumeId: chapterData.volumeId,

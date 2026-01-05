@@ -1,6 +1,5 @@
 import { LOCAL_USER_INFO_KEY } from "@/constants";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import { shouldNeverHappen } from "@/utils/should-never-happen";
 import type { LocalUserInfo } from "@/types";
 import { createContext, useCallback, useContext, useMemo } from "react";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
@@ -41,10 +40,4 @@ export function useLocalUserInfo() {
     throw new Error("useLocalUserInfo must be used within LocalUserInfoProvider");
   }
   return context;
-}
-
-export function useLocalUserInfoOrThrow() {
-  const { localUserInfo } = useLocalUserInfo();
-  if (!localUserInfo) throw shouldNeverHappen("localUserInfo should not be null");
-  return localUserInfo;
 }
