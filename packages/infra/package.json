@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "infra:dev": "alchemy dev",
     "infra:deploy": "alchemy deploy",
     "infra:destroy": "alchemy destroy"
   },

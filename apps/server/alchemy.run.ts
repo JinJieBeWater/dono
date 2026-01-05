@@ -6,7 +6,7 @@ import path from "path";
 
 config({ path: path.join(import.meta.dirname, ".env") });
 
-const app = await alchemy("dono");
+const app = await alchemy("dono-server");
 
 const db = await D1Database("auth_db", {
   name: `${app.name}-${app.stage}-auth-db`,
@@ -23,7 +23,7 @@ const yDurableObjects = DurableObjectNamespace("Y_DURABLE_OBJECTS", {
   sqlite: true,
 });
 
-export const server = await Worker("server", {
+export const server = await Worker("worker", {
   entrypoint: path.join(import.meta.dirname, "src", "index.ts"),
   compatibility: "node",
   bindings: {

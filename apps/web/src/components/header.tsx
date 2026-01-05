@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { ModeToggle } from "./mode-toggle";
 import UserMenu from "./user-menu";
 import { Button } from "./ui/button";
+import ConnectionManager from "./connection-manager";
 
 export default function Header() {
   const links = [
@@ -27,6 +28,7 @@ export default function Header() {
         <div className="flex items-center gap-2">
           <ModeToggle />
           <UserMenu />
+          <ConnectionManager />
         </div>
       </div>
       <hr />

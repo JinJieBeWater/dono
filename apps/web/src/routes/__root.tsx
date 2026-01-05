@@ -11,6 +11,7 @@ import { StoreRegistryProvider } from "@livestore/react";
 import { getLocalUserInfo } from "@/utils/get-local-user-info";
 import { userStoreOptions } from "@/stores/user";
 import { StoreLoading } from "@/components/loader";
+import { ConnectionProvider } from "@/hooks/use-connection";
 
 export interface RouterAppContext {
   orpc: typeof orpc;
@@ -41,6 +42,7 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
   }),
   beforeLoad: async ({ location }) => {
     const localUserInfo = getLocalUserInfo();
+
     if (localUserInfo) {
       return { localUserInfo };
     }
@@ -72,11 +74,13 @@ function RootComponent() {
         disableTransitionOnChange
         storageKey="vite-ui-theme"
       >
-        <StoreRegistryProvider storeRegistry={storeRegistry}>
-          <div className="h-svh">
-            <Outlet />
-          </div>
-        </StoreRegistryProvider>
+        <ConnectionProvider>
+          <StoreRegistryProvider storeRegistry={storeRegistry}>
+            <div className="h-svh">
+              <Outlet />
+            </div>
+          </StoreRegistryProvider>
+        </ConnectionProvider>
         <Toaster richColors />
       </ThemeProvider>
       {/* <TanStackRouterDevtools position="bottom-left" />

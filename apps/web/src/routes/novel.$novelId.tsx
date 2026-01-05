@@ -8,9 +8,9 @@ import { userEvents, useUserStore } from "@/stores/user";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, PanelLeft } from "lucide-react";
-import { Item, ItemActions } from "@/components/ui/item";
 import { cn } from "@/lib/utils";
 import { ButtonGroup } from "@/components/ui/button-group";
+import { Item } from "@/components/ui/item";
 
 export const Route = createFileRoute("/novel/$novelId")({
   component: RouteComponent,
@@ -23,42 +23,37 @@ export const Route = createFileRoute("/novel/$novelId")({
 
 function Header() {
   const { open, isMobile, toggleSidebar } = useSidebar();
-  // const novelId = useParams({
-  //   from: "/novel/$novelId",
-  //   select: (params) => params.novelId,
-  // });
-  // const userStore = useUserStore();
-  // const novel = userStore.useQuery(novel$({ novelId }));
-
   // 移动端一直显示，桌面端根据 open 状态切换
   const shouldShow = isMobile ? true : !open;
 
   return (
     <header
       className={cn(
-        "mt-2 px-1 flex flex-row items-center justify-between py-1 w-full h-(--header-height)",
+        "mt-2 px-1 flex flex-row items-center justify-between w-full h-(--header-height) relative",
         isMobile && "mt-1 py-0.5",
       )}
     >
       <Item
-        variant="outline"
-        size="sm"
         className={cn(
-          "py-0.5 px-1 gap-1 opacity-0 w-fit",
-          shouldShow && "opacity-100",
+          "p-0 gap-1 opacity-0 w-fit bg-sidebar outline border-0 transition-opacity mt-2 ring ring-border",
+          shouldShow && "opacity-100 duration-200",
           isMobile && "py-0",
         )}
       >
-        <ItemActions>
-          <ButtonGroup>
-            <Button variant="ghost" size={"icon"} nativeButton={false} render={<Link to="/" />}>
-              <ArrowLeft />
-            </Button>
-            <Button variant="ghost" size={"icon"} onClick={toggleSidebar}>
-              <PanelLeft />
-            </Button>
-          </ButtonGroup>
-        </ItemActions>
+        <ButtonGroup>
+          <Button
+            className="border-0"
+            variant="ghost"
+            size={"icon"}
+            nativeButton={false}
+            render={<Link to="/" />}
+          >
+            <ArrowLeft />
+          </Button>
+          <Button className="border-0" variant="ghost" size={"icon"} onClick={toggleSidebar}>
+            <PanelLeft />
+          </Button>
+        </ButtonGroup>
         {/* <Link
           className="px-1 py-1 focus:underline h-full hover:underline font-medium"
           to="/novel/$novelId"

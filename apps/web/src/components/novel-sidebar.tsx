@@ -20,7 +20,6 @@ import { QuickAccess } from "./quick-access";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { novel$, useUserStore } from "@/stores/user";
-import { Item, ItemHeader } from "@/components/ui/item";
 
 export function NovelSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { toggleSidebar } = useSidebar();
@@ -33,29 +32,25 @@ export function NovelSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar className="h-[calc(100svh-var(--header-height))]!" {...props}>
-      <SidebarHeader className="p-1">
-        <Item size="sm" className="p-1 gap-0">
-          <ItemHeader className="items-start">
-            <Button variant="ghost" size="icon" render={<Link to="/" />} nativeButton={false}>
-              <ArrowLeft />
-              <span className="sr-only">Back to Home</span>
-            </Button>
-            <Link
-              className="px-2 pt-2 pb-1 focus:underline w-full hover:underline"
-              to="/novel/$novelId"
-              params={{
-                novelId: novel.id,
-              }}
-              aria-label="home"
-            >
-              <h1 className="text-sm line-clamp-2 text-center font-medium">{novel.title}</h1>
-            </Link>
-            <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-              <PanelLeft />
-              <span className="sr-only">Expand / Collapse Sidebar</span>
-            </Button>
-          </ItemHeader>
-        </Item>
+      <SidebarHeader className="flex-row">
+        <Button variant="ghost" size="icon" render={<Link to="/" />} nativeButton={false}>
+          <ArrowLeft />
+          <span className="sr-only">Back to Home</span>
+        </Button>
+        <Link
+          className="px-2 pt-2 pb-1 focus:underline w-full hover:underline"
+          to="/novel/$novelId"
+          params={{
+            novelId: novel.id,
+          }}
+          aria-label="home"
+        >
+          <h1 className="text-sm line-clamp-2 text-center font-medium">{novel.title}</h1>
+        </Link>
+        <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+          <PanelLeft />
+          <span className="sr-only">Expand / Collapse Sidebar</span>
+        </Button>
       </SidebarHeader>
       <NovelSidebarContent />
     </Sidebar>

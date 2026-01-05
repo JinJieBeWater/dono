@@ -17,11 +17,27 @@ import { upgrade } from "y-durableobjects/helpers/upgrade";
 import { hc } from "hono/client";
 import { userIdFromStoreId } from "./utils/shared";
 import { YDurableObjects } from "./do/y-do";
-
+import { HTTPException } from "hono/http-exception";
 export { YDurableObjects };
 export { SyncBackendDO };
 
 const app = new Hono();
+
+app.onError((err, c) => {
+  // 打印错误到控制台，便于调试和日志记录
+  console.error(`[Global Error Handler] ${err.message}`);
+  // --- 区分错误类型 ---
+  if (err instanceof HTTPException) {
+    return err.getResponse();
+  }
+  return c.json(
+    {
+      success: false,
+      message: "Internal Server Error",
+    },
+    500,
+  );
+});
 
 app.use(logger());
 app.use(
@@ -55,6 +71,27 @@ export const rpcHandler = new RPCHandler(appRouter, {
       console.error(error);
     }),
   ],
+});
+
+app.use("/sync/*", async (c, next) => {
+  const context = await createContext({ context: c });
+  if (!context.session?.user) {
+    // 直接返回响应，不使用 throw
+    throw new HTTPException(401, {
+      message: "Unauthorized",
+    });
+  }
+
+  const searchParams = SyncBackend.matchSyncRequest(c.req.raw);
+  if (searchParams !== undefined) {
+    return SyncBackend.handleSyncRequest({
+      request: c.req.raw,
+      searchParams,
+      ctx: c.executionCtx,
+      syncBackendBinding: "SYNC_BACKEND_DO",
+    });
+  }
+  return next();
 });
 
 app.get("/sync/room/:roomId", upgrade(), async (c) => {
@@ -99,27 +136,6 @@ app.get("/sync/room/:roomId", upgrade(), async (c) => {
 app.use("/*", async (c, next) => {
   const context = await createContext({ context: c });
 
-  const searchParams = SyncBackend.matchSyncRequest(c.req.raw);
-
-  if (searchParams !== undefined) {
-    return SyncBackend.handleSyncRequest({
-      request: c.req.raw,
-      searchParams,
-      ctx: c.executionCtx,
-      syncBackendBinding: "SYNC_BACKEND_DO",
-      validatePayload: async (_payload, { storeId, headers }) => {
-        const session = await auth.api.getSession({
-          headers,
-        });
-
-        if (!session?.user) {
-          throw new Error("Unauthorized: Invalid session");
-        }
-
-        console.log("Validating user and store", session.user.id, storeId);
-      },
-    });
-  }
   const rpcResult = await rpcHandler.handle(c.req.raw, {
     prefix: "/rpc",
     context: context,

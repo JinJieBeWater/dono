@@ -10,9 +10,9 @@
     "check-types": "tsc --noEmit",
     "generate-pwa-assets": "pwa-assets-generator",
     "dev:bare": "vite dev",
-    "dev": "alchemy dev --app web",
-    "deploy": "alchemy deploy --env-file .env.prod --app web",
-    "destroy": "alchemy destroy --env-file .env.prod --app web"
+    "dev": "alchemy dev --app dono-web",
+    "deploy": "alchemy deploy",
+    "destroy": "alchemy destroy --app dono-web"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
