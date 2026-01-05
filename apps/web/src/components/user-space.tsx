@@ -173,7 +173,7 @@ export function UserSpace() {
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
+    <div className="w-full mx-auto p-4">
       {recentNovel && (
         <Card size="sm" className="mb-6 bg-linear-to-br from-accent/50 to-background ">
           <CardHeader>

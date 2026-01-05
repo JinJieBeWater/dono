@@ -15,6 +15,9 @@ export function QuickAccess() {
   const { novelId } = useParams({
     from: "/novel/$novelId",
   });
+  const { chapterId } = useParams({
+    strict: false,
+  });
   const novelStore = useNovelStore(novelId);
   const lastestChapter = novelStore.useQuery(lastVisibleChapter$())[0];
 
@@ -29,6 +32,7 @@ export function QuickAccess() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
+              isActive={chapterId === lastestChapter.id}
               render={
                 <Link
                   to="/novel/$novelId/$volumeId/$chapterId"

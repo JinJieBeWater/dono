@@ -81,6 +81,13 @@ export function CreateChapterDialog() {
                 placeholder="Enter chapter title..."
                 value={chapterTitle}
                 onChange={(e) => setChapterTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleCreate(payload.volumeId);
+                    createChapterDialog.close();
+                  }
+                }}
                 autoFocus
               />
             </div>

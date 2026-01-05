@@ -52,6 +52,13 @@ export function CreateVolumeDialog() {
             placeholder="Enter volume title..."
             value={volumeTitle}
             onChange={(e) => setVolumeTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleCreateVolume(volumeTitle);
+                createVolumeDialog.close();
+              }
+            }}
             autoFocus
           />
         </div>

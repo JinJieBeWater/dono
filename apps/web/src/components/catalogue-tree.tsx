@@ -25,7 +25,6 @@ export function CatalogueTree({ novelId }: { novelId: string }) {
       {tree.getItems().map((item) => {
         const data = item.getItemData();
         const type = data.type;
-        const isFocused = item.isFocused();
 
         return (
           <SidebarMenuItem
@@ -34,60 +33,14 @@ export function CatalogueTree({ novelId }: { novelId: string }) {
             className={cn("w-full flex")}
             style={{ paddingLeft: `${item.getItemMeta().level * 10}px` }}
           >
-            {type === "volume" && (
-              <VolumeItem novelId={novelId} item={item} className={cn(isFocused && "bg-accent")} />
-            )}
-            {type === "chapter" && (
-              <ChapterItem novelId={novelId} item={item} className={cn(isFocused && "bg-accent")} />
-            )}
+            {type === "volume" && <VolumeItem novelId={novelId} item={item} />}
+            {type === "chapter" && <ChapterItem novelId={novelId} item={item} />}
           </SidebarMenuItem>
         );
       })}
     </div>
   );
 }
-
-const RenderLink = ({
-  novelId,
-  item,
-  className,
-  children,
-}: ComponentProps<typeof Link> & {
-  novelId: string;
-  item: ItemInstance<CatalogueTreeItem>;
-}) => {
-  const data = item.getItemData();
-  const type = data.type;
-  switch (type) {
-    case "volume":
-      return (
-        <Link
-          className={className}
-          to="/novel/$novelId/$volumeId"
-          params={{
-            novelId,
-            volumeId: data.id,
-          }}
-        >
-          {children}
-        </Link>
-      );
-    case "chapter":
-      return (
-        <Link
-          className={className}
-          to="/novel/$novelId/$volumeId/$chapterId"
-          params={{
-            novelId,
-            volumeId: data.volumeId,
-            chapterId: data.id,
-          }}
-        >
-          {children}
-        </Link>
-      );
-  }
-};
 
 const VolumeItem = ({
   novelId,
@@ -102,6 +55,7 @@ const VolumeItem = ({
   const novelStore = useNovelStore(novelId);
   const volumeData = item.getItemData();
   const { isMobile } = useSidebar();
+  const isFocused = item.isFocused();
 
   if (volumeData.type !== "volume") throw shouldNeverHappen("data.type !== volume");
 
@@ -134,14 +88,24 @@ const VolumeItem = ({
       </SidebarMenuAction>
       <SidebarMenuButton
         className={cn("w-full group/volume pl-8", className)}
-        render={<RenderLink novelId={novelId} item={item} />}
+        render={
+          <Link
+            className={cn(className)}
+            to="/novel/$novelId/$volumeId"
+            params={{
+              novelId,
+              volumeId: volumeData.id,
+            }}
+          ></Link>
+        }
+        isActive={isFocused}
         {...props}
       >
         <span className="flex-1">{item.getItemName()}</span>
       </SidebarMenuButton>
       <DropdownMenu>
         <SidebarMenuAction
-          showOnHover
+          showOnHover={!isExpanded}
           onClick={(e) => {
             e.stopPropagation();
           }}
@@ -187,6 +151,8 @@ const ChapterItem = ({
 }) => {
   const novelStore = useNovelStore(novelId);
   const chapterData = item.getItemData();
+  const isFocused = item.isFocused();
+
   if (chapterData.type !== "chapter") throw shouldNeverHappen("data.type !== chapter");
   const handleDelete = () => {
     novelStore.commit(
@@ -199,8 +165,19 @@ const ChapterItem = ({
   return (
     <>
       <SidebarMenuButton
+        isActive={isFocused}
         className={cn("w-full", className)}
-        render={<RenderLink novelId={novelId} item={item} />}
+        render={
+          <Link
+            className={cn(className)}
+            to="/novel/$novelId/$volumeId/$chapterId"
+            params={{
+              novelId,
+              volumeId: chapterData.volumeId,
+              chapterId: chapterData.id,
+            }}
+          ></Link>
+        }
         {...props}
       >
         <ScrollText className="shrink-0" />

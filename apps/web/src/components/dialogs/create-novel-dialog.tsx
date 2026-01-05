@@ -55,6 +55,13 @@ export function CreateNovelDialog() {
             placeholder="Enter novel title..."
             value={newNovelTitle}
             onChange={(e) => setNewNovelTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                createNovel();
+                createNovelDialog.close();
+              }
+            }}
             autoFocus
           />
         </div>
