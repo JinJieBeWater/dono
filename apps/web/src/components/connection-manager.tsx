@@ -51,10 +51,7 @@ export default function ConnectionManager() {
   return (
     <Tooltip>
       <TooltipTrigger render={<Button variant="outline" size="icon"></Button>}>
-        <output
-          className=" inline-flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors hover:bg-accent/50 cursor-default"
-          aria-live="polite"
-        >
+        <output className="inline-flex items-center" aria-live="polite">
           {/* 状态指示点 */}
           <span
             className={cn("size-2 rounded-full transition-all duration-300", config.dotClass)}

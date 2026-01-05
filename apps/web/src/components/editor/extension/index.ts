@@ -20,7 +20,7 @@ export function defineExtension({
   if (room) {
     // 将 http/https 协议替换为 ws/wss 用于 WebSocket 连接
     const wsUrl = env.VITE_SERVER_URL.replace(/^http/, "ws");
-    const provider = new WebsocketProvider(`${wsUrl}/sync/room`, room, doc);
+    const provider = new WebsocketProvider(`${wsUrl}/yjs/room`, room, doc);
     const persistence = new IndexeddbPersistence(room, doc);
     persistence.on("synced", () => {
       // console.log("initial content loaded");

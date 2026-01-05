@@ -7,6 +7,6 @@ makeWorker({
   schema,
   sync: {
     // Use /sync path to avoid Assets binding intercepting root path requests (alternative: wrangler.toml `run_worker_first = true` but less efficient)
-    backend: makeWsSync({ url: `${env.VITE_SERVER_URL}/sync` }),
+    backend: makeWsSync({ url: `${env.VITE_SERVER_URL}/livestore` }),
   },
 });

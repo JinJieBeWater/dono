@@ -73,15 +73,9 @@ export const rpcHandler = new RPCHandler(appRouter, {
   ],
 });
 
-app.use("/sync/*", async (c, next) => {
+app.get("/livestore/*", async (c, next) => {
   const context = await createContext({ context: c });
-  if (!context.session?.user) {
-    // 直接返回响应，不使用 throw
-    throw new HTTPException(401, {
-      message: "Unauthorized",
-    });
-  }
-
+  const user = context.session?.user;
   const searchParams = SyncBackend.matchSyncRequest(c.req.raw);
   if (searchParams !== undefined) {
     return SyncBackend.handleSyncRequest({
@@ -89,12 +83,17 @@ app.use("/sync/*", async (c, next) => {
       searchParams,
       ctx: c.executionCtx,
       syncBackendBinding: "SYNC_BACKEND_DO",
+      validatePayload: (_payload, { storeId }) => {
+        if (user?.id !== userIdFromStoreId(storeId)) {
+          throw new Error("Unauthorized");
+        }
+      },
     });
   }
   return next();
 });
 
-app.get("/sync/room/:roomId", upgrade(), async (c) => {
+app.get("/yjs/room/:roomId", upgrade(), async (c) => {
   const roomId = c.req.param("roomId");
   const context = await createContext({ context: c });
 
