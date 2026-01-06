@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { BookOpen, Sparkles } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -9,21 +9,29 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { lastVisibleChapter$, useNovelStore } from "@/stores/novel";
-import { Link, useParams } from "@tanstack/react-router";
+import { Link, useMatchRoute, useParams } from "@tanstack/react-router";
 
 export function QuickAccess() {
   const { novelId } = useParams({
     from: "/novel/$novelId",
   });
-  const { chapterId } = useParams({
-    strict: false,
-  });
+  const matchRoute = useMatchRoute();
   const novelStore = useNovelStore(novelId);
   const lastestChapter = novelStore.useQuery(lastVisibleChapter$())[0];
 
   if (!lastestChapter) {
     return null;
   }
+
+  const isNovelHomePage = !!matchRoute({ to: "/novel/$novelId", params: { novelId } });
+  const isLatestChapter = !!matchRoute({
+    to: "/novel/$novelId/$volumeId/$chapterId",
+    params: {
+      novelId,
+      volumeId: lastestChapter.volumeId,
+      chapterId: lastestChapter.id,
+    },
+  });
 
   return (
     <SidebarGroup>
@@ -32,7 +40,23 @@ export function QuickAccess() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              isActive={chapterId === lastestChapter.id}
+              isActive={isNovelHomePage}
+              render={
+                <Link
+                  to="/novel/$novelId"
+                  params={{
+                    novelId,
+                  }}
+                />
+              }
+            >
+              <BookOpen className="size-4 shrink-0" />
+              <span className="text-sm font-medium">Home</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              isActive={isLatestChapter}
               render={
                 <Link
                   to="/novel/$novelId/$volumeId/$chapterId"

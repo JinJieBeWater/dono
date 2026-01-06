@@ -38,7 +38,7 @@ export function NovelSidebar(props: React.ComponentProps<typeof Sidebar>) {
           <span className="sr-only">Back to Home</span>
         </Button>
         <Link
-          className="px-2 pt-2 pb-1 focus:underline w-full hover:underline"
+          className="px-2 pt-2 pb-1 w-full"
           to="/novel/$novelId"
           params={{
             novelId: novel.id,

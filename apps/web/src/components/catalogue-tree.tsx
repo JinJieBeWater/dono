@@ -211,7 +211,6 @@ const ChapterItem = ({
           <span className="sr-only">More</span>
         </SidebarMenuAction>
         <DropdownMenuContent>
-          <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onClick={handleDelete}>
             <Trash />
             Delete
