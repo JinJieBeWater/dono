@@ -7,18 +7,7 @@ import {
 } from "@/stores/user";
 import { Button } from "./ui/button";
 import { Link } from "@tanstack/react-router";
-import {
-  BookOpen,
-  Edit,
-  FileText,
-  ChevronRight,
-  Trash2,
-  RotateCcw,
-  X,
-  MoreVertical,
-  Plus,
-} from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/card";
+import { BookOpen, Edit, FileText, Trash2, RotateCcw, X, MoreVertical, Plus } from "lucide-react";
 import {
   Item,
   ItemGroup,
@@ -52,6 +41,7 @@ import {
 } from "./dialogs/delete-novel-permanently-dialog";
 import { EmptyTrashDialog, emptyTrashDialog } from "./dialogs/empty-trash-dialog";
 import type { Novel } from "@/stores/user";
+import { RecentNovelCard } from "./recent-novel-card";
 
 export function UserSpace() {
   const userStore = useUserStore();
@@ -98,7 +88,7 @@ export function UserSpace() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
+              variant="destructive"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -111,7 +101,7 @@ export function UserSpace() {
               }}
             >
               <Trash2 />
-              Move to Trash
+              Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -134,29 +124,34 @@ export function UserSpace() {
       </ItemContent>
       <ItemActions>
         <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="ghost" />}>
+          <Button
+            variant="ghost"
+            nativeButton={false}
+            render={<DropdownMenuTrigger></DropdownMenuTrigger>}
+          >
             <MoreVertical />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          </Button>
+
+          <DropdownMenuContent align="end" className={"w-max"}>
             <DropdownMenuItem onClick={() => restoreNovel(novel)}>
               <RotateCcw />
               Restore
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <AlertDialogTrigger
-              handle={deleteNovelPermanentlyDialog}
-              payload={{ novelId: novel.id, novelTitle: novel.title }}
-              render={
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  <X />
-                  Delete Forever
-                </DropdownMenuItem>
-              }
+            <DropdownMenuItem
+              onClick={(e) => e.preventDefault()}
+              variant="destructive"
               nativeButton={false}
-            />
+              render={
+                <AlertDialogTrigger
+                  handle={deleteNovelPermanentlyDialog}
+                  payload={{ novelId: novel.id, novelTitle: novel.title }}
+                />
+              }
+            >
+              <X />
+              Delete Forever
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </ItemActions>
@@ -173,35 +168,8 @@ export function UserSpace() {
   };
 
   return (
-    <div className="w-full mx-auto p-4 space-y-4">
-      {recentNovel && (
-        <Card size="sm" className="bg-linear-to-br from-accent/50 to-background ">
-          <CardHeader>
-            <div className="flex items-center gap-2 text-primary mb-1">
-              <Edit className="w-4 h-4" />
-              <span className="text-xs font-medium">Continue Editing</span>
-            </div>
-            <CardTitle className="text-lg">{recentNovel.title}</CardTitle>
-            <CardDescription>{recentNovel.created.toLocaleDateString()} created</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button
-              render={
-                <Link
-                  to="/novel/$novelId"
-                  params={{ novelId: recentNovel.id }}
-                  preload="viewport"
-                />
-              }
-              nativeButton={false}
-              className="group"
-            >
-              Continue
-              <ChevronRight className="group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+    <div className="w-full mx-auto p-4 space-y-4 md:w-2xl scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary/20 scrollbar-hover:scrollbar-thumb-primary">
+      {recentNovel && <RecentNovelCard novel={recentNovel} />}
 
       <Tabs defaultValue="novels" className="w-full">
         <TabsList className="mb-2">
@@ -215,7 +183,7 @@ export function UserSpace() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="novels" className="space-y-4">
+        <TabsContent value="novels" className="space-y-4 pb-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold mb-1">My Novels</h1>

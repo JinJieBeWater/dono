@@ -16,7 +16,7 @@ export function NovelHeader() {
     <header
       className={cn(
         "px-1 mt-2 flex justify-between w-full h-(--header-height) relative gap-4 ",
-        isMobile && "mt-4",
+        isMobile && "mt-4 px-3",
       )}
     >
       <Item

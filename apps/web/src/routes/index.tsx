@@ -17,8 +17,7 @@ function HomeComponent() {
   return (
     <div
       className={cn(
-        "grid grid-rows-[auto_1fr] h-svh mx-auto transition-all duration-200 ease-linear",
-        "max-w-180",
+        "h-svh mx-auto transition-all duration-200 ease-linear px-2 overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary/20 scrollbar-hover:scrollbar-thumb-primary",
       )}
     >
       <Header />

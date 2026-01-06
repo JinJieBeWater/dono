@@ -9,7 +9,7 @@ export default function Header() {
   ] as const;
 
   return (
-    <header className="px-1 h-(--header-height) mt-3 ">
+    <header className="px-1 h-(--header-height) pt-3 sticky top-0 z-10">
       <div className="flex flex-row items-center justify-between px-2 py-1">
         <nav className="flex gap-4 text-lg items-center">
           {links.map(({ to, label }) => {
