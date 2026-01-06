@@ -111,7 +111,7 @@ app.get("/yjs/room/:roomId", upgrade(), async (c) => {
     });
   }
 
-  const doId = env.SYNC_BACKEND_DO.idFromName(roomId);
+  const doId = env.Y_DURABLE_OBJECTS.idFromName(roomId);
   const yDurableObjects = env.Y_DURABLE_OBJECTS as DurableObjectNamespace<YDurableObjects>;
   const stub = yDurableObjects.get(doId);
 
