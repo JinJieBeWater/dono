@@ -11,8 +11,9 @@
     "generate-pwa-assets": "pwa-assets-generator",
     "dev:bare": "vite dev",
     "dev": "alchemy dev --app dono-web",
-    "deploy": "alchemy deploy",
-    "destroy": "alchemy destroy --app dono-web"
+    "destroy": "alchemy destroy --app dono-web",
+    "deploy:dev": "cross-env NODE_ENV=dev alchemy deploy --app dono-web --stage dev",
+    "destroy:dev": "cross-env NODE_ENV=dev alchemy destroy --app dono-web --stage dev"
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",

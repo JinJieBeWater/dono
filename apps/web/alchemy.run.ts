@@ -1,11 +1,10 @@
 import alchemy from "alchemy";
 import { Vite } from "alchemy/cloudflare";
-
 import { config } from "dotenv";
 
-import path from "path";
+const ENV_FILE = process.env.NODE_ENV ? `./.env.${process.env.NODE_ENV}` : "./.env.local";
 
-config({ path: path.join(import.meta.dirname, ".env") });
+config({ path: ENV_FILE, debug: true, override: true });
 
 const app = await alchemy("dono-web");
 
@@ -15,6 +14,6 @@ export const web = await Vite("vite", {
   },
 });
 
-console.log(`Web    -> ${web.url}`);
+console.log(`${app.name}-${app.stage}-web -> ${web.url}`);
 
 await app.finalize();

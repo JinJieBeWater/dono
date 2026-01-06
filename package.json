@@ -18,8 +18,9 @@
     "dev:server": "turbo -F server dev",
     "db:push": "turbo -F @dono/db db:push",
     "db:generate": "turbo -F @dono/db db:generate",
-    "deploy": "turbo deploy",
-    "destroy": "turbo destroy"
+    "destroy": "turbo destroy",
+    "deploy:dev": "turbo deploy:dev",
+    "destroy:dev": "turbo destroy:dev"
   },
   "dependencies": {
     "@dono/env": "workspace:*",
@@ -30,6 +31,7 @@
     "@cloudflare/workers-types": "catalog:",
     "@dono/config": "workspace:*",
     "@types/node": "^22.13.11",
+    "cross-env": "^10.1.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
     "oxfmt": "^0.19.0",

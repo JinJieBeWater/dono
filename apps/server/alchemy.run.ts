@@ -4,7 +4,9 @@ import { D1Database, DurableObjectNamespace } from "alchemy/cloudflare";
 import { config } from "dotenv";
 import path from "path";
 
-config({ path: path.join(import.meta.dirname, ".env") });
+const ENV_FILE = process.env.NODE_ENV ? `./.env.${process.env.NODE_ENV}` : "./.env.local";
+
+config({ path: ENV_FILE, debug: true, override: true });
 
 const app = await alchemy("dono-server");
 
@@ -39,6 +41,6 @@ export const server = await Worker("worker", {
   },
 });
 
-console.log(`Server -> ${server.url}`);
+console.log(`${app.name}-${app.stage}-server -> ${server.url}`);
 
 await app.finalize();
