@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { useCallback, useRef } from "react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import { flushSync } from "react-dom";
 
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
+import { useTheme } from "../theme-provider";
 
 interface AnimatedThemeTogglerProps extends React.ComponentPropsWithoutRef<"button"> {
   duration?: number;
@@ -14,45 +15,49 @@ export const AnimatedThemeToggler = ({
   duration = 400,
   ...props
 }: AnimatedThemeTogglerProps) => {
-  const [isDark, setIsDark] = useState(false);
+  // 从 useTheme hook 获取当前主题和设置主题的函数
+  const { theme, setTheme } = useTheme();
   const buttonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const updateTheme = () => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    };
-
-    updateTheme();
-
-    const observer = new MutationObserver(updateTheme);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-
-    return () => observer.disconnect();
-  }, []);
 
   const toggleTheme = useCallback(async () => {
     if (!buttonRef.current) return;
 
+    // 三态循环切换：light → dark → system → light
+    const themeMap = {
+      light: "dark",
+      dark: "system",
+      system: "light",
+    } as const;
+
+    const newTheme = themeMap[theme as keyof typeof themeMap] || "light";
+
+    // 检查浏览器是否支持 View Transition API
+    if (!document.startViewTransition) {
+      // 如果不支持，直接切换主题
+      setTheme(newTheme);
+      return;
+    }
+
+    // 使用 View Transition API 创建过渡动画
     await document.startViewTransition(() => {
       flushSync(() => {
-        const newTheme = !isDark;
-        setIsDark(newTheme);
-        document.documentElement.classList.toggle("dark");
-        localStorage.setItem("theme", newTheme ? "dark" : "light");
+        // 使用 setTheme 函数来切换主题（next-themes 会自动处理 DOM 和 localStorage）
+        setTheme(newTheme);
       });
     }).ready;
 
+    // 获取按钮位置，计算圆形扩散动画的中心点
     const { top, left, width, height } = buttonRef.current.getBoundingClientRect();
     const x = left + width / 2;
     const y = top + height / 2;
+
+    // 计算从按钮到屏幕最远角的距离，作为圆形的最大半径
     const maxRadius = Math.hypot(
       Math.max(left, window.innerWidth - left),
       Math.max(top, window.innerHeight - top),
     );
 
+    // 应用圆形扩散动画
     document.documentElement.animate(
       {
         clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${maxRadius}px at ${x}px ${y}px)`],
@@ -63,7 +68,21 @@ export const AnimatedThemeToggler = ({
         pseudoElement: "::view-transition-new(root)",
       },
     );
-  }, [isDark, duration]);
+  }, [theme, duration, setTheme]);
+
+  // 根据当前主题显示对应的图标
+  const ThemeIcon = () => {
+    switch (theme) {
+      case "light":
+        return <Moon />;
+      case "dark":
+        return <Sun />;
+      case "system":
+        return <Monitor />;
+      default:
+        return <Moon />;
+    }
+  };
 
   return (
     <Button
@@ -74,8 +93,8 @@ export const AnimatedThemeToggler = ({
       render={<button ref={buttonRef} />}
       {...props}
     >
-      {isDark ? <Sun /> : <Moon />}
-      <span className="sr-only">Toggle theme</span>
+      <ThemeIcon />
+      <span className="sr-only">切换主题 (当前: {theme})</span>
     </Button>
   );
 };
