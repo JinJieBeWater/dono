@@ -31,6 +31,7 @@
     "@cloudflare/workers-types": "catalog:",
     "@dono/config": "workspace:*",
     "@types/node": "^22.13.11",
+    "alchemy": "catalog:",
     "cross-env": "^10.1.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",

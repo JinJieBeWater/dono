@@ -3,9 +3,6 @@
 
   <p>A local-first novel writing application built with modern web technologies</p>
 
-<a href="https://github.com/JinJieBeWater/dono"><img alt="GitHub stars" src="https://img.shields.io/github/stars/JinJieBeWater/dono?style=for-the-badge&logo=GitHub&labelColor=000000"></a>
-<a href="https://github.com/JinJieBeWater/dono"><img alt="GitHub issues" src="https://img.shields.io/github/issues/JinJieBeWater/dono?style=for-the-badge&logo=GitHub&labelColor=000000"></a>
-
 </div>
 
 ## Features
@@ -23,12 +20,9 @@
 - **shadcn/ui**
 - **TailwindCSS**
 - **Hono**
-- **oRPC**
 - **Cloudflare Workers**
 - **Durable Objects**
-- **Drizzle**
 - **Better-Auth**
-- **PWA**
 
 ## Getting Started
 
@@ -36,8 +30,27 @@
 # Clone the repository
 git clone https://github.com/JinJieBeWater/dono.git
 
+cd dono
+
 # Install dependencies
 pnpm install
+
+# configure alchemy
+pnpm alchemy configure
+
+# cd into server app directory
+cd apps/server
+# create a .env file
+cp .env.example .env
+# generate a secret for better-auth, you can go to https://www.better-auth.com/docs/installation to generate one
+# paste the secret to BETTER_AUTH_SECRET in .env
+# generate a secret for alchemy, you can go to https://www.better-auth.com/docs/installation to generate one
+# paste the secret to ALCHEMY_SECRET in .env
+
+# cd into web app directory
+cd apps/web
+# create a .env file
+cp .env.example .env
 
 # Start development server
 pnpm run dev
