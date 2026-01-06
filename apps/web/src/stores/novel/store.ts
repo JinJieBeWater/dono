@@ -5,6 +5,7 @@ import { unstable_batchedUpdates as batchUpdates } from "react-dom";
 import { schema } from ".";
 import LiveStoreWorker from "./worker.ts?worker";
 import { getLocalUserInfo } from "@/utils/get-local-user-info";
+import { shouldNeverHappen } from "@/utils/should-never-happen";
 
 const hasWindow = typeof window !== "undefined";
 const resetPersistence =
@@ -23,7 +24,7 @@ export const novelStoreOptions = (novelId: string) => {
   const localUserInfo = getLocalUserInfo();
 
   if (!localUserInfo) {
-    throw new Error("useNovelStore must be used after user has logged in");
+    throw shouldNeverHappen("useNovelStore must be used after user has logged in");
   }
 
   return storeOptions({

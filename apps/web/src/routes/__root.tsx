@@ -4,25 +4,25 @@ import { HeadContent, Outlet, createRootRouteWithContext, redirect } from "@tans
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { orpc } from "@/utils/orpc";
-
 import "../index.css";
 import { StoreRegistry } from "@livestore/livestore";
 import { StoreRegistryProvider } from "@livestore/react";
 import { getLocalUserInfo } from "@/utils/get-local-user-info";
 import { userStoreOptions } from "@/stores/user";
 import { StoreLoading } from "@/components/loader";
-import { ConnectionProvider } from "@/hooks/use-connection";
+import { useConnection } from "@/hooks/use-connection";
+import { LocalUserInfoProvider } from "@/components/local-user-info-provider";
 
 export interface RouterAppContext {
   orpc: typeof orpc;
   queryClient: QueryClient;
   storeRegistry: StoreRegistry;
+  connection: ReturnType<typeof useConnection>;
 }
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   component: RootComponent,
   pendingComponent: () => <StoreLoading />,
-
   head: () => ({
     meta: [
       {
@@ -74,13 +74,13 @@ function RootComponent() {
         disableTransitionOnChange
         storageKey="vite-ui-theme"
       >
-        <ConnectionProvider>
-          <StoreRegistryProvider storeRegistry={storeRegistry}>
+        <StoreRegistryProvider storeRegistry={storeRegistry}>
+          <LocalUserInfoProvider>
             <div className="h-svh">
               <Outlet />
             </div>
-          </StoreRegistryProvider>
-        </ConnectionProvider>
+          </LocalUserInfoProvider>
+        </StoreRegistryProvider>
         <Toaster richColors />
       </ThemeProvider>
       {/* <TanStackRouterDevtools position="bottom-left" />

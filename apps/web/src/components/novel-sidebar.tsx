@@ -31,7 +31,7 @@ export function NovelSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const novel = userStore.useQuery(novel$({ novelId }));
 
   return (
-    <Sidebar className="h-[calc(100svh-var(--header-height))]!" {...props}>
+    <Sidebar className="h-[calc(100svh-var(--header-height))]!" {...props} variant="inset">
       <SidebarHeader className="flex-row">
         <Button variant="ghost" size="icon" render={<Link to="/" />} nativeButton={false}>
           <ArrowLeft />

@@ -12,13 +12,14 @@ import { getChapterRoomId } from "@/utils/get-room-id";
 export const Route = createFileRoute("/novel/$novelId/$volumeId/$chapterId")({
   component: RouteComponent,
   preload: true,
-  loader: async ({ params, preload }) => {
+  loader: async ({ params, preload, context: { connection } }) => {
+    if (connection.state !== "connected") {
+      return;
+    }
+
     // 获取章节的 room ID 并预加载 Yjs 数据
     const roomId = getChapterRoomId(params.chapterId);
     if (roomId) {
-      // 传递 preload 标志
-      // 如果是预加载，数据加载完成后会自动清理实例
-      // 如果是正常导航，实例会保留给组件使用
       await preloadYjsInstance(roomId, preload);
     }
   },

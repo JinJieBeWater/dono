@@ -1,67 +1,73 @@
-import { useConnection } from "@/hooks/use-connection";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
-
+import { Wifi, WifiOff, Loader2, CloudOff } from "lucide-react";
+import { shouldNeverHappen } from "@/utils/should-never-happen";
+import { useConnection } from "@/hooks/use-connection";
 /**
  * ConnectionManager 组件
  * 使用 shadcn UI 风格显示当前连接状态
  */
-export default function ConnectionManager() {
-  const { connectionState } = useConnection();
+export default function ConnectionManager({
+  className,
+  ...props
+}: React.ComponentProps<typeof Button>) {
+  const connection = useConnection();
 
-  // 根据连接状态返回对应的样式配置
+  // 根据连接状态返回对应的图标和样式配置
   const getStatusConfig = () => {
-    switch (connectionState) {
+    switch (connection.state) {
       case "offline":
         return {
-          dotClass: "bg-muted-foreground border-2 border-background",
-          textClass: "text-muted-foreground",
-          tooltip: "Device offline. All changes are saved locally only.",
+          icon: WifiOff,
+          iconClass: "text-muted-foreground",
         };
       case "connecting":
         return {
-          dotClass: "bg-primary animate-pulse",
-          textClass: "text-muted-foreground",
-          tooltip: "Connecting to server...",
+          icon: Loader2,
+          iconClass: "text-primary animate-spin",
         };
       case "connected":
         return {
-          dotClass: "bg-primary",
-          textClass: "text-foreground",
-          tooltip: "Connected to server. Changes will sync automatically.",
+          icon: Wifi,
+          iconClass: "text-primary",
         };
       case "local_only":
         return {
-          dotClass: "bg-destructive",
-          textClass: "text-destructive",
-          tooltip: "Cannot connect to server, retrying. Currently in local-only mode.",
+          icon: CloudOff,
+          iconClass: "text-primary",
         };
       default:
-        return {
-          dotClass: "bg-muted",
-          textClass: "text-muted-foreground",
-          tooltip: "Unknown connection state",
-        };
+        throw shouldNeverHappen("Unknown connection state");
     }
   };
 
   const config = getStatusConfig();
+  const Icon = config.icon;
 
   return (
     <Tooltip>
-      <TooltipTrigger render={<Button variant="outline" size="icon"></Button>}>
+      <TooltipTrigger
+        render={
+          <Button
+            variant="outline"
+            size="icon"
+            className={cn("border-0", className)}
+            {...props}
+          ></Button>
+        }
+      >
         <output className="inline-flex items-center" aria-live="polite">
-          {/* 状态指示点 */}
-          <span
-            className={cn("size-2 rounded-full transition-all duration-300", config.dotClass)}
+          {/* 连接状态图标 */}
+          <Icon
+            className={cn("size-4 transition-all duration-300", config.iconClass)}
             aria-hidden="true"
           />
         </output>
       </TooltipTrigger>
 
       <TooltipContent side="bottom">
-        <p className="text-xs">{config.tooltip}</p>
+        <p className="text-xs">{connection.getStatusMessage()}</p>
       </TooltipContent>
     </Tooltip>
   );

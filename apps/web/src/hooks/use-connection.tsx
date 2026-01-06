@@ -21,9 +21,9 @@ export type ConnectionState = "connecting" | "connected" | "local_only" | "offli
  */
 interface ConnectionContextValue {
   /** 当前连接状态 */
-  connectionState: ConnectionState;
+  state: ConnectionState;
   /** 手动触发连接检查 */
-  checkConnection: () => Promise<void>;
+  check: () => Promise<void>;
   /** 获取状态消息 */
   getStatusMessage: () => string;
 }
@@ -136,8 +136,8 @@ export function ConnectionProvider({ children }: { children: ReactNode }) {
   }, [connectionState]);
 
   const value: ConnectionContextValue = {
-    connectionState,
-    checkConnection,
+    state: connectionState,
+    check: checkConnection,
     getStatusMessage,
   };
 

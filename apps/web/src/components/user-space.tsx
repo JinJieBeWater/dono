@@ -173,9 +173,9 @@ export function UserSpace() {
   };
 
   return (
-    <div className="w-full mx-auto p-4">
+    <div className="w-full mx-auto p-4 space-y-4">
       {recentNovel && (
-        <Card size="sm" className="mb-6 bg-linear-to-br from-accent/50 to-background ">
+        <Card size="sm" className="bg-linear-to-br from-accent/50 to-background ">
           <CardHeader>
             <div className="flex items-center gap-2 text-primary mb-1">
               <Edit className="w-4 h-4" />
@@ -215,8 +215,8 @@ export function UserSpace() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="novels">
-          <div className="flex items-center justify-between mb-6">
+        <TabsContent value="novels" className="space-y-4">
+          <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold mb-1">My Novels</h1>
               <p className="text-sm text-muted-foreground">
@@ -256,8 +256,8 @@ export function UserSpace() {
           )}
         </TabsContent>
 
-        <TabsContent value="trash">
-          <div className="flex items-center justify-between mb-6">
+        <TabsContent value="trash" className="space-y-4">
+          <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold mb-1">Trash</h1>
               <p className="text-sm text-muted-foreground">
@@ -298,9 +298,7 @@ export function UserSpace() {
                   <Trash2 />
                 </EmptyMedia>
                 <EmptyTitle>Trash is empty</EmptyTitle>
-                <EmptyDescription>
-                  Deleted novels will appear here. You can restore them or delete them forever.
-                </EmptyDescription>
+                <EmptyDescription>Deleted novels will appear here.</EmptyDescription>
               </EmptyHeader>
             </Empty>
           )}

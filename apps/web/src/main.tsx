@@ -7,39 +7,32 @@ import { StoreLoading } from "./components/loader";
 import { routeTree } from "./routeTree.gen";
 import { orpc, queryClient } from "./utils/orpc";
 import { StoreRegistry } from "@livestore/livestore";
-import { LocalUserInfoProvider } from "@/components/local-user-info-provider";
+import { ConnectionProvider, useConnection } from "./hooks/use-connection";
 
-export const getRouter = () => {
-  const storeRegistry = new StoreRegistry({
-    defaultOptions: {
-      batchUpdates,
-      debug: {
-        instanceId: "Tpb0Nb1lkG",
-      },
+const storeRegistry = new StoreRegistry({
+  defaultOptions: {
+    batchUpdates,
+    debug: {
+      instanceId: "Tpb0Nb1lkG",
     },
-  });
+  },
+});
 
-  return createRouter({
-    routeTree,
-    scrollRestoration: true,
-    defaultPreload: "intent",
-    defaultPendingComponent: () => <StoreLoading />,
-    context: {
-      storeRegistry,
-      orpc,
-      queryClient,
-    },
-    Wrap: function WrapComponent({ children }: { children: React.ReactNode }) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          <LocalUserInfoProvider>{children}</LocalUserInfoProvider>
-        </QueryClientProvider>
-      );
-    },
-  });
-};
-
-const router = getRouter();
+const router = createRouter({
+  routeTree,
+  scrollRestoration: true,
+  defaultPreload: "intent",
+  defaultPendingComponent: () => <StoreLoading />,
+  context: {
+    storeRegistry,
+    orpc,
+    queryClient,
+    connection: undefined!,
+  },
+  Wrap: function WrapComponent({ children }: { children: React.ReactNode }) {
+    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  },
+});
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -53,7 +46,27 @@ if (!rootElement) {
   throw new Error("Root element not found");
 }
 
+function App() {
+  return (
+    <ConnectionProvider>
+      <Router />
+    </ConnectionProvider>
+  );
+}
+
+function Router() {
+  const connection = useConnection();
+  return (
+    <RouterProvider
+      router={router}
+      context={{
+        connection,
+      }}
+    />
+  );
+}
+
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
-  root.render(<RouterProvider router={router} />);
+  root.render(<App />);
 }
