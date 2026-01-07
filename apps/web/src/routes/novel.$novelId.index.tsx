@@ -5,5 +5,5 @@ export const Route = createFileRoute("/novel/$novelId/")({
 });
 
 function RouteComponent() {
-  return <></>;
+  return <div className="px-3 pt-3 w-full">In development</div>;
 }

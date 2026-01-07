@@ -6,5 +6,9 @@ export const Route = createFileRoute("/novel/$novelId/$volumeId/")({
 });
 
 function RouteComponent() {
-  return <OutlineEditArea />;
+  return (
+    <div className="px-3 pt-3 w-full">
+      <OutlineEditArea />
+    </div>
+  );
 }

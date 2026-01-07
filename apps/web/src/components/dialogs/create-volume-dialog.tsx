@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { novelEvents, useNovelStore } from "@/stores/novel";
-import { useParams } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { id } from "@/utils/id";
 
 const createVolumeDialog = AlertDialogPrimitive.createHandle();
@@ -24,18 +24,27 @@ export function CreateVolumeDialog() {
   });
   const novelStore = useNovelStore(novelId);
   const [volumeTitle, setVolumeTitle] = useState("");
+  const navigate = useNavigate();
 
   const handleCreateVolume = (title: string) => {
     const date = new Date();
+    const newId = id();
     novelStore.commit(
       novelEvents.volumeCreated({
-        id: id(),
+        id: newId,
         title,
         created: date,
         modified: date,
       }),
     );
     setVolumeTitle("");
+    navigate({
+      to: `/novel/$novelId/$volumeId`,
+      params: {
+        novelId,
+        volumeId: newId,
+      },
+    });
   };
 
   return (

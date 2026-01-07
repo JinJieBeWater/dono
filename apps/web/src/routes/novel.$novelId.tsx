@@ -7,6 +7,7 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { userEvents, useUserStore } from "@/stores/user";
 import { useEffect } from "react";
 import { NovelHeader } from "@/components/novel-header";
+import { CatalogueTreeProvider } from "@/hooks/use-catalogue-tree";
 
 export const Route = createFileRoute("/novel/$novelId")({
   component: RouteComponent,
@@ -28,20 +29,18 @@ function RouteComponent() {
   }, [novelId]);
 
   return (
-    <SidebarProvider className="flex flex-col">
-      <OutlineProvider>
-        <div className="flex flex-1 overflow-hidden">
+    <SidebarProvider>
+      <CatalogueTreeProvider>
+        <OutlineProvider>
           <NovelSidebar variant="floating" />
           <SidebarInset>
-            <div className="h-full grid grid-rows-[auto_1fr] pl-2 pr-2">
+            <div className="pl-2 pr-2">
               <NovelHeader />
-              <div className="h-full w-full overflow-auto">
-                <Outlet />
-              </div>
+              <Outlet />
             </div>
           </SidebarInset>
-        </div>
-      </OutlineProvider>
+        </OutlineProvider>
+      </CatalogueTreeProvider>
     </SidebarProvider>
   );
 }

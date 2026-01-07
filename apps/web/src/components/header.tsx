@@ -20,7 +20,7 @@ export default function Header() {
             );
           })}
         </nav>
-        <SystemCapsule />
+        <SystemCapsule className="bg-sidebar" />
       </div>
     </header>
   );

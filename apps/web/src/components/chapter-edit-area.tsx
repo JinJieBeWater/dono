@@ -11,5 +11,5 @@ export const ChapterEditArea = () => {
 
   const roomId = getChapterRoomId(chapterId);
 
-  return <Editor className={cn("h-full px-1")} room={roomId}></Editor>;
+  return <Editor className={cn("h-full px-1 pb-[50svh]")} room={roomId}></Editor>;
 };

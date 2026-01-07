@@ -1,5 +1,6 @@
 import {
   type Chapter,
+  novelEvents,
   useNovelStore,
   visibleChapters$,
   visibleVolumes$,
@@ -15,14 +16,20 @@ import { useTree } from "@headless-tree/react";
 import { useParams } from "@tanstack/react-router";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useLocalStorage } from "./use-local-storage";
+import { renamingFeature } from "@headless-tree/core";
+import { shouldNeverHappen } from "@/utils/should-never-happen";
+
+export type CatalogueTreeVolumeItem = Volume & {
+  type: "volume";
+};
+
+export type CatalogueTreeChapterItem = Chapter & {
+  type: "chapter";
+};
 
 export type CatalogueTreeItem =
-  | ({
-      type: "volume";
-    } & Volume)
-  | ({
-      type: "chapter";
-    } & Chapter)
+  | CatalogueTreeVolumeItem
+  | CatalogueTreeChapterItem
   | {
       type: "placeholder";
     };
@@ -48,17 +55,8 @@ const customClickBehavior: FeatureImplementation = {
           item.expand();
         }
       },
-      onClick: (e: MouseEvent) => {
-        const target = e.target as HTMLElement;
-        const isChevronClick = target.closest('[data-chevron="true"]');
-
-        if (isChevronClick && item.isFolder()) {
-          if (item.isExpanded()) {
-            item.collapse();
-          } else {
-            item.expand();
-          }
-        }
+      onClick: (_e: MouseEvent) => {
+        //
       },
     }),
   },
@@ -83,6 +81,7 @@ export function CatalogueTreeProvider({ children }: { children: React.ReactNode 
 
   const tree = useTree<CatalogueTreeItem>({
     rootItemId: "root",
+    indent: 20,
     state: { expandedItems, focusedItem },
     setExpandedItems,
     setFocusedItem,
@@ -119,8 +118,32 @@ export function CatalogueTreeProvider({ children }: { children: React.ReactNode 
         }
       },
     },
-    indent: 20,
-    features: [syncDataLoaderFeature, hotkeysCoreFeature, customClickBehavior],
+    onRename: (item, value) => {
+      const data = item.getItemData();
+      switch (data.type) {
+        case "volume":
+          novelStore.commit(
+            novelEvents.volumeTitleUpdated({
+              id: data.id,
+              title: value,
+              modified: new Date(),
+            }),
+          );
+          break;
+        case "chapter":
+          novelStore.commit(
+            novelEvents.chapterTitleUpdated({
+              id: data.id,
+              title: value,
+              modified: new Date(),
+            }),
+          );
+          break;
+        default:
+          throw shouldNeverHappen("data.type !== volume && data.type !== chapter");
+      }
+    },
+    features: [syncDataLoaderFeature, hotkeysCoreFeature, customClickBehavior, renamingFeature],
   });
 
   useEffect(() => {

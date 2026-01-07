@@ -76,7 +76,7 @@ function RootComponent() {
       >
         <StoreRegistryProvider storeRegistry={storeRegistry}>
           <LocalUserInfoProvider>
-            <div className="max-h-svh h-svh scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary/20 scrollbar-hover:scrollbar-thumb-primary">
+            <div className="h-svh">
               <Outlet />
             </div>
           </LocalUserInfoProvider>

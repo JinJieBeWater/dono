@@ -17,7 +17,7 @@ function HomeComponent() {
   return (
     <div
       className={cn(
-        "h-svh mx-auto transition-all duration-200 ease-linear px-2 overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary/20 scrollbar-hover:scrollbar-thumb-primary",
+        "h-svh mx-auto px-2 overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary/20 scrollbar-hover:scrollbar-thumb-primary",
       )}
     >
       <Header />

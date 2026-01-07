@@ -14,8 +14,6 @@ import { CatalogueTree } from "@/components/catalogue-tree";
 import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { CreateVolumeDialog, createVolumeDialog } from "@/components/dialogs/create-volume-dialog";
 import { useParams } from "@tanstack/react-router";
-import { CreateChapterDialog } from "./dialogs/create-chapter-dialog";
-import { CatalogueTreeProvider } from "@/hooks/use-catalogue-tree";
 import { QuickAccess } from "./quick-access";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
@@ -74,10 +72,7 @@ function NovelSidebarContent({ ...props }: React.ComponentProps<typeof SidebarCo
         </SidebarGroupAction>
 
         <SidebarGroupContent>
-          <CatalogueTreeProvider>
-            <CatalogueTree novelId={novelId} />
-            <CreateChapterDialog />
-          </CatalogueTreeProvider>
+          <CatalogueTree novelId={novelId} />
         </SidebarGroupContent>
       </SidebarGroup>
 

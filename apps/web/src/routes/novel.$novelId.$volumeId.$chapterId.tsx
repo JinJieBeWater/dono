@@ -2,12 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { useOutline } from "@/hooks/use-outline";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
 import { ChapterEditArea } from "@/components/chapter-edit-area";
 import { OutlineEditArea } from "@/components/outline-edit-area";
 import { ChapterHeader } from "@/components/chapter-header";
 import { preloadYjsInstance } from "@/components/editor/extension/yjs";
 import { getChapterRoomId } from "@/utils/get-room-id";
+import { ScrollToTop } from "@/components/ui/scroll-to-top";
+import { ArrowUpToLine } from "lucide-react";
+import { createPortal } from "react-dom";
 
 export const Route = createFileRoute("/novel/$novelId/$volumeId/$chapterId")({
   component: RouteComponent,
@@ -33,20 +35,16 @@ function RouteComponent() {
   const shouldShowChapterEditor = isMobile ? !isOutlineOpen : true;
 
   return (
-    <div className="px-3 pt-3 h-full w-full">
+    <div className="px-3 pt-3 w-full">
       <ResizablePanelGroup direction="horizontal">
         {shouldShowChapterEditor && (
-          <ResizablePanel id="editor" minSize={isMobile ? undefined : 30}>
-            {/* 居中容器：为所有子组件提供统一的居中和宽度限制 */}
-            <div
-              className={cn(
-                "mx-auto h-full flex flex-col transition-[width] duration-200 ease-linear",
-                "max-w-180",
-              )}
-            >
-              <ChapterHeader />
-              <ChapterEditArea />
-            </div>
+          <ResizablePanel
+            id="editor"
+            minSize={isMobile ? undefined : 30}
+            className="mx-auto max-w-180 transition-[width] duration-200 ease-linear"
+          >
+            <ChapterHeader />
+            <ChapterEditArea />
           </ResizablePanel>
         )}
         {isOutlineOpen && (
@@ -59,6 +57,19 @@ function RouteComponent() {
           </>
         )}
       </ResizablePanelGroup>
+
+      {createPortal(
+        <ScrollToTop
+          variant={"outline"}
+          size={"icon-lg"}
+          minHeight={800}
+          scrollTo={10}
+          className="fixed right-5 bottom-5 bg-sidebar"
+        >
+          <ArrowUpToLine />
+        </ScrollToTop>,
+        document.body,
+      )}
     </div>
   );
 }

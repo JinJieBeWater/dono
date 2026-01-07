@@ -23,7 +23,7 @@ export const ChapterHeader = ({ className, ...props }: React.ComponentProps<type
       className={cn("mb-4", className)}
       {...props}
     >
-      <EditablePreview className="text-2xl font-bold py-2 border-b" />
+      <EditablePreview placeholder="Unamed Chapter" className="text-2xl font-bold py-2 border-b" />
       <EditableInput className="text-2xl font-bold py-2 border-b" />
     </Editable>
   );
