@@ -43,10 +43,10 @@ function initializeYjsInstance(room: string): YjsInstance {
 
   // 创建同步完成的 Promise
   const syncedPromise = new Promise<void>((resolve) => {
-    persistence.on("synced", () => {
-      console.log(doc);
-
-      resolve();
+    provider.on("sync", (isSynced: boolean) => {
+      if (isSynced) {
+        resolve();
+      }
     });
   });
 

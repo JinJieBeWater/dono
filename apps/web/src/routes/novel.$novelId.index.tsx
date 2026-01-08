@@ -2,7 +2,17 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useParams } from "@tanstack/react-router";
 import { novel$, useUserStore, userEvents } from "@/stores/user";
 import { Button } from "@/components/ui/button";
-import { Download, Upload, Pencil, Clock, MoreVertical, Sparkles, Trash2 } from "lucide-react";
+import {
+  Download,
+  Upload,
+  Pencil,
+  Clock,
+  MoreVertical,
+  Sparkles,
+  Trash2,
+  Archive,
+  ArrowUpToLine,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +27,8 @@ import { useCatalogueTree } from "@/hooks/use-catalogue-tree";
 import { shouldNeverHappen } from "@/utils/should-never-happen";
 import { Editable, EditablePreview, EditableInput } from "@/components/ui/editable";
 import { toast } from "sonner";
+import { createPortal } from "react-dom";
+import { ScrollToTop } from "@/components/ui/scroll-to-top";
 
 export const Route = createFileRoute("/novel/$novelId/")({
   component: RouteComponent,
@@ -24,7 +36,7 @@ export const Route = createFileRoute("/novel/$novelId/")({
 
 function RouteComponent() {
   const { novelId } = useParams({ from: "/novel/$novelId/" });
-  const { isMobile } = useSidebar();
+  const { open, isMobile } = useSidebar();
   const userStore = useUserStore();
   const novel = userStore.useQuery(novel$({ novelId }));
   const { tree } = useCatalogueTree();
@@ -100,11 +112,15 @@ function RouteComponent() {
     toast.info("In development...");
   };
 
+  const handleArchive = () => {
+    toast.info("In development...");
+  };
+
   return (
-    <div className="max-w-5xl mx-auto h-[calc(100%-var(--header-height)-1rem)]">
+    <div className="max-w-4xl mx-auto h-[calc(100%-var(--header-height)-1rem)] pb-16">
       {/* 头部区域 - 标题和元信息 */}
-      <div className="px-4 md:px-22">
-        <header className="md:pt-22 pt-4 pb-2 pd:mb-4">
+      <div className="px-4 md:px-12">
+        <header className="md:pt-[12svh] pt-4 pb-2 pd:mb-4">
           <div className="space-y-2 md:space-y-4 mb-6">
             <div className="inline-flex items-center gap-2 px-2 md:px-3 py-1 rounded-full bg-sidebar text-primary text-xs md:text-sm font-medium border">
               <Sparkles className="size-4" />
@@ -153,8 +169,14 @@ function RouteComponent() {
                 {/* <DropdownMenuItem>
                 <Settings />
                 Settings
-              </DropdownMenuItem>
-              <DropdownMenuSeparator /> */}
+              </DropdownMenuItem> */}
+                {/* 归档 */}
+                <DropdownMenuItem onClick={handleArchive}>
+                  <Archive />
+                  Archive
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
                 <DropdownMenuItem variant="destructive" onClick={handleDelete}>
                   <Trash2 />
                   Delete Novel
@@ -165,13 +187,25 @@ function RouteComponent() {
         </header>
       </div>
       {/* 主内容区域 */}
-      {isMobile && (
-        <>
+      {(!open || isMobile) && (
+        <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] md:gap-2 md:px-12 md:pt-2">
           {/* 快速访问 */}
           <CatalogueQuickAccess showBackHome={false} />
           {/* 卷章树 */}
           <CatalogueTree novelId={novelId} />
-        </>
+        </div>
+      )}
+      {createPortal(
+        <ScrollToTop
+          variant={"outline"}
+          size={"icon-lg"}
+          minHeight={800}
+          scrollTo={10}
+          className="fixed right-5 bottom-5 bg-sidebar"
+        >
+          <ArrowUpToLine />
+        </ScrollToTop>,
+        document.body,
       )}
     </div>
   );

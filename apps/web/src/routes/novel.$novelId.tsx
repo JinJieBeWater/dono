@@ -9,6 +9,8 @@ import { useEffect } from "react";
 import { NovelHeader } from "@/components/novel-header";
 import { CatalogueTreeProvider } from "@/hooks/use-catalogue-tree";
 import { CreateVolumeDialog } from "@/components/dialogs/create-volume-dialog";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import { NOVEL_SIDEBAR_STATE_KEY } from "@/constants";
 
 export const Route = createFileRoute("/novel/$novelId")({
   component: RouteComponent,
@@ -24,6 +26,7 @@ function RouteComponent() {
     select: (params) => params.novelId,
   });
   const userStore = useUserStore();
+  const [defaultOpen] = useLocalStorage(NOVEL_SIDEBAR_STATE_KEY, true);
 
   useEffect(() => {
     userStore.commit(userEvents.uiStateSet({ lastAccessedNovelId: novelId }));
@@ -31,6 +34,7 @@ function RouteComponent() {
 
   return (
     <SidebarProvider
+      defaultOpen={defaultOpen}
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 60)",

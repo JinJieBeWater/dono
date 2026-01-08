@@ -63,7 +63,12 @@ export function CatalogueQuickJump({ className, ...props }: React.ComponentProps
           className="border-0 bg-inherit"
           variant="outline"
           size={"icon"}
-          render={<QuickJumpLink item={prevItem}></QuickJumpLink>}
+          render={
+            <QuickJumpLink
+              item={prevItem}
+              className={cn(!prevItem && "cursor-not-allowed")}
+            ></QuickJumpLink>
+          }
           nativeButton={false}
         >
           <ChevronLeft />

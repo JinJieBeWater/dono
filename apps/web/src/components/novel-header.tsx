@@ -19,8 +19,7 @@ export function NovelHeader() {
   // 移动端一直显示，桌面端根据 open 状态切换
   const shouldShow = isMobile ? true : !open;
 
-  // 移动端且不处于小说主页时展示返回主页的按钮
-  const shouldShowBackHomeButton = isMobile && !isNovelHomePage;
+  const shouldShowBackHomeButton = !isNovelHomePage;
   return (
     <header
       className={cn(
