@@ -22,7 +22,7 @@ export const Route = createFileRoute("/novel/$novelId/$volumeId/$chapterId")({
     // 获取章节的 room ID 并预加载 Yjs 数据
     const roomId = getChapterRoomId(params.chapterId);
     if (roomId) {
-      await preloadYjsInstance(roomId, preload);
+      void preloadYjsInstance(roomId, preload);
     }
   },
 });

@@ -48,7 +48,9 @@ function RouteComponent() {
           <SidebarInset>
             <div className="pl-2 pr-2 h-full">
               <NovelHeader />
-              <Outlet />
+              <div className="h-[calc(100%-var(--header-height))]">
+                <Outlet />
+              </div>
               <CreateVolumeDialog />
             </div>
           </SidebarInset>
