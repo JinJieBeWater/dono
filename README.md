@@ -18,11 +18,11 @@
 - **LiveStore**
 - **TanStack Router**
 - **shadcn/ui**
-- **TailwindCSS**
 - **Hono**
+- **Better-Auth**
+- **Yjs**
 - **Cloudflare Workers**
 - **Durable Objects**
-- **Better-Auth**
 
 ## Getting Started
 
@@ -70,3 +70,4 @@ pnpm run dev
     - When actually clicking a chapter, content loads instantly from IndexedDB
     - All chapter content remains available offline after being preloaded once
 - [ ] Current data is soft-deleted, accumulating infinitely in DO, need to implement real data deletion to free storage space
+- [ ] Design and implement outline UI and functionality
