@@ -128,6 +128,7 @@ const QuickJumpLink = ({
             novelId,
             volumeId: itemData.id,
           }}
+          preload="render"
           {...props}
         >
           {children}
@@ -142,6 +143,7 @@ const QuickJumpLink = ({
             volumeId: itemData.volumeId,
             chapterId: itemData.id,
           }}
+          preload="render"
           {...props}
         >
           {children}
@@ -154,6 +156,7 @@ const QuickJumpLink = ({
           params={{
             novelId,
           }}
+          preload="render"
           {...props}
         >
           {children}
