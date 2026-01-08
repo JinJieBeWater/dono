@@ -11,5 +11,11 @@ export const ChapterEditArea = () => {
 
   const roomId = getChapterRoomId(chapterId);
 
-  return <Editor className={cn("h-full px-1 pb-[50svh]")} room={roomId}></Editor>;
+  return (
+    <Editor
+      placeholder="Write your chapter content here..."
+      className={cn("px-1 pb-[70svh]")}
+      room={roomId}
+    ></Editor>
+  );
 };

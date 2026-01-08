@@ -44,6 +44,8 @@ function initializeYjsInstance(room: string): YjsInstance {
   // 创建同步完成的 Promise
   const syncedPromise = new Promise<void>((resolve) => {
     persistence.on("synced", () => {
+      console.log(doc);
+
       resolve();
     });
   });
@@ -52,7 +54,6 @@ function initializeYjsInstance(room: string): YjsInstance {
   const ua = userAgent();
   if (provider.awareness) {
     provider.awareness.setLocalStateField("user", { name: ua.osName });
-    console.log("ua", ua);
   }
 
   return { doc, provider, persistence, syncedPromise };
@@ -103,20 +104,15 @@ export async function preloadYjsInstance(room: string, isPreload = false): Promi
  * @param room - 房间名称，用于标识协同编辑的文档
  * @returns Yjs 扩展配置，如果没有房间则返回 null
  */
-export function setupYjsExtension(room: string | undefined) {
-  if (!room) {
-    return null;
-  }
-
+export function setupYjsExtension(room: string) {
   // 获取或创建 Yjs 实例
   // 如果是从 loader 过来的，实例已经存在且连接正常
   // 如果没有经过 loader，这里会创建新实例
   const instance = getOrCreateYjsInstance(room);
   const { doc } = instance;
   const fragment = doc.getXmlFragment("prosemirror");
-
   // 返回 Yjs 扩展配置
-  return withPriority(
+  const yjsExtension = withPriority(
     union([
       defineYjsKeymap(),
       defineYjsCommands(),
@@ -126,6 +122,11 @@ export function setupYjsExtension(room: string | undefined) {
     ]),
     Priority.high,
   );
+
+  return {
+    yjsExtension,
+    syncedPromise: instance.syncedPromise,
+  };
 }
 
 /**

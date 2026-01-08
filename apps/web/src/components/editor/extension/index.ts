@@ -10,16 +10,19 @@ export function defineExtension({
   placeholder?: string;
   room?: string;
 }) {
-  // 设置 Yjs 协同编辑扩展
-  const yjsExtension = setupYjsExtension(room);
-
   // 组合所有扩展
-  if (yjsExtension) {
-    return union(defineBasicExtension(), definePlaceholder({ placeholder }), yjsExtension);
+  if (room) {
+    const { yjsExtension, syncedPromise } = setupYjsExtension(room);
+    return {
+      extension: union(defineBasicExtension(), definePlaceholder({ placeholder }), yjsExtension),
+      syncedPromise,
+    };
   }
 
   // 如果没有协同编辑，只返回基础扩展
-  return union(defineBasicExtension(), definePlaceholder({ placeholder }));
+  return {
+    extension: union(defineBasicExtension(), definePlaceholder({ placeholder })),
+  };
 }
 
 export type EditorExtension = ReturnType<typeof defineExtension>;

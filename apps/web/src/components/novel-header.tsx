@@ -1,7 +1,7 @@
 import { useSidebar } from "@/components/ui/sidebar";
-import { Link } from "@tanstack/react-router";
+import { Link, useMatchRoute, useParams } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, PanelLeft } from "lucide-react";
+import { ArrowLeft, Home, PanelLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Item } from "@/components/ui/item";
@@ -10,10 +10,17 @@ import { CatalogueQuickJump } from "./catalogue-quick-jump";
 
 export function NovelHeader() {
   const { open, isMobile, toggleSidebar } = useSidebar();
-
+  const match = useMatchRoute();
+  const isNovelHomePage = !!match({ to: "/novel/$novelId" });
+  const novelId = useParams({
+    from: "/novel/$novelId",
+    select: (params) => params.novelId,
+  });
   // 移动端一直显示，桌面端根据 open 状态切换
   const shouldShow = isMobile ? true : !open;
 
+  // 移动端且不处于小说主页时展示返回主页的按钮
+  const shouldShowBackHomeButton = isMobile && !isNovelHomePage;
   return (
     <header
       className={cn(
@@ -31,15 +38,27 @@ export function NovelHeader() {
           )}
         >
           <ButtonGroup>
-            <Button
-              className="border-0 bg-inherit"
-              variant="outline"
-              size={"icon"}
-              nativeButton={false}
-              render={<Link to="/" />}
-            >
-              <ArrowLeft />
-            </Button>
+            {shouldShowBackHomeButton ? (
+              <Button
+                className="border-0 bg-inherit"
+                variant="outline"
+                size={"icon"}
+                nativeButton={false}
+                render={<Link to="/novel/$novelId" params={{ novelId }} />}
+              >
+                <Home />
+              </Button>
+            ) : (
+              <Button
+                className="border-0 bg-inherit"
+                variant="outline"
+                size={"icon"}
+                nativeButton={false}
+                render={<Link to="/" />}
+              >
+                <ArrowLeft />
+              </Button>
+            )}
             <Button
               className="border-0 bg-inherit"
               variant="outline"

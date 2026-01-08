@@ -1,20 +1,9 @@
-import { Plus, PanelLeft, ArrowLeft } from "lucide-react";
+import { PanelLeft, ArrowLeft } from "lucide-react";
 
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupAction,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  useSidebar,
-} from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarHeader, useSidebar } from "@/components/ui/sidebar";
 import { CatalogueTree } from "@/components/catalogue-tree";
-import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { CreateVolumeDialog, createVolumeDialog } from "@/components/dialogs/create-volume-dialog";
 import { useParams } from "@tanstack/react-router";
-import { QuickAccess } from "./quick-access";
+import { CatalogueQuickAccess } from "./catalogue-quick-access";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { novel$, useUserStore } from "@/stores/user";
@@ -62,21 +51,10 @@ function NovelSidebarContent({ ...props }: React.ComponentProps<typeof SidebarCo
 
   return (
     <SidebarContent {...props}>
-      <QuickAccess />
+      <CatalogueQuickAccess />
 
       {/* 卷章树 */}
-      <SidebarGroup>
-        <SidebarGroupLabel>Catalogue</SidebarGroupLabel>
-        <SidebarGroupAction render={<AlertDialogTrigger handle={createVolumeDialog} />}>
-          <Plus /> <span className="sr-only">Add Project</span>
-        </SidebarGroupAction>
-
-        <SidebarGroupContent>
-          <CatalogueTree novelId={novelId} />
-        </SidebarGroupContent>
-      </SidebarGroup>
-
-      <CreateVolumeDialog />
+      <CatalogueTree novelId={novelId} />
     </SidebarContent>
   );
 }

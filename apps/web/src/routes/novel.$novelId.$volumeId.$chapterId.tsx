@@ -35,7 +35,7 @@ function RouteComponent() {
   const shouldShowChapterEditor = isMobile ? !isOutlineOpen : true;
 
   return (
-    <div className="px-3 pt-3 w-full">
+    <div className="px-3 pt-3 w-full h-[calc(100%-var(--header-height))]">
       <ResizablePanelGroup direction="horizontal">
         {shouldShowChapterEditor && (
           <ResizablePanel

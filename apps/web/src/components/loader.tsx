@@ -2,9 +2,9 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { motion } from "motion/react";
 
-export default function Loader() {
+export default function Loader({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div className="flex h-full items-center justify-center pt-8">
+    <div className={cn("flex h-full items-center justify-center pt-8", className)} {...props}>
       <Loader2 className="animate-spin" />
     </div>
   );

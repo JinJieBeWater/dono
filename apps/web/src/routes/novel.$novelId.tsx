@@ -8,6 +8,7 @@ import { userEvents, useUserStore } from "@/stores/user";
 import { useEffect } from "react";
 import { NovelHeader } from "@/components/novel-header";
 import { CatalogueTreeProvider } from "@/hooks/use-catalogue-tree";
+import { CreateVolumeDialog } from "@/components/dialogs/create-volume-dialog";
 
 export const Route = createFileRoute("/novel/$novelId")({
   component: RouteComponent,
@@ -29,14 +30,22 @@ function RouteComponent() {
   }, [novelId]);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 60)",
+          "--header-height": "calc(var(--spacing) * 8.5)",
+        } as React.CSSProperties
+      }
+    >
       <CatalogueTreeProvider>
         <OutlineProvider>
           <NovelSidebar variant="floating" />
           <SidebarInset>
-            <div className="pl-2 pr-2">
+            <div className="pl-2 pr-2 h-full">
               <NovelHeader />
               <Outlet />
+              <CreateVolumeDialog />
             </div>
           </SidebarInset>
         </OutlineProvider>

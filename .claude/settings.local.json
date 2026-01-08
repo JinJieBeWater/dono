@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": ["Skill(frontend-design)", "Skill(frontend-design:*)"]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": ["context7", "cloudflare", "shadcn", "better-auth"]
+}

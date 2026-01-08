@@ -1,9 +1,9 @@
 import * as React from "react";
-import { Input } from "@base-ui/react/input";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 
 import { cn } from "@/lib/utils";
+import { Textarea } from "./textarea";
 
 // ==================== Context ====================
 
@@ -136,7 +136,12 @@ function EditablePreview({
   const content = children || value || placeholder;
 
   const defaultProps: useRender.ElementProps<"div"> = {
-    className: cn(!hasValue && "text-muted-foreground", isEditing && "hidden", className),
+    className: cn(
+      "text-base",
+      !hasValue && "text-muted-foreground",
+      isEditing && "hidden",
+      className,
+    ),
     onClick: startEdit,
     onKeyDown: (e: React.KeyboardEvent) => {
       if (e.key === "Enter" || e.key === " ") {
@@ -167,11 +172,11 @@ function EditableInput({
   className,
   onKeyDown,
   onBlur,
-  render,
   ...props
-}: useRender.ComponentProps<"input"> & Omit<React.ComponentProps<"input">, "value" | "onChange">) {
+}: React.ComponentProps<"textarea"> &
+  Omit<React.ComponentProps<"textarea">, "value" | "onChange">) {
   const { isEditing, value, setValue, submitEdit, cancelEdit } = useEditableContext();
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = React.useRef<HTMLTextAreaElement>(null);
 
   // 自动聚焦并将光标移到末尾
   React.useEffect(() => {
@@ -183,7 +188,7 @@ function EditableInput({
     }
   }, [isEditing]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
       submitEdit();
@@ -194,25 +199,28 @@ function EditableInput({
     onKeyDown?.(e);
   };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     // 失去焦点时自动提交
     submitEdit();
     onBlur?.(e);
   };
 
-  const defaultProps: useRender.ElementProps<"input"> = {
+  const defaultProps: useRender.ElementProps<"textarea"> = {
     ref: inputRef as any,
     value,
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value),
+    onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value),
     onKeyDown: handleKeyDown,
     onBlur: handleBlur,
-    className: cn("w-full outline-none", className),
+    className: cn(
+      "w-full outline-none resize-none border-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-auto rounded-none",
+      className,
+    ),
   };
 
   const element = useRender({
-    defaultTagName: "input",
-    props: mergeProps<"input">(defaultProps, props),
-    render: render ?? <Input />,
+    defaultTagName: "textarea",
+    props: mergeProps<"textarea">(defaultProps, props),
+    render: <Textarea />,
     state: {
       slot: "editable-input",
       value,

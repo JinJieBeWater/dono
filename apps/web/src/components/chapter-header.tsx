@@ -20,11 +20,11 @@ export const ChapterHeader = ({ className, ...props }: React.ComponentProps<type
     <Editable
       value={chapter.title}
       onSubmit={handleNovelChange}
-      className={cn("mb-4", className)}
+      className={cn("mb-4 py-2 border-b font-bold text-2xl", className)}
       {...props}
     >
-      <EditablePreview placeholder="Unamed Chapter" className="text-2xl font-bold py-2 border-b" />
-      <EditableInput className="text-2xl font-bold py-2 border-b" />
+      <EditablePreview placeholder="Write your chapter title..." className="text-2xl" />
+      <EditableInput placeholder="Write your chapter title..." className="text-2xl!" />
     </Editable>
   );
 };

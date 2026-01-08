@@ -11,7 +11,7 @@ import {
 import { lastVisibleChapter$, latestVisibleVolume$, useNovelStore } from "@/stores/novel";
 import { Link, useMatchRoute, useParams } from "@tanstack/react-router";
 
-export function QuickAccess() {
+export function CatalogueQuickAccess({ showBackHome = true }: { showBackHome?: boolean }) {
   const { novelId } = useParams({
     from: "/novel/$novelId",
   });
@@ -38,27 +38,35 @@ export function QuickAccess() {
     },
   });
 
+  // Check if there are any quick access items
+  const hasQuickAccessItems = showBackHome || latestVolume || lastestChapter;
+  if (!hasQuickAccessItems) {
+    return;
+  }
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Quick Access</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              isActive={isNovelHomePage}
-              render={
-                <Link
-                  to="/novel/$novelId"
-                  params={{
-                    novelId,
-                  }}
-                />
-              }
-            >
-              <BookOpen className="size-4 shrink-0" />
-              <span className="text-sm font-medium">Home</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {showBackHome && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                isActive={isNovelHomePage}
+                render={
+                  <Link
+                    to="/novel/$novelId"
+                    params={{
+                      novelId,
+                    }}
+                  />
+                }
+              >
+                <BookOpen className="size-4 shrink-0" />
+                <span className="text-sm font-medium">Home</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           {latestVolume && (
             <SidebarMenuItem>
               <SidebarMenuButton
