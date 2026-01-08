@@ -1,9 +1,10 @@
-import { defineYjs } from "prosekit/extensions/yjs";
+import { defineYjsCommands, defineYjsKeymap, defineYjsSyncPlugin } from "prosekit/extensions/yjs";
 import { WebsocketProvider } from "y-websocket";
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
 import { env } from "@dono/env/web";
 import { userAgent } from "@/utils/user-agent";
+import { Priority, union, withPriority } from "prosekit/core";
 
 /**
  * Yjs 实例缓存
@@ -51,6 +52,7 @@ function initializeYjsInstance(room: string): YjsInstance {
   const ua = userAgent();
   if (provider.awareness) {
     provider.awareness.setLocalStateField("user", { name: ua.osName });
+    console.log("ua", ua);
   }
 
   return { doc, provider, persistence, syncedPromise };
@@ -110,9 +112,20 @@ export function setupYjsExtension(room: string | undefined) {
   // 如果是从 loader 过来的，实例已经存在且连接正常
   // 如果没有经过 loader，这里会创建新实例
   const instance = getOrCreateYjsInstance(room);
+  const { doc } = instance;
+  const fragment = doc.getXmlFragment("prosemirror");
 
   // 返回 Yjs 扩展配置
-  return defineYjs({ doc: instance.doc, awareness: instance.provider.awareness });
+  return withPriority(
+    union([
+      defineYjsKeymap(),
+      defineYjsCommands(),
+      // defineYjsCursorPlugin({ ...cursor, awareness }),
+      // defineYjsUndoPlugin({ ...undo }),
+      defineYjsSyncPlugin({ fragment }),
+    ]),
+    Priority.high,
+  );
 }
 
 /**

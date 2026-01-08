@@ -179,8 +179,13 @@
 }
 
 /* custom */
-.ProseMirror p {
+.ProseMirror > p {
   text-indent: 2rem;
+}
+
+/* 重置 p 内部所有子元素的缩进 */
+.ProseMirror > p * {
+  text-indent: 0;
 }
 
 .ProseMirror .prosekit-placeholder {

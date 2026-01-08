@@ -1,6 +1,6 @@
 import "prosekit/basic/style.css";
 import "./typography.css";
-import "prosekit/extensions/yjs/style.css";
+import "./yjs.css";
 import { createEditor, jsonFromNode, type NodeJSON } from "prosekit/core";
 import { ProseKit, useDocChange } from "prosekit/react";
 import { useCallback, useMemo } from "react";
