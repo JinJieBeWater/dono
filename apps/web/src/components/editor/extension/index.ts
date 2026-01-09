@@ -12,10 +12,11 @@ export function defineExtension({
 }) {
   // 组合所有扩展
   if (room) {
-    const { yjsExtension, syncedPromise } = setupYjsExtension(room);
+    const { yjsExtension, dbSyncedPromise, wsSyncedPromise } = setupYjsExtension(room);
     return {
       extension: union(defineBasicExtension(), definePlaceholder({ placeholder }), yjsExtension),
-      syncedPromise,
+      wsSyncedPromise,
+      dbSyncedPromise,
     };
   }
 

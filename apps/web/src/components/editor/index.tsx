@@ -22,12 +22,12 @@ const Editor = ({
   const [isLoaded, setIsLoaded] = useState(room ? false : true);
 
   const editor = useMemo(() => {
-    const { extension, syncedPromise } = defineExtension({
+    const { extension, dbSyncedPromise } = defineExtension({
       placeholder,
       room,
     });
-    if (syncedPromise) {
-      syncedPromise.then(() => setIsLoaded(true));
+    if (dbSyncedPromise) {
+      dbSyncedPromise.then(() => setIsLoaded(true));
     }
 
     const EditorInstance = createEditor({ extension, defaultContent });

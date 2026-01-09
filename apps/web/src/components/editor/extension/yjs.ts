@@ -13,7 +13,8 @@ interface YjsInstance {
   doc: Y.Doc;
   provider: WebsocketProvider;
   persistence: IndexeddbPersistence;
-  syncedPromise: Promise<void>;
+  wsSyncedPromise: Promise<void>;
+  dbSyncedPromise: Promise<void>;
 }
 
 /**
@@ -42,11 +43,17 @@ function initializeYjsInstance(room: string): YjsInstance {
   const persistence = new IndexeddbPersistence(room, doc);
 
   // 创建同步完成的 Promise
-  const syncedPromise = new Promise<void>((resolve) => {
+  const wsSyncedPromise = new Promise<void>((resolve) => {
     provider.on("sync", (isSynced: boolean) => {
       if (isSynced) {
         resolve();
       }
+    });
+  });
+
+  const dbSyncedPromise = new Promise<void>((resolve) => {
+    persistence.on("synced", () => {
+      resolve();
     });
   });
 
@@ -56,7 +63,7 @@ function initializeYjsInstance(room: string): YjsInstance {
     provider.awareness.setLocalStateField("user", { name: ua.osName });
   }
 
-  return { doc, provider, persistence, syncedPromise };
+  return { doc, provider, persistence, wsSyncedPromise, dbSyncedPromise };
 }
 
 /**
@@ -86,14 +93,11 @@ function getOrCreateYjsInstance(room: string): YjsInstance {
 export async function preloadYjsInstance(room: string, isPreload = false): Promise<void> {
   const instance = getOrCreateYjsInstance(room);
 
-  // 等待 IndexedDB 同步完成
-  await instance.syncedPromise;
+  await Promise.all([instance.wsSyncedPromise, instance.dbSyncedPromise]);
 
   if (isPreload) {
-    // 预加载模式：数据已经加载到 IndexedDB，可以完全清理实例
-    // 后续真正导航时会重新创建实例
-    instance.provider.destroy();
     instance.persistence.destroy();
+    instance.provider.destroy();
     yjsInstanceCache.delete(room);
   }
   // 正常加载模式：保持连接，组件渲染时直接使用
@@ -125,7 +129,8 @@ export function setupYjsExtension(room: string) {
 
   return {
     yjsExtension,
-    syncedPromise: instance.syncedPromise,
+    wsSyncedPromise: instance.wsSyncedPromise,
+    dbSyncedPromise: instance.dbSyncedPromise,
   };
 }
 
