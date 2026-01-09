@@ -7,6 +7,8 @@ import { CatalogueQuickAccess } from "./catalogue-quick-access";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { novel$, useUserStore } from "@/stores/user";
+import { useCatalogueTree } from "@/hooks/use-catalogue-tree";
+import { useEffect, useEffectEvent } from "react";
 
 export function NovelSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { toggleSidebar } = useSidebar();
@@ -44,17 +46,52 @@ export function NovelSidebar(props: React.ComponentProps<typeof Sidebar>) {
   );
 }
 
-function NovelSidebarContent({ ...props }: React.ComponentProps<typeof SidebarContent>) {
-  const { novelId } = useParams({
-    from: "/novel/$novelId",
+const NovelSidebarContent = ({ ...props }: React.ComponentProps<typeof SidebarContent>) => {
+  const volumeId = useParams({
+    from: "/novel/$novelId/$volumeId",
+    select: (params) => params.volumeId,
+    shouldThrow: false,
+  });
+  const chapterId = useParams({
+    from: "/novel/$novelId/$volumeId/$chapterId",
+    select: (params) => params.chapterId,
+    shouldThrow: false,
+  });
+  const { tree, setFocusedItem } = useCatalogueTree();
+
+  const onFocus = useEffectEvent(() => {
+    // 优先聚焦章节，如果没有章节则聚焦卷
+    const focusId = chapterId || volumeId;
+
+    if (focusId) {
+      const item = tree.getItemInstance(focusId);
+      if (item) {
+        item.setFocused();
+
+        // 如果是章节，确保其父卷是展开的
+        if (chapterId && volumeId) {
+          const volumeItem = tree.getItemInstance(volumeId);
+          if (volumeItem && !volumeItem.isExpanded()) {
+            volumeItem.expand();
+          }
+        }
+      }
+    } else {
+      // 直接通过tree的状态更新
+      setFocusedItem("root");
+    }
   });
 
+  // 根据当前路由参数自动聚焦对应的章节或卷
+  useEffect(() => {
+    onFocus();
+  }, [chapterId, volumeId]);
   return (
     <SidebarContent {...props}>
       <CatalogueQuickAccess />
 
       {/* 卷章树 */}
-      <CatalogueTree novelId={novelId} />
+      <CatalogueTree />
     </SidebarContent>
   );
-}
+};

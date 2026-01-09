@@ -192,7 +192,7 @@ function RouteComponent() {
           {/* 快速访问 */}
           <CatalogueQuickAccess showBackHome={false} />
           {/* 卷章树 */}
-          <CatalogueTree novelId={novelId} />
+          <CatalogueTree />
         </div>
       )}
       {createPortal(

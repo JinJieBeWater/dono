@@ -11,6 +11,7 @@ export const ChapterHeader = ({ className, ...props }: React.ComponentProps<type
   const chapter = novelStore.useQuery(chapter$({ chapterId }));
 
   const handleNovelChange = (newTitle: string) => {
+    if (newTitle.trim() === chapter.title) return;
     novelStore.commit(
       novelEvents.chapterTitleUpdated({ id: chapterId, title: newTitle, modified: new Date() }),
     );

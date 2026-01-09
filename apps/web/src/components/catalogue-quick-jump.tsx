@@ -10,27 +10,36 @@ import { useNovelStore } from "@/stores/novel";
 import { createChapter } from "@/stores/novel/command";
 import { shouldNeverHappen } from "@/utils/should-never-happen";
 
-export function CatalogueQuickJump({ className, ...props }: React.ComponentProps<"div">) {
+export function CatalogueQuickJump() {
   const match = useMatchRoute();
-  const navigate = useNavigate();
-  const novelId = useParams({
-    from: "/novel/$novelId",
-    select: ({ novelId }) => novelId,
-  });
+
   const volumeId = useParams({
     from: "/novel/$novelId/$volumeId",
     shouldThrow: false,
     select: ({ volumeId }) => volumeId,
   });
-
-  const volumeParams = match({
-    to: "/novel/$novelId/$volumeId",
+  const novelId = useParams({
+    from: "/novel/$novelId",
+    select: ({ novelId }) => novelId,
   });
+
   const isChapterPage = !!match({
     to: "/novel/$novelId/$volumeId/$chapterId",
   });
-  const isShow = volumeParams || isChapterPage;
+  const isShow = volumeId || isChapterPage;
+  if (!isShow) return null;
 
+  return <CatalogueQuickJumpInner novelId={novelId} volumeId={volumeId} />;
+}
+
+export function CatalogueQuickJumpInner({
+  volumeId,
+  novelId,
+}: {
+  volumeId?: string;
+  novelId: string;
+}) {
+  const navigate = useNavigate();
   const { tree } = useCatalogueTree();
 
   const currentItem = tree.getFocusedItem();
@@ -53,10 +62,8 @@ export function CatalogueQuickJump({ className, ...props }: React.ComponentProps
     });
   };
 
-  if (!isShow) return null;
-
   return (
-    <Item variant={"outline"} className={cn("p-0 w-fit bg-sidebar", className)} {...props}>
+    <Item variant={"outline"} className={cn("p-0 w-fit bg-sidebar")}>
       <ButtonGroup>
         <Button
           disabled={!prevItem}

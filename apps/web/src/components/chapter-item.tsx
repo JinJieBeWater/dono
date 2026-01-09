@@ -1,9 +1,8 @@
 import { cn } from "@/lib/utils";
-import { type CatalogueTreeItem } from "@/hooks/use-catalogue-tree";
-import { Link, useMatchRoute, useNavigate } from "@tanstack/react-router";
-import { type ComponentProps } from "react";
+import { type CatalogueTreeChapterItem, type CatalogueTreeItem } from "@/hooks/use-catalogue-tree";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { memo, type ComponentProps } from "react";
 import { SidebarMenuAction, SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar";
-import type { ItemInstance } from "@headless-tree/core";
 import { ScrollText, MoreHorizontal, Trash, Pencil } from "lucide-react";
 import {
   DropdownMenu,
@@ -15,40 +14,40 @@ import {
 import { novelEvents, useNovelStore } from "@/stores/novel";
 import { Input } from "./ui/input";
 import { shouldNeverHappen } from "@/utils/should-never-happen";
+import type { ItemInstance } from "@headless-tree/core";
 
-export const ChapterItem = ({
+const ChapterItemImpl = ({
   novelId,
-  item,
+  data,
+  isRenaming,
+  isMatch,
+  getRenameInputProps,
   className,
+  startRenaming,
+  getItemAbove,
   ...props
 }: ComponentProps<typeof SidebarMenuItem> & {
+  data: CatalogueTreeChapterItem;
   novelId: string;
-  item: ItemInstance<CatalogueTreeItem>;
+  isRenaming: boolean;
+  isMatch: boolean;
+  getRenameInputProps: () => any;
+  startRenaming: () => void;
+  getItemAbove: () => ItemInstance<CatalogueTreeItem> | undefined;
 }) => {
-  const chapterData = item.getItemData();
-  if (chapterData.type !== "chapter") throw shouldNeverHappen("item.type !== chapter");
+  if (data.type !== "chapter") throw shouldNeverHappen("item.type !== chapter");
 
   const novelStore = useNovelStore(novelId);
-  const matchRoute = useMatchRoute();
   const navigate = useNavigate();
-  const isRenaming = item.isRenaming();
-  const isMatch = !!matchRoute({
-    to: "/novel/$novelId/$volumeId/$chapterId",
-    params: {
-      novelId,
-      volumeId: chapterData.volumeId,
-      chapterId: chapterData.id,
-    },
-  });
 
   const handleDelete = () => {
     novelStore.commit(
       novelEvents.chapterDeleted({
-        id: chapterData.id,
+        id: data.id,
         deleted: new Date(),
       }),
     );
-    const aboveItem = item.getItemAbove();
+    const aboveItem = getItemAbove();
     if (aboveItem) {
       const aboveChapterData = aboveItem.getItemData();
       switch (aboveChapterData.type) {
@@ -71,8 +70,6 @@ export const ChapterItem = ({
             },
           });
           break;
-        default:
-          throw shouldNeverHappen("data.type !== volume && data.type !== chapter");
       }
     }
   };
@@ -87,30 +84,24 @@ export const ChapterItem = ({
       </SidebarMenuAction>
 
       {isRenaming ? (
-        <Input
-          className="ring-sidebar-ring text-sm pl-8 pr-13"
-          {...item.getRenameInputProps()}
-        ></Input>
+        <Input className="ring-sidebar-ring text-sm pl-8 pr-13" {...getRenameInputProps()}></Input>
       ) : (
         <SidebarMenuButton
           isActive={isMatch}
-          className={cn("w-full pl-8")}
+          className={cn("w-full pl-8", !data.title && "text-muted-foreground")}
           render={
             <Link
               to="/novel/$novelId/$volumeId/$chapterId"
-              preload="viewport"
               params={{
                 novelId,
-                volumeId: chapterData.volumeId,
-                chapterId: chapterData.id,
+                volumeId: data.volumeId,
+                chapterId: data.id,
               }}
-            ></Link>
+            >
+              <div className="line-clamp-1">{data.title || "Unamed Chapter"}</div>
+            </Link>
           }
-        >
-          <span className={cn(!chapterData.title && "text-muted-foreground")}>
-            {chapterData.title ? chapterData.title : "Unamed Chapter"}
-          </span>
-        </SidebarMenuButton>
+        ></SidebarMenuButton>
       )}
 
       <DropdownMenu>
@@ -125,7 +116,7 @@ export const ChapterItem = ({
           <span className="sr-only">More</span>
         </SidebarMenuAction>
         <DropdownMenuContent>
-          <DropdownMenuItem onClick={item.startRenaming}>
+          <DropdownMenuItem onClick={startRenaming}>
             <Pencil />
             Rename
           </DropdownMenuItem>
@@ -139,3 +130,26 @@ export const ChapterItem = ({
     </SidebarMenuItem>
   );
 };
+
+export const ChapterItem = memo(ChapterItemImpl, (prev, next) => {
+  // 如果在 rename 状态下，需要重新渲染
+  const isRenaming = next.isRenaming;
+  if (isRenaming) {
+    return false;
+  }
+
+  const prevKeys = Object.keys(prev) as (keyof typeof prev)[];
+  const nextKeys = Object.keys(next) as (keyof typeof next)[];
+
+  if (prevKeys.length !== nextKeys.length) {
+    return false;
+  }
+
+  for (const key of prevKeys) {
+    if (!Object.is(prev[key], next[key])) {
+      return false;
+    }
+  }
+
+  return true;
+});

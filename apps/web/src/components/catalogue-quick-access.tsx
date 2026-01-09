@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/sidebar";
 import { lastVisibleChapter$, latestVisibleVolume$, useNovelStore } from "@/stores/novel";
 import { Link, useMatchRoute, useParams } from "@tanstack/react-router";
+import { memo } from "react";
 
-export function CatalogueQuickAccess({ showBackHome = true }: { showBackHome?: boolean }) {
+export function CatalogueQuickAccessImpl({ showBackHome = true }: { showBackHome?: boolean }) {
   const { novelId } = useParams({
     from: "/novel/$novelId",
   });
@@ -121,3 +122,5 @@ export function CatalogueQuickAccess({ showBackHome = true }: { showBackHome?: b
     </SidebarGroup>
   );
 }
+
+export const CatalogueQuickAccess = memo(CatalogueQuickAccessImpl);

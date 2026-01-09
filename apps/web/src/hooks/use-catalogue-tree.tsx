@@ -7,7 +7,9 @@ import {
   type Volume,
 } from "@/stores/novel";
 import {
+  buildProxiedInstance,
   hotkeysCoreFeature,
+  propMemoizationFeature,
   syncDataLoaderFeature,
   type FeatureImplementation,
   type TreeInstance,
@@ -36,16 +38,23 @@ export type CatalogueTreeItem =
 
 interface CatalogueTreeContextValue {
   tree: TreeInstance<CatalogueTreeItem>;
+  setFocusedItem: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const customClickBehavior: FeatureImplementation = {
   itemInstance: {
     getProps: ({ item, prev }) => ({
       ...prev?.(),
-      onDoubleClick: () => {
+      onDoubleClick: (e: MouseEvent) => {
         item.primaryAction();
 
         if (!item.isFolder()) {
+          return;
+        }
+
+        // 只有点击在带有 data-slot="canDoubleClick" 的元素上才触发折叠/展开
+        const target = e.target as HTMLElement;
+        if (!target.closest('[data-slot="canDoubleClick"]')) {
           return;
         }
 
@@ -65,10 +74,11 @@ const customClickBehavior: FeatureImplementation = {
 const CatalogueTreeContext = createContext<CatalogueTreeContextValue | null>(null);
 
 export function CatalogueTreeProvider({ children }: { children: React.ReactNode }) {
-  const params = useParams({ strict: false });
-  const { novelId } = useParams({
+  const novelId = useParams({
     from: "/novel/$novelId",
+    select: (params) => params.novelId,
   });
+
   const novelStore = useNovelStore(novelId);
   const volumes = novelStore.useQuery(visibleVolumes$());
   const chapters = novelStore.useQuery(visibleChapters$());
@@ -80,6 +90,7 @@ export function CatalogueTreeProvider({ children }: { children: React.ReactNode 
   const [focusedItem, setFocusedItem] = useState<string | null>(null);
 
   const tree = useTree<CatalogueTreeItem>({
+    instanceBuilder: buildProxiedInstance,
     rootItemId: "root",
     indent: 20,
     state: { expandedItems, focusedItem },
@@ -143,45 +154,24 @@ export function CatalogueTreeProvider({ children }: { children: React.ReactNode 
           throw shouldNeverHappen("data.type !== volume && data.type !== chapter");
       }
     },
-    features: [syncDataLoaderFeature, hotkeysCoreFeature, customClickBehavior, renamingFeature],
+    features: [
+      syncDataLoaderFeature,
+      hotkeysCoreFeature,
+      customClickBehavior,
+      renamingFeature,
+      propMemoizationFeature,
+    ],
   });
 
   useEffect(() => {
     tree.rebuildTree();
-  }, [volumes]);
+  }, [dataSet.length]);
 
-  useEffect(() => {
-    tree.rebuildTree();
-  }, [chapters]);
-
-  // 根据当前路由参数自动聚焦对应的章节或卷
-  useEffect(() => {
-    const chapterId = params.chapterId;
-    const volumeId = params.volumeId;
-
-    // 优先聚焦章节，如果没有章节则聚焦卷
-    const focusId = chapterId || volumeId;
-
-    if (focusId) {
-      const item = tree.getItemInstance(focusId);
-      if (item) {
-        item.setFocused();
-
-        // 如果是章节，确保其父卷是展开的
-        if (chapterId && volumeId) {
-          const volumeItem = tree.getItemInstance(volumeId);
-          if (volumeItem && !volumeItem.isExpanded()) {
-            volumeItem.expand();
-          }
-        }
-      }
-    } else {
-      // 直接通过tree的状态更新
-      setFocusedItem("root");
-    }
-  }, [params.chapterId, params.volumeId, tree, volumes, chapters]);
-
-  return <CatalogueTreeContext.Provider value={{ tree }}>{children}</CatalogueTreeContext.Provider>;
+  return (
+    <CatalogueTreeContext.Provider value={{ tree, setFocusedItem }}>
+      {children}
+    </CatalogueTreeContext.Provider>
+  );
 }
 
 export function useCatalogueTree(): CatalogueTreeContextValue {

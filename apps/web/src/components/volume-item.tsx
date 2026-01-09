@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
-import { type CatalogueTreeItem } from "@/hooks/use-catalogue-tree";
-import { Link, useMatchRoute, useNavigate } from "@tanstack/react-router";
-import { type ComponentProps } from "react";
+import { type CatalogueTreeItem, type CatalogueTreeVolumeItem } from "@/hooks/use-catalogue-tree";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { memo, type ComponentProps } from "react";
 import { SidebarMenuAction, SidebarMenuButton, SidebarMenuItem, useSidebar } from "./ui/sidebar";
 import type { ItemInstance } from "@headless-tree/core";
 import { ChevronRight, BookDashed, MoreHorizontal, Trash, Plus, Pencil } from "lucide-react";
@@ -17,38 +17,43 @@ import { Input } from "./ui/input";
 import { createChapter } from "@/stores/novel/command";
 import { shouldNeverHappen } from "@/utils/should-never-happen";
 
-export const VolumeItem = ({
+const VolumeItemImpl = ({
   novelId,
-  item,
+  data,
+  isExpanded,
+  isRenaming,
+  isMatch,
+  collapse,
+  expand,
+  startRenaming,
+  getRenameInputProps,
+  getItemAbove,
   className,
   ...props
 }: ComponentProps<typeof SidebarMenuItem> & {
   novelId: string;
-  item: ItemInstance<CatalogueTreeItem>;
+  data: CatalogueTreeVolumeItem;
+  isExpanded: boolean;
+  isRenaming: boolean;
+  isMatch: boolean;
+  collapse: () => void;
+  expand: () => void;
+  getRenameInputProps: () => any;
+  startRenaming: () => void;
+  getItemAbove: () => ItemInstance<CatalogueTreeItem> | undefined;
 }) => {
-  const volumeData = item.getItemData();
-  if (volumeData.type !== "volume") throw shouldNeverHappen("item.type !== volume");
+  if (data.type !== "volume") throw shouldNeverHappen("item.type !== volume");
   const navigate = useNavigate();
   const novelStore = useNovelStore(novelId);
-  const isExpanded = item.isExpanded();
-  const matchRoute = useMatchRoute();
-  const isMatch = !!matchRoute({
-    to: "/novel/$novelId/$volumeId",
-    params: {
-      novelId,
-      volumeId: volumeData.id,
-    },
-  });
-  const isRenaming = item.isRenaming();
   const { isMobile } = useSidebar();
 
   const quickCreateChapter = () => {
-    const { id: newId } = createChapter(novelStore, { volumeId: volumeData.id });
+    const { id: newId } = createChapter(novelStore, { volumeId: data.id });
     navigate({
       to: "/novel/$novelId/$volumeId/$chapterId",
       params: {
         novelId,
-        volumeId: volumeData.id,
+        volumeId: data.id,
         chapterId: newId,
       },
     });
@@ -57,11 +62,11 @@ export const VolumeItem = ({
   const handleDelete = () => {
     novelStore.commit(
       novelEvents.volumeDeleted({
-        id: volumeData.id,
+        id: data.id,
         deleted: new Date(),
       }),
     );
-    const aboveItem = item.getItemAbove();
+    const aboveItem = getItemAbove();
     if (aboveItem) {
       const aboveChapterData = aboveItem.getItemData();
       switch (aboveChapterData.type) {
@@ -84,8 +89,6 @@ export const VolumeItem = ({
             },
           });
           break;
-        default:
-          throw shouldNeverHappen("data.type !== volume && data.type !== chapter");
       }
     }
   };
@@ -99,9 +102,9 @@ export const VolumeItem = ({
         onClick={(e) => {
           e.stopPropagation();
           if (isExpanded) {
-            item.collapse();
+            collapse();
           } else {
-            item.expand();
+            expand();
           }
         }}
         className={cn("left-1.5 right-auto")}
@@ -123,33 +126,31 @@ export const VolumeItem = ({
       </SidebarMenuAction>
 
       {isRenaming ? (
-        <Input
-          className="ring-sidebar-ring text-sm pl-8 pr-13"
-          {...item.getRenameInputProps()}
-        ></Input>
+        <Input className="ring-sidebar-ring text-sm pl-8 pr-13" {...getRenameInputProps()}></Input>
       ) : (
         <SidebarMenuButton
-          className={cn("w-full group/volume pl-8")}
+          data-slot="canDoubleClick"
+          className={cn("w-full group/volume pl-8 pr-13!", !data.title && "text-muted-foreground")}
           render={
             <Link
               to="/novel/$novelId/$volumeId"
               params={{
                 novelId,
-                volumeId: volumeData.id,
+                volumeId: data.id,
               }}
-              preload="render"
-            ></Link>
+            >
+              <div className="line-clamp-1">{data.title || "Unamed Volume"}</div>
+            </Link>
           }
           isActive={isMatch}
-        >
-          <span className="flex-1">{item.getItemName()}</span>
-        </SidebarMenuButton>
+        ></SidebarMenuButton>
       )}
       {/* 快捷添加章节按钮 */}
       <SidebarMenuAction
         showOnHover={!isExpanded && !isMatch}
         className={cn("right-7")}
         onClick={(e) => {
+          e.preventDefault();
           e.stopPropagation();
           quickCreateChapter();
         }}
@@ -173,7 +174,7 @@ export const VolumeItem = ({
             <Plus />
             Add Chapter
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={item.startRenaming}>
+          <DropdownMenuItem onClick={startRenaming}>
             <Pencil />
             Rename
           </DropdownMenuItem>
@@ -188,3 +189,26 @@ export const VolumeItem = ({
     </SidebarMenuItem>
   );
 };
+
+export const VolumeItem = memo(VolumeItemImpl, (prev, next) => {
+  // 如果在 rename 状态下，需要重新渲染
+  const isRenaming = next.isRenaming;
+  if (isRenaming) {
+    return false;
+  }
+
+  const prevKeys = Object.keys(prev) as (keyof typeof prev)[];
+  const nextKeys = Object.keys(next) as (keyof typeof next)[];
+
+  if (prevKeys.length !== nextKeys.length) {
+    return false;
+  }
+
+  for (const key of prevKeys) {
+    if (!Object.is(prev[key], next[key])) {
+      return false;
+    }
+  }
+
+  return true;
+});

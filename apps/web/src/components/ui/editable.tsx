@@ -212,7 +212,7 @@ function EditableInput({
     onKeyDown: handleKeyDown,
     onBlur: handleBlur,
     className: cn(
-      "w-full outline-none resize-none border-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-auto rounded-none",
+      "w-full outline-none resize-none overflow-hidden border-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-auto rounded-none",
       className,
     ),
   };
