@@ -1,38 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { useOutline } from "@/hooks/use-outline";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { ChapterEditArea } from "@/components/chapter-edit-area";
-import { OutlineEditArea } from "@/components/outline-edit-area";
-import { ChapterHeader } from "@/components/chapter-header";
-import { preloadYjsInstance } from "@/components/editor/extension/yjs";
-import { getChapterRoomId } from "@/utils/get-room-id";
-import { ScrollToTop } from "@/components/ui/scroll-to-top";
 import { ArrowUpToLine } from "lucide-react";
 import { createPortal } from "react-dom";
 
+import { ChapterEditArea } from "@/components/chapter-edit-area";
+import { ChapterHeader } from "@/components/chapter-header";
+import { OutlineEditArea } from "@/components/outline-edit-area";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { ScrollToTop } from "@/components/ui/scroll-to-top";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useOutline } from "@/hooks/use-outline";
+
 export const Route = createFileRoute("/novel/$novelId/$volumeId/$chapterId")({
   component: RouteComponent,
-  preload: true,
-  loader: async ({ params, preload, context: { connection } }) => {
-    if (connection.state !== "connected") {
-      return;
-    }
-
-    // 获取章节的 room ID 并预加载 Yjs 数据
-    const roomId = getChapterRoomId(params.chapterId);
-    if (roomId) {
-      void preloadYjsInstance(roomId, preload);
-    }
-  },
 });
 
-function RouteComponent() {
+function RouteComponent(): React.ReactElement {
   const isMobile = useIsMobile();
   const { isOutlineOpen } = useOutline();
 
-  // 在桌面端时不用隐藏 在移动端 在 isMobile 和 isOutlineOpen 时隐藏
-  const shouldShowChapterEditor = isMobile ? !isOutlineOpen : true;
+  // 桌面端始终显示章节编辑器，移动端在打开大纲时隐藏
+  const shouldShowChapterEditor = !isMobile || !isOutlineOpen;
 
   return (
     <div className="px-3 pt-3 w-full h-[calc(100%-var(--header-height))]">

@@ -1,10 +1,11 @@
+import { Priority, union, withPriority } from "prosekit/core";
 import { defineYjsCommands, defineYjsKeymap, defineYjsSyncPlugin } from "prosekit/extensions/yjs";
-import { WebsocketProvider } from "y-websocket";
 import { IndexeddbPersistence } from "y-indexeddb";
+import { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
+
 import { env } from "@dono/env/web";
 import { userAgent } from "@/utils/user-agent";
-import { Priority, union, withPriority } from "prosekit/core";
 
 /**
  * Yjs 实例缓存
@@ -45,16 +46,12 @@ function initializeYjsInstance(room: string): YjsInstance {
   // 创建同步完成的 Promise
   const wsSyncedPromise = new Promise<void>((resolve) => {
     provider.on("sync", (isSynced: boolean) => {
-      if (isSynced) {
-        resolve();
-      }
+      if (isSynced) resolve();
     });
   });
 
   const dbSyncedPromise = new Promise<void>((resolve) => {
-    persistence.on("synced", () => {
-      resolve();
-    });
+    persistence.on("synced", resolve);
   });
 
   // 设置用户信息到 awareness
@@ -85,33 +82,12 @@ function getOrCreateYjsInstance(room: string): YjsInstance {
 }
 
 /**
- * 预加载 Yjs 实例（用于路由 loader）
- * @param room - 房间名称
- * @param isPreload - 是否是预加载，如果是则加载完成后自动清理实例
- * @returns Promise，在 IndexedDB 同步完成后 resolve
- */
-export async function preloadYjsInstance(room: string, isPreload = false): Promise<void> {
-  const instance = getOrCreateYjsInstance(room);
-
-  await Promise.all([instance.wsSyncedPromise, instance.dbSyncedPromise]);
-
-  if (isPreload) {
-    instance.persistence.destroy();
-    instance.provider.destroy();
-    yjsInstanceCache.delete(room);
-  }
-  // 正常加载模式：保持连接，组件渲染时直接使用
-}
-
-/**
  * 设置 Yjs 协同编辑
  * @param room - 房间名称，用于标识协同编辑的文档
  * @returns Yjs 扩展配置，如果没有房间则返回 null
  */
 export function setupYjsExtension(room: string) {
   // 获取或创建 Yjs 实例
-  // 如果是从 loader 过来的，实例已经存在且连接正常
-  // 如果没有经过 loader，这里会创建新实例
   const instance = getOrCreateYjsInstance(room);
   const { doc } = instance;
   const fragment = doc.getXmlFragment("prosemirror");

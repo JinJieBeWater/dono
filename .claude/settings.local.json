@@ -1,6 +1,12 @@
 {
   "permissions": {
-    "allow": ["Skill(frontend-design)", "Skill(frontend-design:*)"]
+    "allow": [
+      "Skill(frontend-design)",
+      "Skill(frontend-design:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "mcp__ide__getDiagnostics"
+    ]
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": ["context7", "cloudflare", "shadcn", "better-auth"]
