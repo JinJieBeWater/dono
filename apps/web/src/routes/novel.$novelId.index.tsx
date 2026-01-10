@@ -12,6 +12,7 @@ import {
   Trash2,
   Archive,
   ArrowUpToLine,
+  BookPlus,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -29,6 +30,9 @@ import { Editable, EditablePreview, EditableInput } from "@/components/ui/editab
 import { toast } from "sonner";
 import { createPortal } from "react-dom";
 import { ScrollToTop } from "@/components/ui/scroll-to-top";
+import { createVolumeDialog } from "@/components/dialogs/create-volume-dialog";
+import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/novel/$novelId/")({
   component: RouteComponent,
@@ -41,6 +45,7 @@ function RouteComponent() {
   const novel = userStore.useQuery(novel$({ novelId }));
   const { tree } = useCatalogueTree();
   const navigate = useNavigate();
+  const lastItem = tree.getItems().at(-1)?.getItemData();
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("en-US", {
@@ -66,7 +71,6 @@ function RouteComponent() {
   };
 
   const HandleContinueWritingClick = () => {
-    const lastItem = tree.getItems().at(-1)?.getItemData();
     switch (lastItem?.type) {
       case "volume":
         navigate({
@@ -116,82 +120,94 @@ function RouteComponent() {
     toast.info("In development...");
   };
 
-  return (
-    <div className="max-w-4xl mx-auto h-[calc(100%-var(--header-height)-1rem)] pb-16">
-      {/* 头部区域 - 标题和元信息 */}
-      <div className="px-4 md:px-12">
-        <header className="md:pt-[12svh] pt-4 pb-2 pd:mb-4">
-          <div className="space-y-2 md:space-y-4 mb-6">
-            <div className="inline-flex items-center gap-2 px-2 md:px-3 py-1 rounded-full bg-sidebar text-primary text-xs md:text-sm font-medium border">
-              <Sparkles className="size-4" />
-              <span>Writing</span>
-            </div>
-            <Editable value={novel.title || "Untitled Novel"} onSubmit={handleTitleUpdate}>
-              <EditablePreview
-                render={
-                  <h1 className="text-2xl! md:text-4xl font-bold tracking-tight text-foreground leading-tight" />
-                }
-              />
-              <EditableInput className="text-2xl! md:text-4xl font-bold tracking-tight text-foreground leading-tight bg-background border-none px-0 focus-visible:ring-0 focus-visible:ring-offset-0" />
-            </Editable>
-            <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
-              <Clock className="size-4" />
-              <time dateTime={novel.created.toISOString()}>
-                Created {formatDate(novel.created)}
-              </time>
-            </div>
-          </div>
+  const shouldShowNavigation = !open || isMobile;
 
-          {/* 操作按钮组 */}
-          <div className="flex flex-wrap items-center gap-2">
+  return (
+    <div
+      className={cn(
+        "md:max-w-[84svw] lg:max-w-[74svw] xl:max-w-[66svw] 2xl:max-w-[58svw] transition-[max-width] mx-auto md:grid md:grid-cols-[3fr_minmax(0,16rem)] md:px-12 md:gap-2 h-full",
+        !shouldShowNavigation && "md:grid-cols-1",
+      )}
+    >
+      {/* 头部区域 - 标题和元信息 */}
+      <header className="pt-6 px-6 md:px-0 md:pt-[13svh] md:sticky top-[calc(var(--header-height)+1rem)] h-fit bg-background">
+        <div className="space-y-2 md:space-y-4 mb-6">
+          <div className="inline-flex items-center gap-2 px-2 md:px-3 py-1 rounded-full bg-sidebar text-primary text-xs md:text-sm font-medium border">
+            <Sparkles className="size-4" />
+            <span>Writing</span>
+          </div>
+          <Editable value={novel.title || "Untitled Novel"} onSubmit={handleTitleUpdate}>
+            <EditablePreview
+              render={
+                <h1 className="text-2xl! md:text-4xl font-bold tracking-tight text-foreground leading-tight" />
+              }
+            />
+            <EditableInput className="text-2xl! md:text-4xl font-bold tracking-tight text-foreground leading-tight bg-background border-none px-0 focus-visible:ring-0 focus-visible:ring-offset-0" />
+          </Editable>
+          <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
+            <Clock className="size-4" />
+            <time dateTime={novel.created.toISOString()}>Created {formatDate(novel.created)}</time>
+          </div>
+        </div>
+
+        {/* 操作按钮组 */}
+        <div className="flex flex-wrap items-center gap-2">
+          {lastItem ? (
             <Button variant="default" size="sm" onClick={HandleContinueWritingClick}>
               <Pencil />
               <span>Continue Writing</span>
             </Button>
-            {/* <Button variant="outline" size="sm">
+          ) : (
+            <Button
+              variant="default"
+              size="sm"
+              render={<AlertDialogTrigger handle={createVolumeDialog} />}
+            >
+              <BookPlus />
+              <span>Create Your First Volume</span>
+            </Button>
+          )}
+          {/* <Button variant="outline" size="sm">
             <RefreshCw />
             <span>Sync</span>
           </Button> */}
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
-                <MoreVertical />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={handleImport}>
-                  <Upload />
-                  Import
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleExport}>
-                  <Download />
-                  Export
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                {/* <DropdownMenuItem>
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
+              <MoreVertical />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={handleImport}>
+                <Upload />
+                Import
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExport} disabled={!lastItem}>
+                <Download />
+                Export
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {/* <DropdownMenuItem>
                 <Settings />
                 Settings
               </DropdownMenuItem> */}
-                {/* 归档 */}
-                <DropdownMenuItem onClick={handleArchive}>
-                  <Archive />
-                  Archive
-                </DropdownMenuItem>
+              {/* 归档 */}
+              <DropdownMenuItem onClick={handleArchive}>
+                <Archive />
+                Archive
+              </DropdownMenuItem>
 
-                <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive" onClick={handleDelete}>
-                  <Trash2 />
-                  Delete Novel
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
-      </div>
-      {/* 主内容区域 */}
-      {(!open || isMobile) && (
-        <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] md:gap-2 md:px-12 md:pt-2">
-          {/* 快速访问 */}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive" onClick={handleDelete}>
+                <Trash2 />
+                Delete Novel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </header>
+
+      {shouldShowNavigation && (
+        <div className="px-2 md:px-0 md:pt-[13svh] md:pb-[50svh] overflow-auto">
           <CatalogueQuickAccess showBackHome={false} />
-          {/* 卷章树 */}
           <CatalogueTree />
         </div>
       )}
