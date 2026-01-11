@@ -12,9 +12,6 @@ import { useOutline } from "@/hooks/use-outline";
 
 export const Route = createFileRoute("/novel/$novelId/$volumeId/$chapterId")({
   component: RouteComponent,
-  loader(ctx) {
-    console.log("state", ctx.context.connection.state);
-  },
 });
 
 function RouteComponent(): React.ReactElement {

@@ -11,7 +11,8 @@ import { ProseKit, useDocChange } from "prosekit/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { defineExtension } from "./extension";
-import { cleanupYjsInstance } from "./extension/yjs";
+import { cleanupYjsInstance, enableRemoteSync, disableRemoteSync } from "./extension/yjs";
+import { useConnection } from "@/hooks/use-connection";
 
 interface EditorProps extends React.ComponentProps<"div"> {
   defaultContent?: NodeJSON;
@@ -60,6 +61,9 @@ function Editor({
   // 没有协作房间时无需等待同步
   const [isLoaded, setIsLoaded] = useState(!room);
 
+  // Reason: 使用响应式版本监听连接状态变化
+  const { state: connectionState } = useConnection();
+
   const editor = useMemo(() => {
     const { extension, dbSyncedPromise } = defineExtension({ placeholder, room });
 
@@ -83,6 +87,18 @@ function Editor({
       }
     };
   }, [room]);
+
+  // Reason: 根据连接状态动态管理远程同步
+  // 仅在 connected 状态下启用远程同步，其他状态下仅使用本地 IndexedDB
+  useEffect(() => {
+    if (!room) return;
+
+    if (connectionState === "connected") {
+      enableRemoteSync(room);
+    } else {
+      disableRemoteSync(room);
+    }
+  }, [room, connectionState]);
 
   if (!isLoaded) {
     return <EditorSkeleton />;
