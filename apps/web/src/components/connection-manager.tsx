@@ -12,30 +12,35 @@ export default function ConnectionManager({
   className,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const connection = useConnection();
+  // Reason: 使用响应式版本的 useConnection，当状态改变时组件会重新渲染
+  const { state, check } = useConnection();
 
   // 根据连接状态返回对应的图标和样式配置
   const getStatusConfig = () => {
-    switch (connection.state) {
+    switch (state) {
       case "offline":
         return {
           icon: WifiOff,
           iconClass: "text-muted-foreground",
+          message: "Offline",
         };
       case "connecting":
         return {
           icon: Loader2,
           iconClass: "text-primary animate-spin",
+          message: "Connecting",
         };
       case "connected":
         return {
           icon: Wifi,
           iconClass: "text-primary",
+          message: "Online",
         };
       case "local_only":
         return {
           icon: CloudOff,
           iconClass: "text-primary",
+          message: "Local",
         };
       default:
         throw shouldNeverHappen("Unknown connection state");
@@ -53,6 +58,7 @@ export default function ConnectionManager({
             variant="outline"
             size="icon"
             className={cn("border-0", className)}
+            onClick={() => check()}
             {...props}
           ></Button>
         }
@@ -67,7 +73,7 @@ export default function ConnectionManager({
       </TooltipTrigger>
 
       <TooltipContent side="bottom">
-        <p className="text-xs">{connection.getStatusMessage()}</p>
+        <p className="text-xs">{config.message}</p>
       </TooltipContent>
     </Tooltip>
   );

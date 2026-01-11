@@ -10,14 +10,14 @@ import { StoreRegistryProvider } from "@livestore/react";
 import { getLocalUserInfo } from "@/utils/get-local-user-info";
 import { userStoreOptions } from "@/stores/user";
 import { StoreLoading } from "@/components/loader";
-import { useConnection } from "@/hooks/use-connection";
+import { useConnectionStable } from "@/hooks/use-connection";
 import { LocalUserInfoProvider } from "@/components/local-user-info-provider";
 
 export interface RouterAppContext {
   orpc: typeof orpc;
   queryClient: QueryClient;
   storeRegistry: StoreRegistry;
-  connection: ReturnType<typeof useConnection>;
+  connection: ReturnType<typeof useConnectionStable>;
 }
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({

@@ -6,6 +6,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -24,10 +25,12 @@ interface ConnectionContextValue {
   state: ConnectionState;
   /** 手动触发连接检查 */
   check: () => Promise<void>;
-  /** 获取状态消息 */
-  getStatusMessage: () => string;
 }
 
+// Reason: 稳定引用的 context，state 通过 getter 访问，对象引用永远不变
+const ConnectionStableContext = createContext<ConnectionContextValue | undefined>(undefined);
+
+// Reason: 响应式的 context，state 是实际值，状态变化时会重新提供新值
 const ConnectionContext = createContext<ConnectionContextValue | undefined>(undefined);
 
 /**
@@ -40,7 +43,10 @@ export function ConnectionProvider({ children }: { children: ReactNode }) {
   const [connectionState, setConnectionState] = useState<ConnectionState>("connecting");
   const [retryCount, setRetryCount] = useState(0);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Reason: 使用 ref 存储最新状态和函数引用，确保 value 对象引用永远不变
   const checkConnectionRef = useRef<(() => Promise<void>) | undefined>(undefined);
+  const stateRef = useRef(connectionState);
 
   const scheduleRetry = useCallback(() => {
     if (retryTimeoutRef.current) {
@@ -120,32 +126,58 @@ export function ConnectionProvider({ children }: { children: ReactNode }) {
     }
   }, [isOnline, connectionState]);
 
-  const getStatusMessage = useCallback((): string => {
-    switch (connectionState) {
-      case "offline":
-        return "Offline ";
-      case "connecting":
-        return "Connecting";
-      case "connected":
-        return "Online";
-      case "local_only":
-        return "retrying";
-      default:
-        return "Unknown state";
-    }
+  // 同步最新状态到 ref
+  useEffect(() => {
+    stateRef.current = connectionState;
   }, [connectionState]);
 
-  const value: ConnectionContextValue = {
-    state: connectionState,
-    check: checkConnection,
-    getStatusMessage,
-  };
+  // Reason: 使用 useMemo 和空依赖数组，让 stableValue 对象引用永远不变
+  // state 通过 getter 访问 ref，保持引用稳定，避免 Router context 频繁重新计算
+  const stableValue: ConnectionContextValue = useMemo(
+    () => ({
+      get state() {
+        return stateRef.current;
+      },
+      check: () => checkConnectionRef.current!(),
+    }),
+    [],
+  );
 
-  return <ConnectionContext.Provider value={value}>{children}</ConnectionContext.Provider>;
+  // Reason: 使用 useMemo 创建响应式 value，当 connectionState 变化时返回新对象
+  // 触发订阅该 context 的组件重新渲染
+  const reactiveValue: ConnectionContextValue = useMemo(
+    () => ({
+      state: connectionState, // 实际的状态值，不是 getter
+      check: () => checkConnectionRef.current!(),
+    }),
+    [connectionState],
+  );
+
+  return (
+    <ConnectionStableContext.Provider value={stableValue}>
+      <ConnectionContext.Provider value={reactiveValue}>{children}</ConnectionContext.Provider>
+    </ConnectionStableContext.Provider>
+  );
 }
 
 /**
- * 使用连接状态的 hook
+ * 稳定引用版本 - 供 TanStack Router 上下文使用
+ * 返回的对象引用永远不变，state 通过 getter 访问最新值
+ * 适用于需要稳定引用的场景，避免不必要的上下文重新计算
+ * @throws 如果在 ConnectionProvider 外使用将抛出错误
+ */
+export function useConnectionStable(): ConnectionContextValue {
+  const context = useContext(ConnectionStableContext);
+  if (context === undefined) {
+    throw new Error("useConnectionStable must be used within a ConnectionProvider");
+  }
+  return context;
+}
+
+/**
+ * 响应式版本 - 供组件使用
+ * 当状态变化时会触发组件重新渲染
+ * 返回包含实时状态的对象，适用于需要响应状态变化的 UI 组件
  * @throws 如果在 ConnectionProvider 外使用将抛出错误
  */
 export function useConnection(): ConnectionContextValue {

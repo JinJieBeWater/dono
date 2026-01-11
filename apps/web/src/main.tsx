@@ -7,7 +7,7 @@ import { StoreLoading } from "./components/loader";
 import { routeTree } from "./routeTree.gen";
 import { orpc, queryClient } from "./utils/orpc";
 import { StoreRegistry } from "@livestore/livestore";
-import { ConnectionProvider, useConnection } from "./hooks/use-connection";
+import { ConnectionProvider, useConnectionStable } from "./hooks/use-connection";
 
 const storeRegistry = new StoreRegistry({
   defaultOptions: {
@@ -55,7 +55,8 @@ function App() {
 }
 
 function Router() {
-  const connection = useConnection();
+  // Reason: 使用稳定引用版本，避免 Router context 频繁重新计算
+  const connection = useConnectionStable();
   return (
     <RouterProvider
       router={router}
