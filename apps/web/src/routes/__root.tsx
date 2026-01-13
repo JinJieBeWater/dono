@@ -12,6 +12,7 @@ import { userStoreOptions } from "@/stores/user";
 import { StoreLoading } from "@/components/loader";
 import { useConnectionStable } from "@/hooks/use-connection";
 import { LocalUserInfoProvider } from "@/components/local-user-info-provider";
+import { PurgeListener } from "@/components/purge-listener";
 
 export interface RouterAppContext {
   orpc: typeof orpc;
@@ -22,7 +23,7 @@ export interface RouterAppContext {
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   component: RootComponent,
-  pendingComponent: () => <StoreLoading />,
+  pendingComponent: () => <StoreLoading className="h-dvh" />,
   head: () => ({
     meta: [
       {
@@ -76,6 +77,7 @@ function RootComponent() {
       >
         <StoreRegistryProvider storeRegistry={storeRegistry}>
           <LocalUserInfoProvider>
+            <PurgeListener />
             <div className="h-svh">
               <Outlet />
             </div>

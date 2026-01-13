@@ -35,13 +35,18 @@ import {
 } from "./ui/dropdown-menu";
 import { AlertDialogTrigger } from "./ui/alert-dialog";
 import { CreateNovelDialog, createNovelDialog } from "./dialogs/create-novel-dialog";
-import {
-  DeleteNovelPermanentlyDialog,
-  deleteNovelPermanentlyDialog,
-} from "./dialogs/delete-novel-permanently-dialog";
+import { PurgeNovelDialog, purgeNovelDialog } from "./dialogs/purge-novel-dialog";
 import { EmptyTrashDialog, emptyTrashDialog } from "./dialogs/empty-trash-dialog";
 import type { Novel } from "@/stores/user";
 import { RecentNovelCard } from "./recent-novel-card";
+
+function getBookCoverUrl(novelId: string): string {
+  return `https://picsum.photos/seed/${novelId}/400/600`;
+}
+
+function pluralize(count: number, singular: string, plural: string): string {
+  return count === 1 ? singular : plural;
+}
 
 export function UserSpace() {
   const userStore = useUserStore();
@@ -50,122 +55,124 @@ export function UserSpace() {
   const novels = userStore.useQuery(visibleNovels$());
   const trashedNovels = userStore.useQuery(trashedNovels$());
 
-  const getBookCoverUrl = (novelId: string) => {
-    return `https://picsum.photos/seed/${novelId}/400/600`;
-  };
-
   const recentNovel =
     novels.length > 0 ? novels.find((novel) => novel.id === lastAccessedNovelId) : null;
 
-  const renderNovelCard = (novel: Novel) => (
-    <Item
-      key={novel.id}
-      variant="outline"
-      render={<Link to="/novel/$novelId" params={{ novelId: novel.id }} />}
-    >
-      <ItemMedia variant="image">
-        <img
-          src={getBookCoverUrl(novel.id)}
-          alt={novel.title}
-          className="aspect-2/3 object-cover"
-        />
-      </ItemMedia>
-      <ItemContent>
-        <ItemTitle>{novel.title}</ItemTitle>
-        <ItemDescription>{novel.created.toLocaleDateString()} created</ItemDescription>
-      </ItemContent>
-      <ItemActions>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={<Button variant="ghost" onClick={(e) => e.preventDefault()} />}
-          >
-            <MoreVertical />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem render={<Link to="/novel/$novelId" params={{ novelId: novel.id }} />}>
-              <Edit />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                userStore.commit(
-                  userEvents.novelDeleted({
-                    id: novel.id,
-                    deleted: new Date(),
-                  }),
-                );
-              }}
-            >
-              <Trash2 />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </ItemActions>
-    </Item>
-  );
-
-  const renderTrashedCard = (novel: Novel) => (
-    <Item key={novel.id} variant="outline">
-      <ItemMedia variant="image">
-        <img
-          src={getBookCoverUrl(novel.id)}
-          alt={novel.title}
-          className="aspect-2/3 object-cover opacity-60"
-        />
-      </ItemMedia>
-      <ItemContent>
-        <ItemTitle className="text-muted-foreground">{novel.title}</ItemTitle>
-        <ItemDescription>{novel.deleted?.toLocaleDateString()} deleted</ItemDescription>
-      </ItemContent>
-      <ItemActions>
-        <DropdownMenu>
-          <Button
-            variant="ghost"
-            nativeButton={false}
-            render={<DropdownMenuTrigger></DropdownMenuTrigger>}
-          >
-            <MoreVertical />
-          </Button>
-
-          <DropdownMenuContent align="end" className={"w-max"}>
-            <DropdownMenuItem onClick={() => restoreNovel(novel)}>
-              <RotateCcw />
-              Restore
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={(e) => e.preventDefault()}
-              variant="destructive"
-              nativeButton={false}
-              render={
-                <AlertDialogTrigger
-                  handle={deleteNovelPermanentlyDialog}
-                  payload={{ novelId: novel.id, novelTitle: novel.title }}
-                />
-              }
-            >
-              <X />
-              Delete Forever
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </ItemActions>
-    </Item>
-  );
-
-  const restoreNovel = (novel: Novel) => {
+  function restoreNovel(novel: Novel): void {
     userStore.commit(
       userEvents.novelRestored({
         id: novel.id,
         modified: new Date(),
       }),
     );
-  };
+  }
+
+  function deleteNovel(novel: Novel): void {
+    userStore.commit(
+      userEvents.novelDeleted({
+        id: novel.id,
+        deleted: new Date(),
+      }),
+    );
+  }
+
+  function renderNovelCard(novel: Novel) {
+    return (
+      <Item
+        key={novel.id}
+        variant="outline"
+        render={<Link to="/novel/$novelId" params={{ novelId: novel.id }} />}
+      >
+        <ItemMedia variant="image">
+          <img
+            src={getBookCoverUrl(novel.id)}
+            alt={novel.title}
+            className="aspect-2/3 object-cover"
+          />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle>{novel.title}</ItemTitle>
+          <ItemDescription>{novel.created.toLocaleDateString()} created</ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={<Button variant="ghost" onClick={(e) => e.preventDefault()} />}
+            >
+              <MoreVertical />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                render={<Link to="/novel/$novelId" params={{ novelId: novel.id }} />}
+              >
+                <Edit />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  deleteNovel(novel);
+                }}
+              >
+                <Trash2 />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </ItemActions>
+      </Item>
+    );
+  }
+
+  function renderTrashedCard(novel: Novel) {
+    return (
+      <Item key={novel.id} variant="outline">
+        <ItemMedia variant="image">
+          <img
+            src={getBookCoverUrl(novel.id)}
+            alt={novel.title}
+            className="aspect-2/3 object-cover opacity-60"
+          />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle className="text-muted-foreground">{novel.title}</ItemTitle>
+          <ItemDescription>{novel.deleted?.toLocaleDateString()} deleted</ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <DropdownMenu>
+            <Button variant="ghost" render={<DropdownMenuTrigger />}>
+              <MoreVertical />
+            </Button>
+
+            <DropdownMenuContent align="end" className="w-max">
+              <DropdownMenuItem onClick={() => restoreNovel(novel)}>
+                <RotateCcw />
+                Restore
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={(e) => e.preventDefault()}
+                variant="destructive"
+                nativeButton={true}
+                render={
+                  <AlertDialogTrigger
+                    handle={purgeNovelDialog}
+                    payload={{ novelId: novel.id, novelTitle: novel.title }}
+                  />
+                }
+              >
+                <X />
+                Delete Forever
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </ItemActions>
+      </Item>
+    );
+  }
 
   return (
     <div className="w-full mx-auto p-4 space-y-4 md:w-2xl scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary/20 scrollbar-hover:scrollbar-thumb-primary">
@@ -188,7 +195,7 @@ export function UserSpace() {
             <div>
               <h1 className="text-xl font-bold mb-1">My Novels</h1>
               <p className="text-sm text-muted-foreground">
-                {novels.length} {novels.length === 1 ? "novel" : "novels"}
+                {novels.length} {pluralize(novels.length, "novel", "novels")}
               </p>
             </div>
 
@@ -229,7 +236,7 @@ export function UserSpace() {
             <div>
               <h1 className="text-xl font-bold mb-1">Trash</h1>
               <p className="text-sm text-muted-foreground">
-                {trashedNovels.length} {trashedNovels.length === 1 ? "item" : "items"}
+                {trashedNovels.length} {pluralize(trashedNovels.length, "item", "items")}
               </p>
             </div>
             {trashedNovels.length > 0 && (
@@ -274,7 +281,7 @@ export function UserSpace() {
       </Tabs>
 
       <CreateNovelDialog />
-      <DeleteNovelPermanentlyDialog />
+      <PurgeNovelDialog />
       <EmptyTrashDialog />
     </div>
   );

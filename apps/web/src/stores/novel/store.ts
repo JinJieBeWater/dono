@@ -20,15 +20,19 @@ const adapter = makePersistedAdapter({
   resetPersistence,
 });
 
-export const novelStoreOptions = (novelId: string) => {
+export const getNovelStoreId = (novelId: string) => {
   const localUserInfo = getLocalUserInfo();
 
   if (!localUserInfo) {
     throw shouldNeverHappen("useNovelStore must be used after user has logged in");
   }
 
+  return `user-${localUserInfo.id}-novel-${novelId}`;
+};
+
+export const novelStoreOptions = (novelId: string) => {
   return storeOptions({
-    storeId: `user-${localUserInfo.id}-novel-${novelId}`,
+    storeId: getNovelStoreId(novelId),
     schema,
     adapter,
     batchUpdates,

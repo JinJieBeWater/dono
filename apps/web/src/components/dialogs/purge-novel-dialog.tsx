@@ -9,20 +9,25 @@ import {
   AlertDialogTitle,
   AlertDialogPrimitive,
 } from "@/components/ui/alert-dialog";
+import { userEvents, useUserStore } from "@/stores/user";
 
-const deleteNovelPermanentlyDialog = AlertDialogPrimitive.createHandle<{
+interface PurgeNovelPayload {
   novelId: string;
   novelTitle: string;
-}>();
+}
 
-export function DeleteNovelPermanentlyDialog() {
-  const handleDeleteForever = (novelId: string) => {
-    console.log("永久删除小说:", novelId);
-  };
+const purgeNovelDialog = AlertDialogPrimitive.createHandle<PurgeNovelPayload>();
+
+export function PurgeNovelDialog() {
+  const userStore = useUserStore();
+
+  function handlePurge(novelId: string): void {
+    userStore.commit(userEvents.novelPurged({ id: novelId, purged: new Date() }));
+  }
 
   return (
-    <AlertDialog<{ novelId: string; novelTitle: string }> handle={deleteNovelPermanentlyDialog}>
-      {({ payload }: { payload?: { novelId: string; novelTitle: string } }) => {
+    <AlertDialog<PurgeNovelPayload> handle={purgeNovelDialog}>
+      {({ payload }) => {
         if (!payload) return null;
         return (
           <AlertDialogContent>
@@ -34,10 +39,7 @@ export function DeleteNovelPermanentlyDialog() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => handleDeleteForever(payload.novelId)}
-                variant={"destructive"}
-              >
+              <AlertDialogAction onClick={() => handlePurge(payload.novelId)} variant="destructive">
                 Delete Forever
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -48,4 +50,4 @@ export function DeleteNovelPermanentlyDialog() {
   );
 }
 
-export { deleteNovelPermanentlyDialog };
+export { purgeNovelDialog };

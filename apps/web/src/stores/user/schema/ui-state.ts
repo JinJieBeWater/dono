@@ -4,11 +4,13 @@ export const uiState = State.SQLite.clientDocument({
   name: "UiState",
   schema: Schema.Struct({
     lastAccessedNovelId: Schema.String,
+    lastNovelPurgeGlobalSeq: Schema.Number,
   }),
   default: {
     id: SessionIdSymbol,
     value: {
       lastAccessedNovelId: "",
+      lastNovelPurgeGlobalSeq: 0,
     },
   },
 });

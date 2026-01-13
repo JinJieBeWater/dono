@@ -1,6 +1,6 @@
 import { Priority, union, withPriority } from "prosekit/core";
 import { defineYjsCommands, defineYjsKeymap, defineYjsSyncPlugin } from "prosekit/extensions/yjs";
-import { IndexeddbPersistence } from "y-indexeddb";
+import { clearDocument, IndexeddbPersistence } from "y-indexeddb";
 import { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
 
@@ -57,9 +57,7 @@ export function enableRemoteSync(room: string): Promise<void> | null {
   }
 
   // 断开旧连接
-  if (instance.provider) {
-    instance.provider.destroy();
-  }
+  instance.provider?.destroy();
 
   // 创建 WebSocket 连接
   const wsUrl = env.VITE_SERVER_URL.replace(/^http/, "ws");
@@ -118,4 +116,22 @@ export function cleanupYjsInstance(room: string): void {
   instance.provider?.destroy();
   instance.persistence.destroy();
   yjsInstanceCache.delete(room);
+}
+
+export async function purgeYjsRoom(room: string): Promise<void> {
+  cleanupYjsInstance(room);
+  await clearDocument(room);
+}
+
+export async function purgeYjsRoomsByPrefix(prefix: string): Promise<void> {
+  const databases = await indexedDB.databases();
+  const matchingDbs = databases.filter((db) => db.name?.startsWith(prefix));
+
+  await Promise.allSettled(
+    matchingDbs.map((db) => {
+      if (!db.name) return Promise.resolve();
+      cleanupYjsInstance(db.name);
+      return clearDocument(db.name);
+    }),
+  );
 }

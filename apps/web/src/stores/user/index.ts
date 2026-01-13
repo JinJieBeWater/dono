@@ -28,6 +28,7 @@ export const materializers = State.SQLite.materializers(userEvents, {
     userTables.novel.update({ deleted: data.deleted }).where({ id: data.id }),
   "v1.NovelRestored": (data) =>
     userTables.novel.update({ deleted: null, modified: data.modified }).where({ id: data.id }),
+  "v1.NovelPurged": (data) => userTables.novel.delete().where({ id: data.id }),
 });
 
 const state = State.SQLite.makeState({ tables: userTables, materializers });

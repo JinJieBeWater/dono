@@ -11,39 +11,39 @@ import {
 } from "@/components/ui/alert-dialog";
 import { userEvents, useUserStore, trashedNovels$ } from "@/stores/user";
 
-const emptyTrashDialog = AlertDialogPrimitive.createHandle<{ count: number }>();
+interface EmptyTrashPayload {
+  count: number;
+}
+
+const emptyTrashDialog = AlertDialogPrimitive.createHandle<EmptyTrashPayload>();
 
 export function EmptyTrashDialog() {
   const userStore = useUserStore();
   const trashedNovels = userStore.useQuery(trashedNovels$());
 
-  const handleEmptyTrash = () => {
-    trashedNovels.forEach((novel) => {
-      userStore.commit(
-        userEvents.novelDeleted({
-          id: novel.id,
-          deleted: new Date(),
-        }),
-      );
-    });
-  };
+  function handleEmptyTrash(): void {
+    const now = new Date();
+    for (const novel of trashedNovels) {
+      userStore.commit(userEvents.novelPurged({ id: novel.id, purged: now }));
+    }
+  }
 
   return (
-    <AlertDialog<{ count: number }> handle={emptyTrashDialog}>
-      {({ payload }: { payload?: { count: number } }) => {
+    <AlertDialog<EmptyTrashPayload> handle={emptyTrashDialog}>
+      {({ payload }) => {
         const count = payload?.count ?? trashedNovels.length;
+        const itemLabel = count === 1 ? "item" : "items";
         return (
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Empty Trash?</AlertDialogTitle>
               <AlertDialogDescription>
-                All {count} {count === 1 ? "item" : "items"} will be permanently deleted. This
-                action cannot be undone.
+                All {count} {itemLabel} will be permanently deleted. This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleEmptyTrash} variant={"destructive"}>
+              <AlertDialogAction onClick={handleEmptyTrash} variant="destructive">
                 Empty Trash
               </AlertDialogAction>
             </AlertDialogFooter>

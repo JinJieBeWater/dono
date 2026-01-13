@@ -33,6 +33,13 @@ const novelEvents = {
       modified: Schema.DateFromNumber,
     }),
   }),
+  novelPurged: Events.synced({
+    name: "v1.NovelPurged",
+    schema: Schema.Struct({
+      id: Schema.String,
+      purged: Schema.DateFromNumber,
+    }),
+  }),
   uiStateSet: uiState.set,
 };
 
