@@ -4,11 +4,11 @@ import { ButtonGroup } from "./ui/button-group";
 import { Item } from "./ui/item";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useCatalogueTree, type CatalogueTreeItem } from "@/hooks/use-catalogue-tree";
-import type { ItemInstance } from "@headless-tree/core";
+import { type CatalogueTreeItem } from "@/hooks/use-catalogue-tree";
 import { createChapter } from "@dono/stores/novel";
 import { useNovelStore } from "@/stores/novel";
 import { shouldNeverHappen } from "@/utils/should-never-happen";
+import { useCatalogueData } from "@/hooks/use-catalogue-data";
 
 export function CatalogueQuickJump() {
   const match = useMatchRoute();
@@ -40,12 +40,11 @@ export function CatalogueQuickJumpInner({
   novelId: string;
 }) {
   const navigate = useNavigate();
-  const { tree } = useCatalogueTree();
+  const { focusedItem, getItemAbove, getItemBelow, getItemNameById } = useCatalogueData();
 
-  const currentItem = tree.getFocusedItem();
-  const name = currentItem?.getItemName();
-  const prevItem = currentItem?.getItemAbove();
-  const nextItem = currentItem?.getItemBelow();
+  const name = getItemNameById(focusedItem);
+  const prevItem = getItemAbove(focusedItem);
+  const nextItem = getItemBelow(focusedItem);
 
   const novelStore = useNovelStore(novelId);
 
@@ -106,7 +105,7 @@ export function CatalogueQuickJumpInner({
           className="border-0 bg-inherit line-clamp-1 hidden max-w-64 sm:block"
           variant="outline"
         >
-          <span className={cn(!name && "text-muted-foreground")}>{name || "Unamed"}</span>
+          <p className={cn("truncate", !name && "text-muted-foreground")}>{name || "Unamed"}</p>
         </Button>
       </ButtonGroup>
     </Item>
@@ -118,22 +117,21 @@ const QuickJumpLink = ({
   children,
   ...props
 }: {
-  item: ItemInstance<CatalogueTreeItem> | undefined;
+  item: CatalogueTreeItem | undefined;
   children?: React.ReactNode;
 } & React.ComponentProps<"a">) => {
   const { novelId } = useParams({
     from: "/novel/$novelId",
   });
-  const itemData = item?.getItemData();
 
-  switch (itemData?.type) {
+  switch (item?.type) {
     case "volume":
       return (
         <Link
           to="/novel/$novelId/$volumeId"
           params={{
             novelId,
-            volumeId: itemData.id,
+            volumeId: item.id,
           }}
           preload="render"
           {...props}
@@ -147,8 +145,8 @@ const QuickJumpLink = ({
           to="/novel/$novelId/$volumeId/$chapterId"
           params={{
             novelId,
-            volumeId: itemData.volumeId,
-            chapterId: itemData.id,
+            volumeId: item.volumeId,
+            chapterId: item.id,
           }}
           preload="render"
           {...props}

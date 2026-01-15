@@ -15,7 +15,6 @@ import { novelEvents } from "@dono/stores/novel";
 import { useNovelStore } from "@/stores/novel";
 import { Input } from "./ui/input";
 import { shouldNeverHappen } from "@/utils/should-never-happen";
-import type { ItemInstance } from "@headless-tree/core";
 
 const ChapterItemImpl = ({
   novelId,
@@ -34,7 +33,7 @@ const ChapterItemImpl = ({
   isMatch: boolean;
   getRenameInputProps: () => any;
   startRenaming: () => void;
-  getItemAbove: () => ItemInstance<CatalogueTreeItem> | undefined;
+  getItemAbove: () => CatalogueTreeItem | undefined;
 }) => {
   if (data.type !== "chapter") throw shouldNeverHappen("item.type !== chapter");
 
@@ -42,22 +41,21 @@ const ChapterItemImpl = ({
   const navigate = useNavigate();
 
   const handleDelete = () => {
+    const aboveItem = getItemAbove();
     novelStore.commit(
       novelEvents.chapterDeleted({
         id: data.id,
         deleted: new Date(),
       }),
     );
-    const aboveItem = getItemAbove();
     if (aboveItem) {
-      const aboveChapterData = aboveItem.getItemData();
-      switch (aboveChapterData.type) {
+      switch (aboveItem.type) {
         case "volume":
           navigate({
             to: "/novel/$novelId/$volumeId",
             params: {
               novelId,
-              volumeId: aboveChapterData.id,
+              volumeId: aboveItem.id,
             },
           });
           break;
@@ -66,8 +64,8 @@ const ChapterItemImpl = ({
             to: "/novel/$novelId/$volumeId/$chapterId",
             params: {
               novelId,
-              volumeId: aboveChapterData.volumeId,
-              chapterId: aboveChapterData.id,
+              volumeId: aboveItem.volumeId,
+              chapterId: aboveItem.id,
             },
           });
           break;

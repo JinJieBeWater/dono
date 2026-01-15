@@ -1,12 +1,4 @@
 import {
-  novelEvents,
-  visibleChapters$,
-  visibleVolumes$,
-  type Chapter,
-  type Volume,
-} from "@dono/stores/novel";
-import { useNovelStore } from "@/stores/novel";
-import {
   buildProxiedInstance,
   hotkeysCoreFeature,
   propMemoizationFeature,
@@ -16,25 +8,18 @@ import {
 } from "@headless-tree/core";
 import { useTree } from "@headless-tree/react";
 import { useParams } from "@tanstack/react-router";
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { useLocalStorage } from "./use-local-storage";
+import React, { createContext, useContext, useEffect } from "react";
 import { renamingFeature } from "@headless-tree/core";
-import { shouldNeverHappen } from "@/utils/should-never-happen";
-
-export type CatalogueTreeVolumeItem = Volume & {
-  type: "volume";
-};
-
-export type CatalogueTreeChapterItem = Chapter & {
-  type: "chapter";
-};
-
-export type CatalogueTreeItem =
-  | CatalogueTreeVolumeItem
-  | CatalogueTreeChapterItem
-  | {
-      type: "placeholder";
-    };
+import {
+  CatalogueDataProvider,
+  useCatalogueDataValue,
+  type CatalogueTreeItem,
+} from "./use-catalogue-data";
+export type {
+  CatalogueTreeChapterItem,
+  CatalogueTreeItem,
+  CatalogueTreeVolumeItem,
+} from "./use-catalogue-data";
 
 interface CatalogueTreeContextValue {
   tree: TreeInstance<CatalogueTreeItem>;
@@ -79,81 +64,22 @@ export function CatalogueTreeProvider({ children }: { children: React.ReactNode 
     select: (params) => params.novelId,
   });
 
-  const novelStore = useNovelStore(novelId);
-  const volumes = novelStore.useQuery(visibleVolumes$());
-  const chapters = novelStore.useQuery(visibleChapters$());
-  const dataSet = [
-    ...volumes.map((volume) => ({ type: "volume", ...volume })),
-    ...chapters.map((chapter) => ({ type: "chapter", ...chapter })),
-  ];
-  const [expandedItems, setExpandedItems] = useLocalStorage<string[]>("SIDEBAR_EXPANDED_ITEMS", []);
-  const [focusedItem, setFocusedItem] = useState<string | null>(null);
+  const catalogueData = useCatalogueDataValue(novelId);
 
   const tree = useTree<CatalogueTreeItem>({
     instanceBuilder: buildProxiedInstance,
     rootItemId: "root",
     indent: 20,
-    state: { expandedItems, focusedItem },
-    setExpandedItems,
-    setFocusedItem,
-    getItemName: (item) => {
-      const data = item.getItemData();
-      const type = data.type;
-      switch (type) {
-        case "volume":
-          return data.title;
-        case "chapter":
-          return data.title;
-        default:
-          return "";
-      }
-    },
+    state: { expandedItems: catalogueData.expandedItems, focusedItem: catalogueData.focusedItem },
+    setExpandedItems: catalogueData.setExpandedItems,
+    setFocusedItem: catalogueData.setFocusedItem,
+    getItemName: (item) => catalogueData.getItemName(item.getItemData()),
     isItemFolder: (item) => item.getItemData().type === "volume",
     dataLoader: {
-      getItem: (itemId) => {
-        const data = dataSet.find((item) => item.id === itemId);
-        if (data) {
-          return data as CatalogueTreeItem;
-        }
-        return {
-          type: "placeholder",
-        };
-      },
-      getChildren: (itemId) => {
-        if (itemId === "root") {
-          return volumes.map((volume) => volume.id);
-        } else {
-          return chapters
-            .filter((chapter) => chapter.volumeId === itemId)
-            .map((chapter) => chapter.id);
-        }
-      },
+      getItem: (itemId) => catalogueData.getItemOrPlaceholder(itemId),
+      getChildren: (itemId) => catalogueData.getChildrenIds(itemId),
     },
-    onRename: (item, value) => {
-      const data = item.getItemData();
-      switch (data.type) {
-        case "volume":
-          novelStore.commit(
-            novelEvents.volumeTitleUpdated({
-              id: data.id,
-              title: value,
-              modified: new Date(),
-            }),
-          );
-          break;
-        case "chapter":
-          novelStore.commit(
-            novelEvents.chapterTitleUpdated({
-              id: data.id,
-              title: value,
-              modified: new Date(),
-            }),
-          );
-          break;
-        default:
-          throw shouldNeverHappen("data.type !== volume && data.type !== chapter");
-      }
-    },
+    onRename: (item, value) => catalogueData.renameItem(item.getItemData(), value),
     features: [
       syncDataLoaderFeature,
       hotkeysCoreFeature,
@@ -165,12 +91,14 @@ export function CatalogueTreeProvider({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     tree.rebuildTree();
-  }, [dataSet.length]);
+  }, [catalogueData.structureRevision]);
 
   return (
-    <CatalogueTreeContext.Provider value={{ tree, setFocusedItem }}>
-      {children}
-    </CatalogueTreeContext.Provider>
+    <CatalogueDataProvider value={catalogueData}>
+      <CatalogueTreeContext.Provider value={{ tree, setFocusedItem: catalogueData.setFocusedItem }}>
+        {children}
+      </CatalogueTreeContext.Provider>
+    </CatalogueDataProvider>
   );
 }
 

@@ -3,7 +3,6 @@ import { type CatalogueTreeItem, type CatalogueTreeVolumeItem } from "@/hooks/us
 import { Link, useNavigate } from "@tanstack/react-router";
 import { memo, type ComponentProps } from "react";
 import { SidebarMenuAction, SidebarMenuButton, SidebarMenuItem, useSidebar } from "./ui/sidebar";
-import type { ItemInstance } from "@headless-tree/core";
 import { ChevronRight, BookDashed, MoreHorizontal, Trash, Plus, Pencil } from "lucide-react";
 import {
   DropdownMenu,
@@ -41,7 +40,7 @@ const VolumeItemImpl = ({
   expand: () => void;
   getRenameInputProps: () => any;
   startRenaming: () => void;
-  getItemAbove: () => ItemInstance<CatalogueTreeItem> | undefined;
+  getItemAbove: () => CatalogueTreeItem | undefined;
 }) => {
   if (data.type !== "volume") throw shouldNeverHappen("item.type !== volume");
   const navigate = useNavigate();
@@ -61,22 +60,21 @@ const VolumeItemImpl = ({
   };
 
   const handleDelete = () => {
+    const aboveItem = getItemAbove();
     novelStore.commit(
       novelEvents.volumeDeleted({
         id: data.id,
         deleted: new Date(),
       }),
     );
-    const aboveItem = getItemAbove();
     if (aboveItem) {
-      const aboveChapterData = aboveItem.getItemData();
-      switch (aboveChapterData.type) {
+      switch (aboveItem.type) {
         case "volume":
           navigate({
             to: "/novel/$novelId/$volumeId",
             params: {
               novelId,
-              volumeId: aboveChapterData.id,
+              volumeId: aboveItem.id,
             },
           });
           break;
@@ -85,8 +83,8 @@ const VolumeItemImpl = ({
             to: "/novel/$novelId/$volumeId/$chapterId",
             params: {
               novelId,
-              volumeId: aboveChapterData.volumeId,
-              chapterId: aboveChapterData.id,
+              volumeId: aboveItem.volumeId,
+              chapterId: aboveItem.id,
             },
           });
           break;

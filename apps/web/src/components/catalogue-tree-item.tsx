@@ -2,8 +2,9 @@ import type { ItemInstance } from "@headless-tree/core";
 import { ChapterItem } from "./chapter-item";
 import { VolumeItem } from "./volume-item";
 import type { CatalogueTreeItem as CatalogueTreeItemType } from "@/hooks/use-catalogue-tree";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { shouldNeverHappen } from "@/utils/should-never-happen";
+import { useCatalogueData } from "@/hooks/use-catalogue-data";
 
 export const CatalogueTreeItem = ({
   item,
@@ -30,6 +31,7 @@ const CatalogueTreeVolumeItem = ({
   item: ItemInstance<CatalogueTreeItemType>;
   novelId: string;
 }) => {
+  const { getItemAbove } = useCatalogueData();
   const data = item.getItemData();
   if (data.type !== "volume") throw shouldNeverHappen("item.type !== volume");
   const isExpanded = item.isExpanded();
@@ -38,7 +40,7 @@ const CatalogueTreeVolumeItem = ({
   const collapse = useMemo(() => item.collapse, [item]);
   const expand = useMemo(() => item.expand, [item]);
   const startRenaming = useMemo(() => item.startRenaming, [item]);
-  const getItemAbove = useMemo(() => item.getItemAbove, [item]);
+  const getItemAboveForThis = useCallback(() => getItemAbove(data.id), [getItemAbove, data.id]);
   const style = useMemo(
     () => ({ marginLeft: `${item.getItemMeta().level * 10}px` }),
     [item.getItemMeta().level],
@@ -56,7 +58,7 @@ const CatalogueTreeVolumeItem = ({
       expand={expand}
       startRenaming={startRenaming}
       getRenameInputProps={getRenameInputProps}
-      getItemAbove={getItemAbove}
+      getItemAbove={getItemAboveForThis}
       style={style}
       {...item.getProps()}
     />
@@ -70,13 +72,14 @@ const CatalogueTreeChapterItem = ({
   item: ItemInstance<CatalogueTreeItemType>;
   novelId: string;
 }) => {
+  const { getItemAbove } = useCatalogueData();
   const data = item.getItemData();
   if (data.type !== "chapter") throw shouldNeverHappen("item.type !== chapter");
 
   const isMatch = item.isFocused();
   const isRenaming = item.isRenaming();
   const startRenaming = useMemo(() => item.startRenaming, [item]);
-  const getItemAbove = useMemo(() => item.getItemAbove, [item]);
+  const getItemAboveForThis = useCallback(() => getItemAbove(data.id), [getItemAbove, data.id]);
   const style = useMemo(
     () => ({ marginLeft: `${item.getItemMeta().level * 10}px` }),
     [item.getItemMeta().level],
@@ -92,7 +95,7 @@ const CatalogueTreeChapterItem = ({
       isMatch={isMatch}
       getRenameInputProps={getRenameInputProps}
       startRenaming={startRenaming}
-      getItemAbove={getItemAbove}
+      getItemAbove={getItemAboveForThis}
       style={style}
       {...item.getProps()}
     />
