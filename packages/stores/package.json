@@ -35,8 +35,7 @@
   "scripts": {},
   "dependencies": {
     "@livestore/livestore": "catalog:",
-    "fractional-indexing": "^3.2.0",
-    "nanoid": "catalog:"
+    "fractional-indexing": "^3.2.0"
   },
   "devDependencies": {
     "@dono/config": "workspace:*",

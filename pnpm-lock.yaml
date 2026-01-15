@@ -12,6 +12,9 @@ catalogs:
     '@libsql/client':
       specifier: 0.15.15
       version: 0.15.15
+    '@livestore/adapter-cloudflare':
+      specifier: 0.4.0-dev.22
+      version: 0.4.0-dev.22
     '@livestore/adapter-web':
       specifier: 0.4.0-dev.22
       version: 0.4.0-dev.22
@@ -63,9 +66,6 @@ catalogs:
     libsql:
       specifier: 0.5.22
       version: 0.5.22
-    nanoid:
-      specifier: ^5.1.6
-      version: 5.1.6
     typescript:
       specifier: ^5
       version: 5.9.3
@@ -141,6 +141,12 @@ importers:
       '@dono/stores':
         specifier: workspace:*
         version: link:../../packages/stores
+      '@livestore/adapter-cloudflare':
+        specifier: 'catalog:'
+        version: 0.4.0-dev.22(c789b933e2d660a71704f22c34e214cc)
+      '@livestore/livestore':
+        specifier: 'catalog:'
+        version: 0.4.0-dev.22(d30bc5a25c7a0b36dbc2d65755f1eca1)
       '@livestore/sync-cf':
         specifier: 'catalog:'
         version: 0.4.0-dev.22(c789b933e2d660a71704f22c34e214cc)
@@ -447,15 +453,15 @@ importers:
       '@dono/env':
         specifier: workspace:*
         version: link:../env
+      '@dono/stores':
+        specifier: workspace:*
+        version: link:../stores
       better-auth:
         specifier: 'catalog:'
         version: 1.4.9(drizzle-kit@0.31.8)(drizzle-orm@0.45.1(@cloudflare/workers-types@4.20251225.0)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.0)(kysely@0.28.9))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(solid-js@1.9.10)(vitest@3.2.4(@types/node@24.10.4)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.30.2)(msw@2.12.6(@types/node@24.10.4)(typescript@5.9.3))(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
       dotenv:
         specifier: 'catalog:'
         version: 17.2.3
-      nanoid:
-        specifier: 'catalog:'
-        version: 5.1.6
       zod:
         specifier: 'catalog:'
         version: 4.2.1
@@ -558,9 +564,6 @@ importers:
       fractional-indexing:
         specifier: ^3.2.0
         version: 3.2.0
-      nanoid:
-        specifier: 'catalog:'
-        version: 5.1.6
     devDependencies:
       '@dono/config':
         specifier: workspace:*
@@ -2686,6 +2689,9 @@ packages:
 
   '@lit-labs/ssr-dom-shim@1.5.0':
     resolution: {integrity: sha512-HLomZXMmrCFHSRKESF5vklAKsDY7/fsT/ZhqCu3V0UoW/Qbv8wxmO4W9bx4KnCCF2Zak4yuk+AGraK/bPmI4kA==}
+
+  '@livestore/adapter-cloudflare@0.4.0-dev.22':
+    resolution: {integrity: sha512-CT58UiNijS3sedP77+4PhmI/AzI3LfXhZKz5yUCendLPW4DNZSGT96lNCrSgfciBHbtJeI1c20Nf/qEJaZQ++w==}
 
   '@livestore/adapter-web@0.4.0-dev.22':
     resolution: {integrity: sha512-TXr+LCQYiijr3H5aDzmHjCH0OFBC2l4jnuSZm47Gjk7nFW7oba+kRNuLRjy5/T84H64+WBEvUemuiKBcQQkwOg==}
@@ -10121,6 +10127,34 @@ snapshots:
     optional: true
 
   '@lit-labs/ssr-dom-shim@1.5.0': {}
+
+  '@livestore/adapter-cloudflare@0.4.0-dev.22(c789b933e2d660a71704f22c34e214cc)':
+    dependencies:
+      '@cloudflare/workers-types': 4.20251118.0
+      '@livestore/common': 0.4.0-dev.22(d30bc5a25c7a0b36dbc2d65755f1eca1)
+      '@livestore/common-cf': 0.4.0-dev.22(c789b933e2d660a71704f22c34e214cc)
+      '@livestore/livestore': 0.4.0-dev.22(d30bc5a25c7a0b36dbc2d65755f1eca1)
+      '@livestore/sqlite-wasm': 0.4.0-dev.22(c789b933e2d660a71704f22c34e214cc)
+      '@livestore/sync-cf': 0.4.0-dev.22(c789b933e2d660a71704f22c34e214cc)
+      '@livestore/utils': 0.4.0-dev.22(c789b933e2d660a71704f22c34e214cc)
+    transitivePeerDependencies:
+      - '@effect/ai'
+      - '@effect/cli'
+      - '@effect/cluster'
+      - '@effect/experimental'
+      - '@effect/opentelemetry'
+      - '@effect/platform'
+      - '@effect/platform-browser'
+      - '@effect/platform-bun'
+      - '@effect/platform-node'
+      - '@effect/printer'
+      - '@effect/printer-ansi'
+      - '@effect/rpc'
+      - '@effect/sql'
+      - '@effect/typeclass'
+      - '@opentelemetry/api'
+      - '@opentelemetry/resources'
+      - effect
 
   '@livestore/adapter-web@0.4.0-dev.22(d30bc5a25c7a0b36dbc2d65755f1eca1)':
     dependencies:

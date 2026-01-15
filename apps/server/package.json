@@ -20,6 +20,8 @@
     "@dono/db": "workspace:*",
     "@dono/env": "workspace:*",
     "@dono/stores": "workspace:*",
+    "@livestore/adapter-cloudflare": "catalog:",
+    "@livestore/livestore": "catalog:",
     "@livestore/sync-cf": "catalog:",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",

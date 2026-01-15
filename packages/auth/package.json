@@ -13,9 +13,9 @@
   "dependencies": {
     "@dono/db": "workspace:*",
     "@dono/env": "workspace:*",
+    "@dono/stores": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
-    "nanoid": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
