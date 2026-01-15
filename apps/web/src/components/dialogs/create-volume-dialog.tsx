@@ -12,9 +12,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { novelEvents, useNovelStore } from "@/stores/novel";
+import { novelEvents } from "@dono/stores/novel";
+import { useNovelStore } from "@/stores/novel";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { id } from "@/utils/id";
+import { id } from "@dono/stores/utils";
 
 const createVolumeDialog = AlertDialogPrimitive.createHandle();
 

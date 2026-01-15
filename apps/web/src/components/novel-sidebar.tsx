@@ -6,7 +6,8 @@ import { useParams } from "@tanstack/react-router";
 import { CatalogueQuickAccess } from "./catalogue-quick-access";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
-import { novel$, useUserStore } from "@/stores/user";
+import { novel$ } from "@dono/stores/user";
+import { useUserStore } from "@/stores/user";
 import { useCatalogueTree } from "@/hooks/use-catalogue-tree";
 import { useEffect, useEffectEvent } from "react";
 

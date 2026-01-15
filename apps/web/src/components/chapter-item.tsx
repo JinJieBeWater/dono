@@ -11,7 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { novelEvents, useNovelStore } from "@/stores/novel";
+import { novelEvents } from "@dono/stores/novel";
+import { useNovelStore } from "@/stores/novel";
 import { Input } from "./ui/input";
 import { shouldNeverHappen } from "@/utils/should-never-happen";
 import type { ItemInstance } from "@headless-tree/core";

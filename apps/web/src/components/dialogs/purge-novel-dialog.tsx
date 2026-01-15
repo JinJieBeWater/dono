@@ -9,7 +9,8 @@ import {
   AlertDialogTitle,
   AlertDialogPrimitive,
 } from "@/components/ui/alert-dialog";
-import { userEvents, useUserStore } from "@/stores/user";
+import { userEvents } from "@dono/stores/user";
+import { useUserStore } from "@/stores/user";
 
 interface PurgeNovelPayload {
   novelId: string;

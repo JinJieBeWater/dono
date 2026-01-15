@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Editable, EditableInput, EditablePreview } from "./ui/editable";
-import { chapter$, novelEvents, useNovelStore } from "@/stores/novel";
+import { chapter$, novelEvents } from "@dono/stores/novel";
+import { useNovelStore } from "@/stores/novel";
 import { useParams } from "@tanstack/react-router";
 
 export const ChapterHeader = ({ className, ...props }: React.ComponentProps<typeof Editable>) => {

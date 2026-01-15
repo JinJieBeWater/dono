@@ -1,5 +1,7 @@
-import { novelEvents, useNovelStore, visibleVolumes$ } from "@/stores/novel";
-import { useUserStore, novel$, userEvents } from "@/stores/user";
+import { novelEvents, visibleVolumes$ } from "@dono/stores/novel";
+import { novel$, userEvents } from "@dono/stores/user";
+import { useNovelStore } from "@/stores/novel";
+import { useUserStore } from "@/stores/user";
 import { Button } from "./ui/button";
 import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "./ui/item";
 import { Card, CardHeader, CardTitle, CardDescription } from "./ui/card";
@@ -21,7 +23,7 @@ import {
 import { MoreVertical, FileText, Trash2, BookOpen } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { id } from "@/utils/id";
+import { id } from "@dono/stores/utils";
 
 export function NovelSpace({ novelId }: { novelId: string }) {
   const navigate = useNavigate();

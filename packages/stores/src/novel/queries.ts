@@ -1,5 +1,5 @@
 import { queryDb, sql, Schema } from "@livestore/livestore";
-import { novelTables } from ".";
+import { novelTables } from "./tables";
 import { chapter } from "./schema/chapter";
 
 export const visibleVolumesCount$ = () =>

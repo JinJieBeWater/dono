@@ -1,10 +1,12 @@
-import { id } from "@/utils/id";
-import { novelEvents, novelTables } from ".";
-import type { useNovelStore } from "./store";
 import { generateKeyBetween } from "fractional-indexing";
+import type { Store } from "@livestore/livestore";
+import { id } from "../utils/id";
+import { novelEvents } from "./events";
+import { novelTables } from "./tables";
+import type { schema } from "./schema";
 
 export function createChapter(
-  novelStore: ReturnType<typeof useNovelStore>,
+  novelStore: Store<typeof schema>,
   params: {
     volumeId: string;
     title?: string;

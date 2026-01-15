@@ -2,7 +2,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/
 import { Button } from "./ui/button";
 import { Link } from "@tanstack/react-router";
 import { Edit, ChevronRight } from "lucide-react";
-import type { Novel } from "@/stores/user";
+import type { Novel } from "@dono/stores/user";
 
 interface RecentNovelCardProps {
   novel: Novel;

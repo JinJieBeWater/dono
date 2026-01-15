@@ -5,6 +5,13 @@ packages:
 catalog:
   "@cloudflare/workers-types": ^4.20251213.0
   "@libsql/client": 0.15.15
+  "@livestore/adapter-web": 0.4.0-dev.22
+  "@livestore/devtools-vite": 0.4.0-dev.22
+  "@livestore/livestore": 0.4.0-dev.22
+  "@livestore/peer-deps": 0.4.0-dev.22
+  "@livestore/react": 0.4.0-dev.22
+  "@livestore/sync-cf": 0.4.0-dev.22
+  "@livestore/wa-sqlite": 0.4.0-dev.22
   "@orpc/client": ^1.12.2
   "@orpc/openapi": ^1.12.2
   "@orpc/server": ^1.12.2
@@ -17,4 +24,5 @@ catalog:
   libsql: 0.5.22
   nanoid: ^5.1.6
   typescript: ^5
+  y-durableobjects: ^1.0.5
   zod: ^4.1.13

@@ -8,7 +8,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { lastVisibleChapter$, latestVisibleVolume$, useNovelStore } from "@/stores/novel";
+import { lastVisibleChapter$, latestVisibleVolume$ } from "@dono/stores/novel";
+import { useNovelStore } from "@/stores/novel";
 import { Link, useMatchRoute, useParams } from "@tanstack/react-router";
 import { memo } from "react";
 

@@ -1,10 +1,10 @@
 import type { StoreRegistry } from "@livestore/livestore";
 
-import { novelStoreOptions } from "@/stores/novel";
-import { getNovelStoreId } from "@/stores/novel/store";
+import { getNovelStoreId, novelStoreOptions } from "@/stores/novel";
 import { hasLiveStoreData, purgeLiveStoreOpfsByStoreId } from "@/utils/livestore-opfs";
 import { purgeYjsRoomsByPrefix } from "@/components/editor/extension/yjs";
 import { getLocalUserInfo } from "@/utils/get-local-user-info";
+import { makeChapterRoomPrefix } from "@dono/stores/utils";
 
 /** 等待 store 完全关闭后再清理数据 */
 const SHUTDOWN_DELAY_MS = 100;
@@ -30,6 +30,6 @@ export async function purgeNovelLocalData(params: PurgeNovelParams): Promise<voi
     await purgeLiveStoreOpfsByStoreId(storeId);
   }
 
-  const yjsRoomPrefix = `user-${localUserInfo.id}-novel-${novelId}-chapter-`;
+  const yjsRoomPrefix = makeChapterRoomPrefix(localUserInfo.id, novelId);
   await purgeYjsRoomsByPrefix(yjsRoomPrefix);
 }

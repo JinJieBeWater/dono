@@ -15,7 +15,7 @@ import { SyncBackendDO } from "./do/sync-backend-do";
 import { type YDurableObjectsAppType } from "y-durableobjects";
 import { upgrade } from "y-durableobjects/helpers/upgrade";
 import { hc } from "hono/client";
-import { userIdFromStoreId } from "./utils/shared";
+import { userIdFromStoreId } from "@dono/stores/utils";
 import { YDurableObjects } from "./do/y-do";
 import { HTTPException } from "hono/http-exception";
 export { YDurableObjects };

@@ -1,6 +1,6 @@
 import { makeWorker } from "@livestore/adapter-web/worker";
 import { makeWsSync } from "@livestore/sync-cf/client";
-import { schema } from ".";
+import { schema } from "@dono/stores/user";
 import { env } from "@dono/env/web";
 
 makeWorker({

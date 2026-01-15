@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useParams } from "@tanstack/react-router";
-import { novel$, useUserStore, userEvents } from "@/stores/user";
+import { novel$, userEvents } from "@dono/stores/user";
+import { useUserStore } from "@/stores/user";
 import { Button } from "@/components/ui/button";
 import {
   Download,

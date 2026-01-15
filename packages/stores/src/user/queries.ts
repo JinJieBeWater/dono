@@ -1,5 +1,5 @@
 import { queryDb } from "@livestore/livestore";
-import { userTables } from ".";
+import { userTables } from "./tables";
 
 export const visibleNovels$ = () =>
   queryDb(

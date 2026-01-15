@@ -12,9 +12,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { novelEvents, useNovelStore } from "@/stores/novel";
+import { novelEvents } from "@dono/stores/novel";
+import { useNovelStore } from "@/stores/novel";
 import { Input } from "./ui/input";
-import { createChapter } from "@/stores/novel/command";
+import { createChapter } from "@dono/stores/novel";
 import { shouldNeverHappen } from "@/utils/should-never-happen";
 
 const VolumeItemImpl = ({

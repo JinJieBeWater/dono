@@ -3,7 +3,8 @@ import { useEffect, useEffectEvent } from "react";
 import { useStoreRegistry } from "@livestore/react";
 import type { LiveStoreEvent } from "@livestore/livestore";
 
-import { userEvents, useUserStore, userTables } from "@/stores/user";
+import { userEvents, userTables } from "@dono/stores/user";
+import { useUserStore } from "@/stores/user";
 import { purgeNovelLocalData } from "@/utils/purge";
 import { useLocalUserInfo } from "@/components/local-user-info-provider";
 

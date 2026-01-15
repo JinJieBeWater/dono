@@ -9,7 +9,8 @@ import {
   AlertDialogTitle,
   AlertDialogPrimitive,
 } from "@/components/ui/alert-dialog";
-import { userEvents, useUserStore, trashedNovels$ } from "@/stores/user";
+import { trashedNovels$, userEvents } from "@dono/stores/user";
+import { useUserStore } from "@/stores/user";
 
 interface EmptyTrashPayload {
   count: number;

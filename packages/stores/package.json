@@ -1,0 +1,45 @@
+{
+  "name": "@dono/stores",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./novel": {
+      "default": "./src/novel/index.ts"
+    },
+    "./novel/*": {
+      "default": "./src/novel/*.ts"
+    },
+    "./novel/schema/*": {
+      "default": "./src/novel/schema/*.ts"
+    },
+    "./user": {
+      "default": "./src/user/index.ts"
+    },
+    "./user/*": {
+      "default": "./src/user/*.ts"
+    },
+    "./user/schema/*": {
+      "default": "./src/user/schema/*.ts"
+    },
+    "./utils": {
+      "default": "./src/utils/index.ts"
+    },
+    "./utils/*": {
+      "default": "./src/utils/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@livestore/livestore": "catalog:",
+    "fractional-indexing": "^3.2.0",
+    "nanoid": "catalog:"
+  },
+  "devDependencies": {
+    "@dono/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

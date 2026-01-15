@@ -1,10 +1,5 @@
-import {
-  useUserStore,
-  userEvents,
-  visibleNovels$,
-  trashedNovels$,
-  userTables,
-} from "@/stores/user";
+import { trashedNovels$, userEvents, userTables, visibleNovels$ } from "@dono/stores/user";
+import { useUserStore } from "@/stores/user";
 import { Button } from "./ui/button";
 import { Link } from "@tanstack/react-router";
 import { BookOpen, Edit, FileText, Trash2, RotateCcw, X, MoreVertical, Plus } from "lucide-react";
@@ -37,7 +32,7 @@ import { AlertDialogTrigger } from "./ui/alert-dialog";
 import { CreateNovelDialog, createNovelDialog } from "./dialogs/create-novel-dialog";
 import { PurgeNovelDialog, purgeNovelDialog } from "./dialogs/purge-novel-dialog";
 import { EmptyTrashDialog, emptyTrashDialog } from "./dialogs/empty-trash-dialog";
-import type { Novel } from "@/stores/user";
+import type { Novel } from "@dono/stores/user";
 import { RecentNovelCard } from "./recent-novel-card";
 
 function getBookCoverUrl(novelId: string): string {

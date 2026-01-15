@@ -1,6 +1,6 @@
+import { novelEvents } from "@dono/stores/novel";
 import { useNovelStore } from "@/stores/novel";
-import { novelEvents } from "@/stores/novel";
-import { id } from "@/utils/id";
+import { id } from "@dono/stores/utils";
 
 /**
  * 创建章节的自定义 Hook

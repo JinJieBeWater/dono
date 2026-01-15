@@ -26,7 +26,10 @@ export default defineConfig({
       },
     }),
     livestoreDevtoolsPlugin({
-      schemaPath: ["./src/stores/user/index.ts", "./src/stores/novel/index.ts"],
+      schemaPath: [
+        "../../packages/stores/src/user/schema.ts",
+        "../../packages/stores/src/novel/schema.ts",
+      ],
       mode: {
         _tag: "browser-extension",
       },

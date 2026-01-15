@@ -8,8 +8,10 @@
     "./web": "./src/web.ts"
   },
   "dependencies": {
+    "@livestore/sync-cf": "catalog:",
     "@t3-oss/env-core": "^0.13.1",
     "dotenv": "catalog:",
+    "y-durableobjects": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

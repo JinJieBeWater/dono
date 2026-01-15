@@ -12,10 +12,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { userEvents, useUserStore } from "@/stores/user";
+import { userEvents } from "@dono/stores/user";
+import { useUserStore } from "@/stores/user";
 import { useStoreRegistry } from "@livestore/react";
 import { novelStoreOptions } from "@/stores/novel";
-import { id } from "@/utils/id";
+import { id } from "@dono/stores/utils";
 
 const createNovelDialog = AlertDialogPrimitive.createHandle();
 

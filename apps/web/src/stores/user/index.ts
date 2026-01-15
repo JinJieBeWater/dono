@@ -1,36 +1,43 @@
-import { novel, type Novel } from "./schema/novel";
-import { makeSchema, State } from "@livestore/livestore";
-import { uiState, type UiState } from "./schema/ui-state";
-import { userEvents } from "./events";
+import { makePersistedAdapter } from "@livestore/adapter-web";
+import LiveStoreSharedWorker from "@livestore/adapter-web/shared-worker?sharedworker";
+import { storeOptions, useStore } from "@livestore/react";
+import { unstable_batchedUpdates as batchUpdates } from "react-dom";
+import { schema } from "@dono/stores/user";
+import { makeUserStoreId } from "@dono/stores/utils";
 
-export { novel, type Novel, uiState, type UiState };
+import LiveStoreWorker from "./worker.ts?worker";
+import { getLocalUserInfo } from "@/utils/get-local-user-info";
+import { shouldNeverHappen } from "@/utils/should-never-happen";
 
-export * from "./store";
-export * from "./queries";
-export * from "./events";
+const hasWindow = typeof window !== "undefined";
+const resetPersistence =
+  hasWindow &&
+  import.meta.env.DEV &&
+  new URLSearchParams(window.location.search).get("reset") !== null;
 
-export const userTables = {
-  novel,
-  uiState,
-};
-
-export const materializers = State.SQLite.materializers(userEvents, {
-  "v1.NovelCreated": (data) =>
-    userTables.novel.insert({
-      id: data.id,
-      title: data.title,
-      created: data.created,
-      modified: data.modified,
-    }),
-  "v1.NovelTitleUpdated": (data) =>
-    userTables.novel.update({ title: data.title, modified: data.modified }).where({ id: data.id }),
-  "v1.NovelDeleted": (data) =>
-    userTables.novel.update({ deleted: data.deleted }).where({ id: data.id }),
-  "v1.NovelRestored": (data) =>
-    userTables.novel.update({ deleted: null, modified: data.modified }).where({ id: data.id }),
-  "v1.NovelPurged": (data) => userTables.novel.delete().where({ id: data.id }),
+const adapter = makePersistedAdapter({
+  storage: { type: "opfs" },
+  worker: LiveStoreWorker,
+  sharedWorker: LiveStoreSharedWorker,
+  resetPersistence,
 });
 
-const state = State.SQLite.makeState({ tables: userTables, materializers });
+export const userStoreOptions = () => {
+  const localUserInfo = getLocalUserInfo();
 
-export const schema = makeSchema({ events: userEvents, state });
+  if (!localUserInfo) {
+    throw shouldNeverHappen("useNovelStore must be used after user has logged in");
+  }
+
+  return storeOptions({
+    storeId: makeUserStoreId(localUserInfo.id),
+    schema,
+    adapter,
+    batchUpdates,
+    unusedCacheTime: Number.POSITIVE_INFINITY,
+  });
+};
+
+export const useUserStore = () => {
+  return useStore(userStoreOptions());
+};

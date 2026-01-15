@@ -6,8 +6,8 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCatalogueTree, type CatalogueTreeItem } from "@/hooks/use-catalogue-tree";
 import type { ItemInstance } from "@headless-tree/core";
+import { createChapter } from "@dono/stores/novel";
 import { useNovelStore } from "@/stores/novel";
-import { createChapter } from "@/stores/novel/command";
 import { shouldNeverHappen } from "@/utils/should-never-happen";
 
 export function CatalogueQuickJump() {

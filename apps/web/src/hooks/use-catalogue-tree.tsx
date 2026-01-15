@@ -1,11 +1,11 @@
 import {
-  type Chapter,
   novelEvents,
-  useNovelStore,
   visibleChapters$,
   visibleVolumes$,
+  type Chapter,
   type Volume,
-} from "@/stores/novel";
+} from "@dono/stores/novel";
+import { useNovelStore } from "@/stores/novel";
 import {
   buildProxiedInstance,
   hotkeysCoreFeature,
