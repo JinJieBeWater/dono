@@ -11,15 +11,16 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import * as SyncBackend from "@livestore/sync-cf/cf-worker";
-import { SyncBackendDO } from "./do/sync-backend-do";
+
 import { type YDurableObjectsAppType } from "y-durableobjects";
 import { upgrade } from "y-durableobjects/helpers/upgrade";
 import { hc } from "hono/client";
 import { userIdFromStoreId } from "@dono/stores/utils";
-import { YDurableObjects } from "./do/y-do";
 import { HTTPException } from "hono/http-exception";
-export { YDurableObjects };
-export { SyncBackendDO };
+
+export { SyncBackendDO } from "./do/sync-backend-do";
+export { UserClientDO } from "./do/user-client-do";
+export { YDurableObjects } from "./do/y-do";
 
 const app = new Hono();
 
@@ -112,7 +113,7 @@ app.get("/yjs/room/:roomId", upgrade(), async (c) => {
   }
 
   const doId = env.Y_DURABLE_OBJECTS.idFromName(roomId);
-  const yDurableObjects = env.Y_DURABLE_OBJECTS as DurableObjectNamespace<YDurableObjects>;
+  const yDurableObjects = env.Y_DURABLE_OBJECTS;
   const stub = yDurableObjects.get(doId);
 
   const url = new URL("/", c.req.url);

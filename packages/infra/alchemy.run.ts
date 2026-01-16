@@ -33,6 +33,11 @@ const yDurableObjects = DurableObjectNamespace("Y_DURABLE_OBJECTS", {
   sqlite: true,
 });
 
+const userClientDO = DurableObjectNamespace("USER_CLIENT_DO", {
+  className: "UserClientDO",
+  sqlite: true,
+});
+
 export const server = await Worker("server", {
   cwd: "../../apps/server",
   entrypoint: "src/index.ts",
@@ -44,6 +49,7 @@ export const server = await Worker("server", {
     DB: db,
     SYNC_BACKEND_DO: syncBackendDO,
     Y_DURABLE_OBJECTS: yDurableObjects,
+    USER_CLIENT_DO: userClientDO,
   },
   dev: {
     port: 3000,

@@ -17,13 +17,16 @@ catalog:
   "@orpc/openapi": ^1.12.2
   "@orpc/server": ^1.12.2
   "@orpc/zod": ^1.12.2
-  alchemy: 0.82.2
+  alchemy: 0.83.1
   better-auth: ^1.4.9
   dotenv: ^17.2.2
   drizzle-orm: ^0.45.1
+  fractional-indexing: ^3.2.0
   hono: 4.11.3
   libsql: 0.5.22
   typescript: ^5
   y-durableobjects: ^1.0.5
   zod: ^4.1.13
-  fractional-indexing: ^3.2.0
+
+patchedDependencies:
+  alchemy@0.83.1: patches/alchemy@0.83.1.patch
