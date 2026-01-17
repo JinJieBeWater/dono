@@ -1,8 +1,8 @@
 diff --git a/lib/cloudflare/bundle/plugin-wasm.js b/lib/cloudflare/bundle/plugin-wasm.js
-index 5daeadf152052dbba93387b338afabff8547b3c4..edc44a7e4e6601b42d1dc5af66dea8b929637ecc 100644
+index 5daeadf152052dbba93387b338afabff8547b3c4..c87e7def7a63ca877fe4b49137127c070626bf01 100644
 --- a/lib/cloudflare/bundle/plugin-wasm.js
 +++ b/lib/cloudflare/bundle/plugin-wasm.js
-@@ -1,41 +1,58 @@
+@@ -1,41 +1,61 @@
 -import assert from "node:assert";
 -import fs from "node:fs/promises";
 -import path from "pathe";
@@ -11,74 +11,115 @@ index 5daeadf152052dbba93387b338afabff8547b3c4..edc44a7e4e6601b42d1dc5af66dea8b9
 +import path from "pathe"
 +import { fileURLToPath } from "node:url"
 +const sanitizeSpecifier = (input) => {
-+    let spec = path.normalize(input).replace(/^\.\//, "")
-+    while (spec === ".." || spec.startsWith("../")) {
-+        spec = spec.slice(3)
-+    }
-+    if (path.isAbsolute(spec)) {
-+        spec = path.basename(spec)
-+    }
-+    return spec
++  let spec = path.normalize(input).replace(/^\.\//, "")
++  while (spec === ".." || spec.startsWith("../")) {
++    spec = spec.slice(3)
++  }
++  if (path.isAbsolute(spec)) {
++    spec = path.basename(spec)
++  }
++  return spec
 +}
  export function createWasmPlugin() {
 -    const modules = new Map();
-+    const modules = new Map()
-     const plugin = {
-         name: "alchemy-wasm",
-         setup(build) {
-             build.onStart(() => {
+-    const plugin = {
+-        name: "alchemy-wasm",
+-        setup(build) {
+-            build.onStart(() => {
 -                modules.clear();
 -            });
-+                modules.clear()
-+            })
-             // Handle imports like `import "./foo.wasm"` and `import "./foo.wasm?module"`
-             // TODO(john): Figure out why this suddenly became necessary
-             build.onResolve({ filter: /\.wasm(\?.*)?$/ }, async (args) => {
+-            // Handle imports like `import "./foo.wasm"` and `import "./foo.wasm?module"`
+-            // TODO(john): Figure out why this suddenly became necessary
+-            build.onResolve({ filter: /\.wasm(\?.*)?$/ }, async (args) => {
 -                const resolved = modules.get(args.path);
-+                const resolved = modules.get(args.path)
-                 if (resolved) {
+-                if (resolved) {
 -                    return { path: resolved.path, external: true };
-+                    return { path: resolved.path, external: true }
-                 }
-                 // Resolve path to source file, excluding the `?module` suffix (uses path.resolve in case args.path is already absolute)
+-                }
+-                // Resolve path to source file, excluding the `?module` suffix (uses path.resolve in case args.path is already absolute)
 -                const normalizedPath = path.normalize(args.path).replace(/\?.*$/, "");
 -                const copyFrom = path.resolve(args.resolveDir, normalizedPath);
-+                const normalizedPath = args.path.replace(/\?.*$/, "")
-+                const resolvedUrl = import.meta.resolve(normalizedPath, args.resolveDir)
-+                const copyFrom = fileURLToPath(resolvedUrl)
-                 // Resolve path to outdir (required for monorepos if the workdir is not the same as process.cwd())
+-                // Resolve path to outdir (required for monorepos if the workdir is not the same as process.cwd())
 -                assert(build.initialOptions.absWorkingDir && build.initialOptions.outdir, "Missing absWorkingDir or outdir from esbuild options");
 -                const outdir = path.resolve(build.initialOptions.absWorkingDir, build.initialOptions.outdir);
-+                assert(build.initialOptions.absWorkingDir && build.initialOptions.outdir, "Missing absWorkingDir or outdir from esbuild options")
-+                const outdir = path.resolve(build.initialOptions.absWorkingDir, build.initialOptions.outdir)
-                 // Use relative path as module specifier for portability (note: the `?module` suffix is not needed in workerd)
+-                // Use relative path as module specifier for portability (note: the `?module` suffix is not needed in workerd)
 -                const specifier = path.relative(build.initialOptions.absWorkingDir, copyFrom);
-+                const specifier = normalizedPath.startsWith("@")
-+                    ? normalizedPath
-+                    : sanitizeSpecifier(
-+                        path.relative(build.initialOptions.absWorkingDir, copyFrom)
-+                    )
-+                console.log('specifier', specifier)
-                 // Copy to outdir so it's included in the upload
+-                // Copy to outdir so it's included in the upload
 -                const copyTo = path.join(outdir, specifier);
 -                await fs.mkdir(path.dirname(copyTo), { recursive: true });
 -                await fs.copyFile(copyFrom, copyTo);
-+                const copyTo = path.join(outdir, specifier)
-+                await fs.mkdir(path.dirname(copyTo), { recursive: true })
-+                await fs.copyFile(copyFrom, copyTo)
-                 modules.set(args.path, {
-                     type: "wasm",
-                     path: specifier,
+-                modules.set(args.path, {
+-                    type: "wasm",
+-                    path: specifier,
 -                });
 -                return { path: specifier, external: true };
 -            });
-+                })
-+                return { path: specifier, external: true }
-+            })
-         },
+-        },
 -    };
 -    return { plugin, modules };
-+    }
-+    return { plugin, modules }
++  const modules = new Map()
++  const plugin = {
++    name: "alchemy-wasm",
++    setup(build) {
++      build.onStart(() => {
++        modules.clear()
++      })
++      // Handle imports like `import "./foo.wasm"` and `import "./foo.wasm?module"`
++      // TODO(john): Figure out why this suddenly became necessary
++      build.onResolve({ filter: /\.wasm(\?.*)?$/ }, async (args) => {
++        const resolved = modules.get(args.path)
++        if (resolved) {
++          return { path: resolved.path, external: true }
++        }
++        // Resolve path to source file, excluding the `?module` suffix (uses path.resolve in case args.path is already absolute)
++        const normalizedPath = path.normalize(args.path).replace(/\?.*$/, "")
++        // const copyFrom = path.resolve(args.resolveDir, normalizedPath);
++        const resolvedUrl = import.meta.resolve(normalizedPath, args.resolveDir)
++        const copyFrom = fileURLToPath(resolvedUrl)
++        // Resolve path to outdir (required for monorepos if the workdir is not the same as process.cwd())
++        assert(build.initialOptions.absWorkingDir && build.initialOptions.outdir, "Missing absWorkingDir or outdir from esbuild options")
++        const outdir = path.resolve(build.initialOptions.absWorkingDir, build.initialOptions.outdir)
++        // Use relative path as module specifier for portability (note: the `?module` suffix is not needed in workerd)
++        const specifier = normalizedPath.startsWith("@")
++          ? normalizedPath
++          : sanitizeSpecifier(
++            path.relative(build.initialOptions.absWorkingDir, copyFrom)
++          )
++        console.log('copyFrom',copyFrom);
++        console.log('specifier', specifier)
++        
++        // Copy to outdir so it's included in the upload
++        const copyTo = path.join(outdir, specifier)
++        await fs.mkdir(path.dirname(copyTo), { recursive: true })
++        await fs.copyFile(copyFrom, copyTo)
++        modules.set(args.path, {
++          type: "wasm",
++          path: specifier,
++        })
++        return { path: specifier, external: true }
++      })
++    },
++  }
++  return { plugin, modules }
  }
  //# sourceMappingURL=plugin-wasm.js.map
+diff --git a/lib/cloudflare/miniflare/miniflare-worker-proxy.js b/lib/cloudflare/miniflare/miniflare-worker-proxy.js
+index 91e27354f29ba0bfb01b03a5e51a712db787f151..29049199743a36005883219b22d69e8bea8e5c3d 100644
+--- a/lib/cloudflare/miniflare/miniflare-worker-proxy.js
++++ b/lib/cloudflare/miniflare/miniflare-worker-proxy.js
+@@ -63,12 +63,14 @@ export async function createMiniflareWorkerProxy(options) {
+         const info = parseIncomingMessage(req);
+         options.transformRequest?.(info);
+         const name = options.getWorkerName(info);
+-        return new WebSocket(url, protocols, {
++        const wss = new WebSocket(url, protocols, {
+             headers: {
+                 "MF-Route-Override": name,
+                 ...userHeaders,
+             },
+-        });
++        })
++        wss.on('unexpected-response', () => { /* ... */ })
++        return wss
+     };
+     await listen(server, options.port);
+     return {
