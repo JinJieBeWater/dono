@@ -61,5 +61,5 @@ pnpm run dev
 - [x] Implement user login with better-auth, each user gets a `UserStore` after logging in
 - [x] Use better-auth for authentication on sync backend and implement store access control
 - [x] Add rich text editing functionality, introduce Yjs to implement CRDT data synchronization
-- [ ] Current data is soft-deleted, accumulating infinitely in DO, need to implement real data deletion to free storage space
+- [x] Current data is soft-deleted, accumulating infinitely in DO, need to implement real data deletion to free storage space
 - [ ] Design and implement outline UI and functionality

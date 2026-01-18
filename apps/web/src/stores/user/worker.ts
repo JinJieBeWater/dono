@@ -6,7 +6,10 @@ import { env } from "@dono/env/web";
 makeWorker({
   schema,
   sync: {
-    // Use /sync path to avoid Assets binding intercepting root path requests (alternative: wrangler.toml `run_worker_first = true` but less efficient)
     backend: makeWsSync({ url: `${env.VITE_SERVER_URL}/livestore` }),
+    initialSyncOptions: {
+      _tag: "Blocking",
+      timeout: 5000,
+    },
   },
 });

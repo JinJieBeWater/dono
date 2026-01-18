@@ -1,7 +1,7 @@
 import { type server } from "@dono/infra/alchemy.run";
-import type { CfTypes, SyncBackendRpcInterface } from "@livestore/sync-cf/cf-worker";
+import type { CfTypes } from "@livestore/sync-cf/cf-worker";
 import { YDurableObjects } from "y-durableobjects";
-import type { UserClientDOInterface } from "./src/do";
+import type { DonoSyncBackendDO, UserClientDOInterface } from "./src/do";
 
 // This file infers types for the cloudflare:workers environment from your Alchemy Worker.
 // @see https://alchemy.run/concepts/bindings/#type-safe-bindings
@@ -10,7 +10,7 @@ export type CloudflareEnv = Omit<
   typeof server.Env,
   "SYNC_BACKEND_DO" | "Y_DURABLE_OBJECTS" | "USER_CLIENT_DO"
 > & {
-  readonly SYNC_BACKEND_DO: CfTypes.DurableObjectNamespace<SyncBackendRpcInterface>;
+  readonly SYNC_BACKEND_DO: CfTypes.DurableObjectNamespace<DonoSyncBackendDO>;
   readonly Y_DURABLE_OBJECTS: CfTypes.DurableObjectNamespace<
     YDurableObjects<{
       Bindings: Env;

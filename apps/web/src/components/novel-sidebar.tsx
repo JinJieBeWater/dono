@@ -6,10 +6,9 @@ import { useParams } from "@tanstack/react-router";
 import { CatalogueQuickAccess } from "./catalogue-quick-access";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
-import { novel$ } from "@dono/stores/user";
-import { useUserStore } from "@/stores/user";
 import { useCatalogueTree } from "@/hooks/use-catalogue-tree";
 import { useEffect, useEffectEvent } from "react";
+import { NovelGuard } from "@/components/novel-guard";
 
 export function NovelSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { toggleSidebar } = useSidebar();
@@ -17,33 +16,35 @@ export function NovelSidebar(props: React.ComponentProps<typeof Sidebar>) {
     from: "/novel/$novelId",
     select: (params) => params.novelId,
   });
-  const userStore = useUserStore();
-  const novel = userStore.useQuery(novel$({ novelId }));
 
   return (
-    <Sidebar className="" {...props} variant="inset">
-      <SidebarHeader className="flex-row">
-        <Button variant="ghost" size="icon" render={<Link to="/" />} nativeButton={false}>
-          <ArrowLeft />
-          <span className="sr-only">Back to Home</span>
-        </Button>
-        <Link
-          className="px-2 pt-2 pb-1 w-full"
-          to="/novel/$novelId"
-          params={{
-            novelId: novel.id,
-          }}
-          aria-label="home"
-        >
-          <h1 className="text-sm line-clamp-2 text-center font-medium">{novel.title}</h1>
-        </Link>
-        <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-          <PanelLeft />
-          <span className="sr-only">Expand / Collapse Sidebar</span>
-        </Button>
-      </SidebarHeader>
-      <NovelSidebarContent />
-    </Sidebar>
+    <NovelGuard novelId={novelId}>
+      {(novel) => (
+        <Sidebar className="" {...props} variant="inset">
+          <SidebarHeader className="flex-row">
+            <Button variant="ghost" size="icon" render={<Link to="/" />} nativeButton={false}>
+              <ArrowLeft />
+              <span className="sr-only">Back to Home</span>
+            </Button>
+            <Link
+              className="px-2 pt-2 pb-1 w-full"
+              to="/novel/$novelId"
+              params={{
+                novelId: novel.id,
+              }}
+              aria-label="home"
+            >
+              <h1 className="text-sm line-clamp-2 text-center font-medium">{novel.title}</h1>
+            </Link>
+            <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+              <PanelLeft />
+              <span className="sr-only">Expand / Collapse Sidebar</span>
+            </Button>
+          </SidebarHeader>
+          <NovelSidebarContent />
+        </Sidebar>
+      )}
+    </NovelGuard>
   );
 }
 

@@ -34,8 +34,6 @@ import { PurgeNovelDialog, purgeNovelDialog } from "./dialogs/purge-novel-dialog
 import { EmptyTrashDialog, emptyTrashDialog } from "./dialogs/empty-trash-dialog";
 import type { Novel } from "@dono/stores/user";
 import { RecentNovelCard } from "./recent-novel-card";
-import { useEffect } from "react";
-import { orpc, queryClient } from "@/utils/orpc";
 
 function getBookCoverUrl(novelId: string): string {
   return `https://picsum.photos/seed/${novelId}/400/600`;
@@ -44,18 +42,6 @@ function getBookCoverUrl(novelId: string): string {
 function pluralize(count: number, singular: string, plural: string): string {
   return count === 1 ? singular : plural;
 }
-
-const useInitializeUserStore = (storeId: string) => {
-  useEffect(() => {
-    queryClient.fetchQuery(
-      orpc.userClientDO.queryOptions({
-        input: {
-          storeId,
-        },
-      }),
-    );
-  }, []);
-};
 
 export function UserSpace() {
   const userStore = useUserStore();
@@ -182,8 +168,6 @@ export function UserSpace() {
       </Item>
     );
   }
-
-  useInitializeUserStore(userStore.storeId);
 
   return (
     <div className="w-full mx-auto p-4 space-y-4 md:w-2xl scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary/20 scrollbar-hover:scrollbar-thumb-primary">

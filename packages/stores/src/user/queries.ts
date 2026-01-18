@@ -13,16 +13,23 @@ export const visibleNovels$ = () =>
     { label: "visibleNovels" },
   );
 
-export const novel$ = ({ novelId }: { novelId: string }) =>
+export const novel$ = ({ novelId, visible }: { novelId: string; visible?: boolean }) =>
   queryDb(
     () => {
-      return userTables.novel.where({ id: novelId }).first({
-        behaviour: "error",
-      });
+      return userTables.novel
+        .where({
+          id: novelId,
+          ...(visible
+            ? {
+                deleted: null,
+              }
+            : {}),
+        })
+        .first();
     },
     {
       label: "novel",
-      deps: [novelId],
+      deps: [novelId, visible ? 1 : 0],
     },
   );
 

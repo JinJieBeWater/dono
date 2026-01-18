@@ -7,6 +7,7 @@ import { userEvents, userTables } from "@dono/stores/user";
 import { useUserStore } from "@/stores/user";
 import { purgeNovelLocalData } from "@/utils/purge";
 import { useLocalUserInfo } from "@/components/local-user-info-provider";
+import { useMatch, useNavigate } from "@tanstack/react-router";
 
 type NovelPurgedEvent = LiveStoreEvent.ForEventDef.Decoded<typeof userEvents.novelPurged>;
 
@@ -21,13 +22,35 @@ function PurgeListenerAuthed(): null {
   const userStore = useUserStore();
   const storeRegistry = useStoreRegistry();
   const [uiState, setUiState] = userStore.useClientDocument(userTables.uiState);
+  const navigate = useNavigate();
+  const novelId = useMatch({
+    from: "/novel/$novelId",
+    shouldThrow: false,
+    select(match) {
+      return match.params.novelId;
+    },
+  });
 
   const handlePurgeEvent = useEffectEvent(async (event: NovelPurgedEvent) => {
     const globalSeq = event.seqNum.global;
     if (globalSeq <= uiState.lastNovelPurgeGlobalSeq) return;
 
     setUiState({ lastNovelPurgeGlobalSeq: globalSeq });
-    await purgeNovelLocalData({ storeRegistry, novelId: event.args.id });
+
+    const purgedNovelId = event.args.id;
+    if (novelId === purgedNovelId) {
+      navigate({
+        to: "/",
+        replace: true,
+      });
+    }
+    try {
+      await purgeNovelLocalData({ storeRegistry, novelId: purgedNovelId });
+    } catch {
+      // 可能会发生资源被占用的情况，当前暂时未搞清楚
+      // 大概率是 livestore 的 shutdown promise 在完成时实际上仍然保持资源的占用，需要再等待一会
+      console.error("Failed to purge local novel data");
+    }
   });
 
   useEffect(() => {

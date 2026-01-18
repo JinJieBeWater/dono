@@ -15,7 +15,7 @@ import * as SyncBackend from "@livestore/sync-cf/cf-worker";
 import { type YDurableObjectsAppType } from "y-durableobjects";
 import { upgrade } from "y-durableobjects/helpers/upgrade";
 import { hc } from "hono/client";
-import { userIdFromStoreId } from "@dono/stores/utils";
+import { parseStoreId, userIdFromStoreId, userStoreIdFromStoreId } from "@dono/stores/utils";
 import { HTTPException } from "hono/http-exception";
 
 export { SyncBackendDO } from "./do/sync-backend-do";
@@ -79,16 +79,33 @@ app.get("/livestore/*", async (c, next) => {
   const user = context.session?.user;
   const searchParams = SyncBackend.matchSyncRequest(c.req.raw);
   if (searchParams !== undefined) {
+    const parsedStoreId = parseStoreId(searchParams.storeId);
+    if (user?.id !== userIdFromStoreId(searchParams.storeId)) {
+      return c.text("Unauthorized", 401);
+    }
+    switch (parsedStoreId.kind) {
+      case "user": {
+        await env.USER_CLIENT_DO.getByName(searchParams.storeId).initialize(searchParams.storeId);
+        break;
+      }
+      case "novel": {
+        const novelId = parsedStoreId.novelId;
+        const userStoreId = userStoreIdFromStoreId(searchParams.storeId)!;
+        const canSync = await env.USER_CLIENT_DO.getByName(userStoreId).canNovelBeSynced(
+          userStoreId,
+          novelId,
+        );
+        if (!canSync) {
+          return c.text("Forbidden", 403);
+        }
+        break;
+      }
+    }
     return SyncBackend.handleSyncRequest({
       request: c.req.raw,
       searchParams,
       ctx: c.executionCtx,
       syncBackendBinding: "SYNC_BACKEND_DO",
-      validatePayload: (_payload, { storeId }) => {
-        if (user?.id !== userIdFromStoreId(storeId)) {
-          throw new Error("Unauthorized");
-        }
-      },
     });
   }
   return next();

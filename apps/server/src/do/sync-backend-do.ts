@@ -1,58 +1,65 @@
 import { auth } from "@dono/auth";
 import * as SyncBackend from "@livestore/sync-cf/cf-worker";
 import { userIdFromStoreId } from "@dono/stores/utils";
-import { env } from "@dono/env/server";
+import type { DonoSyncBackendDO } from "@dono/env/server";
 
-export class SyncBackendDO extends SyncBackend.makeDurableObject({
-  forwardHeaders: ["Cookie"],
-  onPush: async (message, context) => {
-    const { storeId, headers } = context;
-    // console.log("SyncBackendDO:headers", headers);
-    console.log("message", message);
-    console.log("context", context);
+export class SyncBackendDO
+  extends SyncBackend.makeDurableObject({
+    forwardHeaders: ["Cookie"],
+    onPush: async (_message, context) => {
+      const { storeId, headers } = context;
 
-    const id = env.SYNC_BACKEND_DO.idFromName(storeId);
-    const stub = env.SYNC_BACKEND_DO.get(id);
-    console.log("stub.name", stub.name);
-    console.log("stub", stub);
+      const session = await auth.api.getSession({
+        headers: headers as HeadersInit,
+      });
 
-    const session = await auth.api.getSession({
-      headers: headers as HeadersInit,
-    });
-    // console.log("SyncBackendDO:sessionToken", session);
+      if (!session?.user.id) {
+        throw new Error("Invalid session");
+      }
 
-    if (!session?.user.id) {
-      throw new Error("Invalid session");
-    }
-
-    await ensureTenantAccess(session.user.id, storeId);
-
-    // console.log("Push from user:", session.user.id, "store:", storeId);
-
-    // console.log("onPush", message.batch);
-  },
-  onPull: async (_message, _context) => {
-    // const { storeId, headers } = context;
-    // const session = await auth.api.getSession({
-    //   headers: headers as HeadersInit,
-    // });
-    // if (!session?.user.id) {
-    //   throw new Error("Invalid session");
-    // }
-    // await ensureTenantAccess(session.user.id, storeId);
-  },
-}) {
-  storage: DurableObjectStorage;
+      await ensureTenantAccess(session.user.id, storeId);
+    },
+  })
+  implements DonoSyncBackendDO
+{
+  ctx: DurableObjectState;
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
-    this.storage = ctx.storage;
+    this.ctx = ctx;
   }
-  async fetch(request: SyncBackend.CfTypes.Request) {
-    if (new URL(request.url).pathname === "/purge-all-data") {
-      await this.storage.deleteAll();
-      return new Response("Storage cleared");
+  test(): Promise<string> {
+    return Promise.resolve("ok");
+  }
+  async purge() {
+    const closeAllWebSockets = (
+      state: DurableObjectState,
+      { code, reason }: { code: number; reason: string },
+    ) => {
+      const sockets = state.getWebSockets();
+      for (const ws of sockets) {
+        ws.close(code, reason);
+      }
+      return sockets.length;
+    };
+
+    const closedConnections = closeAllWebSockets(this.ctx, {
+      code: 1012,
+      reason: "purge",
+    });
+
+    // sync-cf caches storage/head/backendId refs on the DO instance; drop that cache so the next request rebuilds from empty DB.
+    // We can't import the internal cache symbol, but its description is stable in current sync-cf versions.
+    for (const sym of Object.getOwnPropertySymbols(this)) {
+      if (sym.description === "Cache") {
+        // @ts-expect-error - dynamic symbol cache
+        delete this[sym];
+      }
     }
-    return new Response("Not Found");
+
+    await this.ctx.storage.deleteAlarm();
+    await this.ctx.storage.deleteAll();
+
+    return { ok: true as const, closedConnections };
   }
 }
 
