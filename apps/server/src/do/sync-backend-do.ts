@@ -1,47 +1,43 @@
 import { auth } from "@dono/auth";
 import * as SyncBackend from "@livestore/sync-cf/cf-worker";
+import type { CfTypes } from "@livestore/sync-cf/common";
 import { userIdFromStoreId } from "@dono/stores/utils";
-import type { DonoSyncBackendDO } from "@dono/env/server";
 
-export class SyncBackendDO
-  extends SyncBackend.makeDurableObject({
-    forwardHeaders: ["Cookie"],
-    onPush: async (_message, context) => {
-      const { storeId, headers } = context;
+export class SyncBackendDO extends SyncBackend.makeDurableObject({
+  forwardHeaders: ["Cookie"],
+  onPush: async (_message, context) => {
+    const { storeId, headers } = context;
+    if (!headers) throw new Error("Invalid headers");
 
-      const session = await auth.api.getSession({
-        headers: headers as HeadersInit,
-      });
+    // 将 ForwardedHeaders (ReadonlyMap) 转换为 Headers 对象
+    const headersInit = new Headers();
+    headers.forEach((value, key) => {
+      headersInit.set(key, value);
+    });
 
-      if (!session?.user.id) {
-        throw new Error("Invalid session");
-      }
+    const session = await auth.api.getSession({
+      headers: headersInit,
+    });
 
-      await ensureTenantAccess(session.user.id, storeId);
-    },
-  })
-  implements DonoSyncBackendDO
-{
-  ctx: DurableObjectState;
-  constructor(ctx: DurableObjectState, env: Env) {
+    if (!session?.user.id) {
+      throw new Error("Invalid session");
+    }
+
+    await ensureTenantAccess(session.user.id, storeId);
+  },
+}) {
+  ctx: CfTypes.DurableObjectState;
+
+  constructor(ctx: CfTypes.DurableObjectState, env: Env) {
     super(ctx, env);
     this.ctx = ctx;
   }
+
   test(): Promise<string> {
     return Promise.resolve("ok");
   }
-  async purge() {
-    const closeAllWebSockets = (
-      state: DurableObjectState,
-      { code, reason }: { code: number; reason: string },
-    ) => {
-      const sockets = state.getWebSockets();
-      for (const ws of sockets) {
-        ws.close(code, reason);
-      }
-      return sockets.length;
-    };
 
+  async purge() {
     const closedConnections = closeAllWebSockets(this.ctx, {
       code: 1012,
       reason: "purge",
@@ -53,6 +49,7 @@ export class SyncBackendDO
       if (sym.description === "Cache") {
         // @ts-expect-error - dynamic symbol cache
         delete this[sym];
+        break;
       }
     }
 
@@ -69,4 +66,15 @@ const ensureTenantAccess = async (userId: string, storeId: string) => {
   if (storeOwner !== userId) {
     throw new Error("Access denied");
   }
+};
+
+const closeAllWebSockets = (
+  state: CfTypes.DurableObjectState,
+  { code, reason }: { code: number; reason: string },
+) => {
+  const sockets = state.getWebSockets();
+  for (const ws of sockets) {
+    ws.close(code, reason);
+  }
+  return sockets.length;
 };

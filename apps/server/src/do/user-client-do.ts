@@ -1,14 +1,14 @@
 ﻿import { DurableObject } from "cloudflare:workers";
-import { createStoreDoPromise } from "@livestore/adapter-cloudflare";
+import { createStoreDoPromise, type ClientDoWithRpcCallback } from "@livestore/adapter-cloudflare";
 import { nanoid, type Store, type Unsubscribe } from "@livestore/livestore";
 import { schema } from "@dono/stores/user/schema";
 import { handleSyncUpdateRpc } from "@livestore/sync-cf/client";
 import type { CfTypes } from "@livestore/sync-cf/common";
 import { userTables } from "@dono/stores/user";
-import { env, type UserClientDOInterface } from "@dono/env/server";
+import { env } from "@dono/env/server";
 import { makeNovelStoreIdFromUserStoreId } from "@dono/stores/utils";
 
-export class UserClientDO extends DurableObject<Env> implements UserClientDOInterface {
+export class UserClientDO extends DurableObject<Env> implements ClientDoWithRpcCallback {
   private cachedStore: Store<typeof schema> | undefined;
   private novelChangeSubscription: Unsubscribe | undefined;
   private novelQuery = userTables.novel.select("id");
@@ -30,23 +30,24 @@ export class UserClientDO extends DurableObject<Env> implements UserClientDOInte
   async initialize(storeId: string) {
     if (this.cachedStore !== undefined) return;
 
-    await this.ctx.storage.put("current_store_id", storeId);
+    await this.ctx.blockConcurrencyWhile(async () => {
+      await this.ctx.storage.put("current_store_id", storeId);
 
-    this.cachedStore = await createStoreDoPromise({
-      schema,
-      storeId,
-      clientId: "user-client-do",
-      sessionId: nanoid(),
-      durableObject: {
-        ctx: this.ctx as CfTypes.DurableObjectState,
-        env: this.env,
-        bindingName: "USER_CLIENT_DO",
-      },
-      syncBackendStub: this.env.SYNC_BACKEND_DO.getByName(storeId),
-      livePull: true,
+      this.cachedStore = await createStoreDoPromise({
+        schema,
+        storeId,
+        clientId: "user-client-do",
+        sessionId: nanoid(),
+        durableObject: {
+          ctx: this.ctx as CfTypes.DurableObjectState,
+          env: this.env,
+          bindingName: "USER_CLIENT_DO",
+        },
+        syncBackendStub: this.env.SYNC_BACKEND_DO.getByName(storeId),
+        livePull: true,
+      });
+      await this.subscribeToStore();
     });
-
-    await this.subscribeToStore();
   }
 
   private async subscribeToStore() {
@@ -54,13 +55,14 @@ export class UserClientDO extends DurableObject<Env> implements UserClientDOInte
     if (!this.cachedStore) throw new Error("Store not yet initialized");
 
     this.prevNovels = this.cachedStore.query(this.novelQuery);
+
     this.novelChangeSubscription = this.cachedStore.subscribe(
       this.novelQuery,
-      this.publishNovelChange,
+      this.publishNovelChange.bind(this),
     );
   }
 
-  private publishNovelChange = async (currentNovels: typeof this.novelQuery.ResultType) => {
+  private async publishNovelChange(currentNovels: typeof this.novelQuery.ResultType) {
     const prevSet = new Set(this.prevNovels);
     const currSet = new Set(currentNovels);
 
@@ -78,9 +80,9 @@ export class UserClientDO extends DurableObject<Env> implements UserClientDOInte
     if (purgedIds.length) await this.handleNovelsPurged(purgedIds);
 
     this.prevNovels = currentNovels;
-  };
+  }
 
-  private handleNovelsAdded = async (novelIds: ReadonlyArray<string>) => {
+  private async handleNovelsAdded(novelIds: ReadonlyArray<string>) {
     const userStoreId = this.cachedStore?.storeId;
     if (!userStoreId) throw new Error("No user store id");
     const novelStoreIds = novelIds.map((novelId) =>
@@ -93,9 +95,9 @@ export class UserClientDO extends DurableObject<Env> implements UserClientDOInte
         console.log(res);
       }),
     );
-  };
+  }
 
-  private handleNovelsPurged = async (novelIds: ReadonlyArray<string>) => {
+  private async handleNovelsPurged(novelIds: ReadonlyArray<string>) {
     console.log("novel purged", novelIds);
     const userStoreId = this.cachedStore?.storeId;
     if (!userStoreId) throw new Error("No user store id");
@@ -109,7 +111,7 @@ export class UserClientDO extends DurableObject<Env> implements UserClientDOInte
         console.log(res);
       }),
     );
-  };
+  }
 
   async syncUpdateRpc(payload: unknown) {
     try {

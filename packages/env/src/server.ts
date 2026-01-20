@@ -4,4 +4,3 @@
 // Types are defined in env.d.ts based on your alchemy.run.ts bindings
 // @ts-ignore
 export { env } from "cloudflare:workers";
-export * from "./do";

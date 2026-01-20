@@ -80,6 +80,7 @@ app.get("/livestore/*", async (c, next) => {
   const searchParams = SyncBackend.matchSyncRequest(c.req.raw);
   if (searchParams !== undefined) {
     const parsedStoreId = parseStoreId(searchParams.storeId);
+
     if (user?.id !== userIdFromStoreId(searchParams.storeId)) {
       return c.text("Unauthorized", 401);
     }
